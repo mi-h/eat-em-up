@@ -1,5 +1,6 @@
-#ignore everything under the 'bin' folder
+#ignore everything under the 'bin' and 'build' folder
 bin/
+build/
 #ignore the eclipse configuration files
 .classpath
 .project
