@@ -9,4 +9,15 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  
+   <servlet>
+<servlet-name>ChatServlet</servlet-name>
+<servlet-class>at.jku.se.eatemup.servlets.ChatServlet</servlet-class>
+</servlet>
+ 
+<servlet-mapping>
+<servlet-name>ChatServlet</servlet-name>
+<url-pattern>/chat/ChatServlet</url-pattern>
+</servlet-mapping>
+  
 </web-app>
