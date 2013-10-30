@@ -39,34 +39,44 @@
 			<p>Hello World!</p>
 		</div>
 		<div>
-			<h2>Chat:</h2>
-			<br />
-			<p>Please press Send twice for the first time to establish the
-				connection!</p>
-			<textarea id="chatlog" readonly style="width: 300px; height: 150px"></textarea>
-			<br /> <input id="msg" type="text" /><br />
-			<button type="submit" id="sendButton" onClick="postToServer()">Send!</button>
-			<br />
-			<button type="submit" id="sendButton" onClick="closeConnect()">End</button>
-		</div>
-	</div>
-	<!-- /.container -->
+    <input type="submit" value="Start" onclick="start()" />
+  </div>
+  <div id="messages"></div>
+  <script type="text/javascript">
+    var webSocket = 
+      //new WebSocket('ws://eat-em-up.marce155.eu.cloudbees.net/websocket');
+    	new WebSocket('ws://localhost:8080/websocket');
 
-	<script>
-		var ws = new WebSocket("ws://localhost:8080/EatEmUp/chat/ChatServlet");
-		ws.onopen = function() {
-		};
-		ws.onmessage = function(message) {
-			document.getElementById("chatlog").textContent += message.data
-					+ "\n";
-		};
-		function postToServer() {
-			ws.send(document.getElementById("msg").value);
-			document.getElementById("msg").value = "";
-		}
-		function closeConnect() {
-			ws.close();
-		}
-	</script>
+    webSocket.onerror = function(event) {
+      onError(event)
+    };
+
+    webSocket.onopen = function(event) {
+      onOpen(event)
+    };
+
+    webSocket.onmessage = function(event) {
+      onMessage(event)
+    };
+
+    function onMessage(event) {
+      document.getElementById('messages').innerHTML 
+        += '<br />' + event.data;
+    }
+
+    function onOpen(event) {
+      document.getElementById('messages').innerHTML 
+        = 'Connection established';
+    }
+
+    function onError(event) {
+      alert(event.data);
+    }
+
+    function start() {
+      webSocket.send('hello');
+      return false;
+    }
+  </script>
 </body>
 </html>

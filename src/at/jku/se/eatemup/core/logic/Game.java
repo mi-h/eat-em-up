@@ -1,6 +1,7 @@
 package at.jku.se.eatemup.core.logic;
 
 import at.jku.se.eatemup.core.model.Location;
+import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.core.model.Team;
 
 public class Game {
@@ -36,5 +37,17 @@ public class Game {
 	}
 	public void setTeams(Team[] teams) {
 		this.teams = teams;
+	}
+
+	public boolean AddPlayer(Player player) {
+		if (teams[1].getPlayers().size()<teams[0].getPlayers().size()){
+			teams[1].getPlayers().add(player);
+		} else {
+			teams[0].getPlayers().add(player);
+		}
+		if (teams[0].getPlayers().size() >= 1 && teams[0].getPlayers().size() == teams[1].getPlayers().size()){
+			return true;
+		}
+		return false;
 	}
 }
