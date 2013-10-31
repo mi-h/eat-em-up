@@ -26,10 +26,10 @@ public class DataStore {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}		
-		connection = 	"jdbc;sqlserver://" + this.url 
-						+ "databaseName=" + this.dbName 
+		connection = 	"jdbc:sqlserver://" + this.url 
+						+ ";databaseName=" + this.dbName 
 						+ ";user=" + this.dbUser 
-						+ ";password=" + this.dbPassword;
+						+ ";password=" + this.dbPassword +";";
 		try {
 			this.con = DriverManager.getConnection(connection);			
 		} catch (SQLException e) {
