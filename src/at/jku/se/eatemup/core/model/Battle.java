@@ -5,7 +5,10 @@ public class Battle {
 	private String username2;
 	private String question;
 	private int time;
-	private int result;
+	/**
+	 * first result results[0] is correct
+	 */
+	private int[] results;
 	
 	public String getUsername1() {
 		return username1;
@@ -25,11 +28,11 @@ public class Battle {
 	public void setQuestion(String question) {
 		this.question = question;
 	}
-	public int getResult() {
-		return result;
+	public int[] getResult() {
+		return results;
 	}
-	public void setResult(int result) {
-		this.result = result;
+	public void setResult(int[] results) {
+		this.results = results;
 	}
 	public int getTime() {
 		return time;
