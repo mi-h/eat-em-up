@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Logger {
 
-	public static synchronized void log(String message){
+	public static synchronized void log(String message) {
 		Date d = new Date();
 	}
 }

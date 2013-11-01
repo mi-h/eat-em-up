@@ -8,4 +8,5 @@ public class MessageContainer {
 	public DirectionType direction;
 	public ArrayList<String> receivers;
 	public String sender;
+	public CastType castType;
 }

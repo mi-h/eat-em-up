@@ -17,23 +17,25 @@ import at.jku.se.eatemup.sockets.SessionStore;
 @WebServlet("/SocketSessionTestServlet")
 public class SocketSessionTestServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public SocketSessionTestServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public SocketSessionTestServlet() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Servlet reached...");
 		StringBuilder sb = new StringBuilder();
 		sb.append("sessionstore content: ");
-		for (String s : SessionStore.getKeyList()){
+		for (String s : SessionStore.getKeyList()) {
 			sb.append(s);
 			sb.append(" ");
 		}
@@ -42,8 +44,8 @@ public class SocketSessionTestServlet extends HttpServlet {
 		sb.append("]");
 		System.out.println(sb.toString());
 		System.out.println("try sending messages...");
-		try{
-			if (SessionStore.getKeyList().size()>0){
+		try {
+			if (SessionStore.getKeyList().size() > 0) {
 				String id = SessionStore.getKeyList().get(0);
 				Session session = SessionStore.getSession(id);
 				System.out.println("try sending sync message...");
@@ -51,16 +53,18 @@ public class SocketSessionTestServlet extends HttpServlet {
 				System.out.println("try sending async message...");
 				session.getAsyncRemote().sendText("servlet async message");
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 		System.out.println("finished");
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	}
 
