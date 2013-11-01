@@ -32,6 +32,11 @@ public class JsonTool {
 		return gson.toJson(message);
 	}
 	
+	public static String SerializeTempMessageContainer(TempMessageContainer container){
+		Gson gson = new Gson();
+		return gson.toJson(container);
+	}
+	
 	private static Message createMessage(String message, MessageType type){
 		Gson gson = new Gson();
 		switch(type){
