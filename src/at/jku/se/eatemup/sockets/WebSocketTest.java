@@ -8,7 +8,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/websocket")
+@ServerEndpoint("/websocketTest")
 public class WebSocketTest {
 
   @OnMessage
@@ -19,7 +19,7 @@ public class WebSocketTest {
     System.out.println("Received: " + message);
   
     // Send the first message to the client
-    session.getBasicRemote().sendText("This is the first server message");
+    session.getBasicRemote().sendText("This is the first server message, your session-id is: "+session.getId());
   
     // Send 3 messages to the client every 5 seconds
     int sentMessages = 0;
