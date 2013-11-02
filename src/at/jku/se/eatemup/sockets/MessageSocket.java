@@ -8,44 +8,46 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import at.jku.se.eatemup.core.MessageCreator;
+import at.jku.se.eatemup.core.MessageHandler;
+import at.jku.se.eatemup.core.json.MessageContainer;
+import at.jku.se.eatemup.core.logging.Logger;
+
 @ServerEndpoint("/websocket")
 public class MessageSocket {
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException,
 			InterruptedException {
-
+		boolean err = false;
 		setSession(session);
-
-		// Print the client message for testing purposes
-		System.out.println("Received: " + message);
-
-		// Send the first message to the client
-		session.getBasicRemote().sendText(
-				"This is the first server message, your session-id is: "
-						+ session.getId());
-
-		// Send 3 messages to the client every 5 seconds
-		int sentMessages = 0;
-		while (sentMessages < 3) {
-			Thread.sleep(5000);
-			session.getBasicRemote().sendText(
-					"This is an intermediate server message. Count: "
-							+ sentMessages);
-			sentMessages++;
+		Logger.log("received message from " + session.getId());
+		String sesid = session.getId();
+		MessageContainer container = MessageCreator.createMsgContainer(message,
+				sesid);
+		if (container != null) {
+			if (MessageHandler.ReceiveMessage(container)) {
+				session.getBasicRemote().sendText("true");
+				Logger.log("accepted message from " + session.getId());
+			} else {
+				err = true;
+			}
+		} else {
+			err = true;
 		}
-
-		// Send a final message to the client
-		session.getBasicRemote().sendText("This is the last server message");
+		if (err) {
+			session.getBasicRemote().sendText("false");
+			Logger.log("rejected message from " + session.getId());
+		}
 	}
 
 	@OnOpen
 	public void onOpen() {
-		System.out.println("Client connected");
+		Logger.log("Client connected");
 	}
 
 	@OnClose
 	public void onClose() {
-		System.out.println("Connection closed");
+		Logger.log("Connection closed");
 	}
 
 	private static void setSession(Session session) {

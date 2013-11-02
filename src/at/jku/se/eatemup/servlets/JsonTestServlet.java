@@ -17,6 +17,7 @@ import at.jku.se.eatemup.core.json.MessageContainer;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.TempMessageContainer;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.logging.Logger;
 
 /**
  * Servlet implementation class Jsontest
@@ -39,30 +40,34 @@ public class JsonTestServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		GameEndMessage msg = new GameEndMessage();
-		msg.teamRedWin = true;
-		HashMap<String, Object> map1 = new HashMap<>();
-		map1.put("test", 1);
-		map1.put("bool", true);
-		map1.put("string", "hello world");
-		HashMap<String, Object> map2 = new HashMap<>();
-		map2.put("test2", 2);
-		map2.put("bool2", false);
-		map2.put("string2", "bye world");
-		msg.playerResults = new ArrayList<>();
-		msg.playerResults.add(map1);
-		msg.playerResults.add(map2);
-		String serial1 = JsonTool.SerializeMessage(msg);
-		TempMessageContainer temp = new TempMessageContainer();
-		temp.message = serial1;
-		temp.type = MessageType.GameEnd;
-		String serial2 = JsonTool.SerializeTempMessageContainer(temp);
-		TempMessageContainer temp2 = JsonTool
-				.CreateTempMessageContainer(serial2);
-		ArrayList<String> tList = new ArrayList<>();
-		tList.add("testid");
-		MessageContainer container = JsonTool.CreateMessageContainer(temp2,
-				DirectionType.Incoming, tList);
+		try {
+			GameEndMessage msg = new GameEndMessage();
+			msg.teamRedWin = true;
+			HashMap<String, Object> map1 = new HashMap<>();
+			map1.put("test", 1);
+			map1.put("bool", true);
+			map1.put("string", "hello world");
+			HashMap<String, Object> map2 = new HashMap<>();
+			map2.put("test2", 2);
+			map2.put("bool2", false);
+			map2.put("string2", "bye world");
+			msg.playerResults = new ArrayList<>();
+			msg.playerResults.add(map1);
+			msg.playerResults.add(map2);
+			String serial1 = JsonTool.SerializeMessage(msg);
+			TempMessageContainer temp = new TempMessageContainer();
+			temp.message = serial1;
+			temp.type = MessageType.GameEnd;
+			String serial2 = JsonTool.SerializeTempMessageContainer(temp);
+			TempMessageContainer temp2 = JsonTool
+					.CreateTempMessageContainer(serial2);
+			ArrayList<String> tList = new ArrayList<>();
+			tList.add("testid");
+			MessageContainer container = JsonTool.CreateMessageContainer(temp2,
+					DirectionType.Incoming, tList);
+		} catch (Exception ex) {
+			Logger.log("jsontest died");
+		}
 	}
 
 	/**

@@ -8,37 +8,64 @@ import com.google.gson.Gson;
 
 public class JsonTool {
 
-	public static TempMessageContainer CreateTempMessageContainer(String message) {
+	public static TempMessageContainer CreateTempMessageContainer(String message)
+			throws JsonParseException {
 		Gson gson = new Gson();
-		TempMessageContainer temp = gson.fromJson(message,
-				TempMessageContainer.class);
-		return temp;
+		try {
+			TempMessageContainer temp = gson.fromJson(message,
+					TempMessageContainer.class);
+			return temp;
+		} catch (Exception ex) {
+			JsonParseException jpe = new JsonParseException();
+			jpe.setStackTrace(ex.getStackTrace());
+			throw jpe;
+		}
 	}
 
 	public static MessageContainer CreateMessageContainer(
 			TempMessageContainer tempContainer, DirectionType direction,
-			ArrayList<String> connIds) {
+			ArrayList<String> connIds) throws JsonParseException {
 		MessageContainer container = new MessageContainer();
-		container.direction = direction;
-		container.type = tempContainer.type;
-		if (direction == DirectionType.Incoming) {
-			container.sender = connIds.get(0);
-		} else {
-			container.receivers = connIds;
+		try {
+			container.direction = direction;
+			container.type = tempContainer.type;
+			if (direction == DirectionType.Incoming) {
+				container.sender = connIds.get(0);
+			} else {
+				container.receivers = connIds;
+			}
+			container.message = createMessage(tempContainer.message,
+					container.type);
+			return container;
+		} catch (Exception ex) {
+			JsonParseException jpe = new JsonParseException();
+			jpe.setStackTrace(ex.getStackTrace());
+			throw jpe;
 		}
-		container.message = createMessage(tempContainer.message, container.type);
-		return container;
 	}
 
-	public static String SerializeMessage(Message message) {
-		Gson gson = new Gson();
-		return gson.toJson(message);
+	public static String SerializeMessage(Message message)
+			throws JsonCreateException {
+		try {
+			Gson gson = new Gson();
+			return gson.toJson(message);
+		} catch (Exception ex) {
+			JsonCreateException jce = new JsonCreateException();
+			jce.setStackTrace(ex.getStackTrace());
+			throw jce;
+		}
 	}
 
 	public static String SerializeTempMessageContainer(
-			TempMessageContainer container) {
-		Gson gson = new Gson();
-		return gson.toJson(container);
+			TempMessageContainer container) throws JsonCreateException {
+		try {
+			Gson gson = new Gson();
+			return gson.toJson(container);
+		} catch (Exception ex) {
+			JsonCreateException jce = new JsonCreateException();
+			jce.setStackTrace(ex.getStackTrace());
+			throw jce;
+		}
 	}
 
 	private static Message createMessage(String message, MessageType type) {

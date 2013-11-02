@@ -44,7 +44,7 @@
   <div id="messages"></div>
   <script type="text/javascript">
     var webSocket = 
-      //new WebSocket('ws://eat-em-up.marce155.eu.cloudbees.net/websocket');
+      //new WebSocket('ws://eat-em-up.marce155.eu.cloudbees.net/websocketTest');
     	new WebSocket('ws://localhost:8080/websocketTest');
 
     webSocket.onerror = function(event) {

@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
+import at.jku.se.eatemup.core.json.messages.LoginMessage;
+import at.jku.se.eatemup.core.json.messages.PositionMessage;
+import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
 import at.jku.se.eatemup.core.model.Player;
 
 public class GameEngine {
@@ -72,5 +76,27 @@ public class GameEngine {
 		public boolean userExistsBySession(String session) {
 			return sessionUsernameMap.containsKey(session);
 		}
+	}
+
+	public static boolean acceptLogin(LoginMessage message, String sender) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static boolean acceptRequestForGameStart(
+			RequestForGameStartMessage message, String sender) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static boolean acceptPosition(PositionMessage message, String sender) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
+			String sender) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
