@@ -154,7 +154,7 @@ public class GameEngine {
 			Game game = getPlayerStandbyGame(message.username);
 			game.setPlayerReady(message.username);
 			if (game.allPlayersReady()) {
-				// TODO send GameStart
+				// TODO send GameStart etc.
 			} else {
 				if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();

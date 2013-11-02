@@ -85,7 +85,7 @@ public class Game {
 		return startSurveySent;
 	}
 
-	public void setStartSurveySent(boolean startSurveySent) {
+	public synchronized void setStartSurveySent(boolean startSurveySent) {
 		this.startSurveySent = startSurveySent;
 	}
 
@@ -93,7 +93,7 @@ public class Game {
 		return readyToGoPlayers.size() == getPlayers().size();
 	}
 
-	public void setPlayerReady(String username) {
+	public synchronized void setPlayerReady(String username) {
 		if (playerIsInGame(username)) {
 			if (!readyToGoPlayers.contains(username)) {
 				readyToGoPlayers.add(username);
