@@ -106,8 +106,8 @@ public class JsonTool {
 			return gson.fromJson(message, TimerUpdateMessage.class);
 		case Exit:
 			return gson.fromJson(message, ExitMessage.class);
-		case AreaLeft:
-			return gson.fromJson(message, AreaLeftMessage.class);
+		case Logout:
+			return gson.fromJson(message, LogoutMessage.class);
 		default:
 			return null;
 		}

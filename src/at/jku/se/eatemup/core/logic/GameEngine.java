@@ -1,15 +1,11 @@
 package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
-import at.jku.se.eatemup.core.json.messages.ExitMessage;
-import at.jku.se.eatemup.core.json.messages.LoginMessage;
-import at.jku.se.eatemup.core.json.messages.PositionMessage;
-import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
+import at.jku.se.eatemup.core.PasswordHashManager;
+import at.jku.se.eatemup.core.database.DbOperations;
+import at.jku.se.eatemup.core.json.messages.*;
 
 public class GameEngine {
 	private static ConcurrentHashMap<Long, Game> runningGames = new ConcurrentHashMap<>();
@@ -35,9 +31,25 @@ public class GameEngine {
 
 	public static boolean acceptLogin(LoginMessage message, String sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new LoginTask(message, sender));
+			boolean check = checkLoginCredentials(message.username,message.password);
+			if (check){
+				service.submit(instance.new LoginTask(message, sender));
+			}
+			return check;
 		}
 		return false;
+	}
+
+	private static boolean checkLoginCredentials(String username, String password) {
+		DbOperations db = new DbOperations();
+		//TODO get passwordhash for username and check
+		try {
+			PasswordHashManager.check(password, "fromdb");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 	public static boolean acceptRequestForGameStart(
@@ -75,8 +87,8 @@ public class GameEngine {
 	}
 
 	private abstract class GameTask<T> implements Runnable {
-		private T message;
-		private String sender;
+		protected T message;
+		protected String sender;
 
 		public GameTask(T message, String sender) {
 			this.message = message;

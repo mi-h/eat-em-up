@@ -5,13 +5,14 @@ import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
 
-public class AreaLeftMessage extends Message{
+public class LogoutMessage extends Message{
 	
 	public String username;
+	public String reason;
 
 	@Override
 	public MessageType getType() {
-		return MessageType.AreaLeft;
+		return MessageType.Logout;
 	}
 
 	@Override
