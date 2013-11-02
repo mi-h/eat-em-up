@@ -13,10 +13,11 @@ import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.model.Player;
 
 public class GameEngine {
-	private static ConcurrentHashMap<Long, Game> runningGames = new ConcurrentHashMap<>();
-	private static Game standbyGame;
+	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 	private static UserSession userSessionMap = new UserSession();
-	private static ConcurrentHashMap<String, Long> userGameMap = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 	private static ExecutorService service = Executors.newCachedThreadPool();
 	private static GameEngine instance = new GameEngine();
 
@@ -27,7 +28,7 @@ public class GameEngine {
 	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
 		for (String id : invalidSessionIds) {
 			String username = userSessionMap.getUsernameBySession(id);
-			long gameId = userGameMap.get(username);
+			String gameId = userGameMap.get(username);
 			Game g = runningGames.get(gameId);
 			removePlayerFromGame(username, g);
 			userSessionMap.removeUser(id);
@@ -115,14 +116,15 @@ public class GameEngine {
 			GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
 			msg.readyForStart = addPlayerToStandbyGame(message.username);
 			msg.players = new ArrayList<>();
-			for (Player p : standbyGame.getPlayers()) {
+			Game game = getPlayerStandbyGame(message.username);
+			for (Player p : game.getPlayers()) {
 				HashMap<String, Object> map = new HashMap<>();
 				map.put("username", p.getName());
-				map.put("teamRed", standbyGame.isInRedTeam(p));
+				map.put("teamRed", game.isInRedTeam(p));
 				msg.players.add(map);
 			}
 			MessageContainer container = MessageCreator.createMsgContainer(msg,
-					getReceiverList(standbyGame.getPlayers()));
+					getReceiverList(game.getPlayers()));
 			MessageHandler.PushMessage(container);
 		}
 	}
@@ -149,7 +151,21 @@ public class GameEngine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			Game game = getPlayerStandbyGame(message.username);
+			game.setPlayerReady(message.username);
+			if (game.allPlayersReady()) {
+				// TODO send GameStart
+			} else {
+				if (!game.isStartSurveySent()) {
+					GameStartSurveyMessage msg = new GameStartSurveyMessage();
+					msg.requestingUser = message.username;
+					MessageContainer container = MessageCreator
+							.createMsgContainer(msg, getReceiverListById(game
+									.getNotReadyPlayers()));
+					MessageHandler.PushMessage(container);
+					game.setStartSurveySent(true);
+				}
+			}
 		}
 	}
 
@@ -210,11 +226,25 @@ public class GameEngine {
 	}
 
 	private synchronized boolean addPlayerToStandbyGame(String username) {
-		if (standbyGame == null) {
-			standbyGame = new Game();
-		}
 		Player player = new Player(username);
-		return standbyGame.AddPlayer(player);
+		Game g = getEmptyStandbyGame();
+		userStandbyGameMap.put(username, g.getId());
+		return g.AddPlayer(player);
+	}
+
+	private synchronized Game getEmptyStandbyGame() {
+		for (Game g : standbyGames.values()) {
+			if (!g.isFull()) {
+				return g;
+			}
+		}
+		Game g = new Game();
+		standbyGames.put(g.getId(), g);
+		return g;
+	}
+
+	private synchronized Game getPlayerStandbyGame(String username) {
+		return standbyGames.get(userStandbyGameMap.get(username));
 	}
 
 	private ArrayList<String> getReceiverList(ArrayList<Player> players) {
@@ -222,6 +252,16 @@ public class GameEngine {
 		for (Player p : players) {
 			if (userSessionMap.userExists(p.getName())) {
 				list.add(userSessionMap.getSessionByUsername(p.getName()));
+			}
+		}
+		return list;
+	}
+
+	private ArrayList<String> getReceiverListById(ArrayList<String> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (String p : players) {
+			if (userSessionMap.userExists(p)) {
+				list.add(userSessionMap.getSessionByUsername(p));
 			}
 		}
 		return list;

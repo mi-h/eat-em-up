@@ -44,4 +44,13 @@ public class Team {
 		}
 		return false;
 	}
+
+	public boolean hasPlayer(String username) {
+		for (Player p : players) {
+			if (p.getName().equals(username)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
