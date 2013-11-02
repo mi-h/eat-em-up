@@ -35,4 +35,13 @@ public class Team {
 	public void setPlayers(List<Player> players) {
 		this.players = players;
 	}
+
+	public boolean hasPlayer(Player player) {
+		for (Player p : players) {
+			if (p.getName().equals(player.getName())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -5,8 +5,8 @@ import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
 
-public class LogoutMessage extends Message{
-	
+public class LogoutMessage extends Message {
+
 	public String username;
 	public String reason;
 

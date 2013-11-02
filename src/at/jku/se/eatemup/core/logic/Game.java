@@ -1,5 +1,7 @@
 package at.jku.se.eatemup.core.logic;
 
+import java.util.ArrayList;
+
 import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.core.model.Team;
@@ -57,5 +59,16 @@ public class Game {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isInRedTeam(Player player) {
+		return teams[0].hasPlayer(player);
+	}
+
+	public ArrayList<Player> getPlayers() {
+		ArrayList<Player> list = new ArrayList<>();
+		list.addAll(teams[0].getPlayers());
+		list.addAll(teams[1].getPlayers());
+		return list;
 	}
 }

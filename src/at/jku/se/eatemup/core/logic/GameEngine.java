@@ -1,11 +1,16 @@
 package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.*;
 
+import at.jku.se.eatemup.core.MessageCreator;
+import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.PasswordHashManager;
 import at.jku.se.eatemup.core.database.DbOperations;
+import at.jku.se.eatemup.core.json.MessageContainer;
 import at.jku.se.eatemup.core.json.messages.*;
+import at.jku.se.eatemup.core.model.Player;
 
 public class GameEngine {
 	private static ConcurrentHashMap<Long, Game> runningGames = new ConcurrentHashMap<>();
@@ -31,8 +36,9 @@ public class GameEngine {
 
 	public static boolean acceptLogin(LoginMessage message, String sender) {
 		if (sessionExists(sender)) {
-			boolean check = checkLoginCredentials(message.username,message.password);
-			if (check){
+			boolean check = checkLoginCredentials(message.username,
+					message.password);
+			if (check) {
 				service.submit(instance.new LoginTask(message, sender));
 			}
 			return check;
@@ -40,9 +46,10 @@ public class GameEngine {
 		return false;
 	}
 
-	private static boolean checkLoginCredentials(String username, String password) {
+	private static boolean checkLoginCredentials(String username,
+			String password) {
 		DbOperations db = new DbOperations();
-		//TODO get passwordhash for username and check
+		// TODO get passwordhash for username and check
 		try {
 			PasswordHashManager.check(password, "fromdb");
 		} catch (Exception e) {
@@ -104,7 +111,19 @@ public class GameEngine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			userSessionMap.addUser(sender, message.username);
+			GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
+			msg.readyForStart = addPlayerToStandbyGame(message.username);
+			msg.players = new ArrayList<>();
+			for (Player p : standbyGame.getPlayers()) {
+				HashMap<String, Object> map = new HashMap<>();
+				map.put("username", p.getName());
+				map.put("teamRed", standbyGame.isInRedTeam(p));
+				msg.players.add(map);
+			}
+			MessageContainer container = MessageCreator.createMsgContainer(msg,
+					getReceiverList(standbyGame.getPlayers()));
+			MessageHandler.PushMessage(container);
 		}
 	}
 
@@ -157,7 +176,7 @@ public class GameEngine {
 			// TODO Auto-generated method stub
 		}
 	}
-	
+
 	private static class UserSession {
 		private ConcurrentHashMap<String, String> usernameSessionMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
@@ -188,5 +207,23 @@ public class GameEngine {
 		public boolean userExistsBySession(String session) {
 			return sessionUsernameMap.containsKey(session);
 		}
+	}
+
+	private synchronized boolean addPlayerToStandbyGame(String username) {
+		if (standbyGame == null) {
+			standbyGame = new Game();
+		}
+		Player player = new Player(username);
+		return standbyGame.AddPlayer(player);
+	}
+
+	private ArrayList<String> getReceiverList(ArrayList<Player> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : players) {
+			if (userSessionMap.userExists(p.getName())) {
+				list.add(userSessionMap.getSessionByUsername(p.getName()));
+			}
+		}
+		return list;
 	}
 }
