@@ -1,36 +1,19 @@
 package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
+import at.jku.se.eatemup.core.json.messages.ExitMessage;
 import at.jku.se.eatemup.core.json.messages.LoginMessage;
 import at.jku.se.eatemup.core.json.messages.PositionMessage;
 import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
-import at.jku.se.eatemup.core.model.Player;
 
 public class GameEngine {
 	private static ConcurrentHashMap<Long, Game> runningGames = new ConcurrentHashMap<>();
 	private static Game standbyGame;
 	private static UserSession userSessionMap = new UserSession();
 	private static ConcurrentHashMap<String, Long> userGameMap = new ConcurrentHashMap<>();
-
-	public static void JoinGame(String name, String sessionId) {
-		if (standbyGame != null) {
-			addPlayerToGame(name, standbyGame);
-			// TODO!!
-		}
-	}
-
-	private static void addPlayerToGame(String name, Game standbyGame) {
-		Player player = new Player(name);
-		if (standbyGame.AddPlayer(player)) {
-
-		}
-
-	}
 
 	private static void removePlayerFromGame(String name, Game game) {
 
@@ -78,7 +61,7 @@ public class GameEngine {
 		}
 	}
 
-	public static boolean acceptLogin(LoginMessage message, String sender) {
+	public synchronized static boolean acceptLogin(LoginMessage message, String sender) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -96,6 +79,11 @@ public class GameEngine {
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			String sender) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public static boolean acceptExit(ExitMessage message, String sender) {
 		// TODO Auto-generated method stub
 		return false;
 	}

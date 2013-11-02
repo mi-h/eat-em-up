@@ -2,11 +2,7 @@ package at.jku.se.eatemup.core;
 
 import javax.websocket.Session;
 
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.JsonCreateException;
-import at.jku.se.eatemup.core.json.JsonTool;
-import at.jku.se.eatemup.core.json.MessageContainer;
-import at.jku.se.eatemup.core.json.TempMessageContainer;
+import at.jku.se.eatemup.core.json.*;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.logic.GameEngine;
@@ -30,6 +26,9 @@ public class MessageHandler {
 			case BattleAnswer:
 				return GameEngine.acceptBattleAnswer(
 						(BattleAnswerMessage) container.message,
+						container.sender);
+			case Exit:
+				return GameEngine.acceptExit((ExitMessage) container.message,
 						container.sender);
 			default:
 				return false;
