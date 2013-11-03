@@ -64,6 +64,7 @@ public class GameEngine {
 			RequestForGameStartMessage message, String sender) {
 		if (sessionExists(sender)) {
 			service.submit(instance.new RequestForGameStartTask(message, sender));
+			return true;
 		}
 		return false;
 	}
@@ -71,6 +72,7 @@ public class GameEngine {
 	public static boolean acceptPosition(PositionMessage message, String sender) {
 		if (sessionExists(sender)) {
 			service.submit(instance.new PositionTask(message, sender));
+			return true;
 		}
 		return false;
 	}
@@ -79,6 +81,7 @@ public class GameEngine {
 			String sender) {
 		if (sessionExists(sender)) {
 			service.submit(instance.new BattleAnswerTask(message, sender));
+			return true;
 		}
 		return false;
 	}
@@ -86,6 +89,7 @@ public class GameEngine {
 	public static boolean acceptExit(ExitMessage message, String sender) {
 		if (sessionExists(sender)) {
 			service.submit(instance.new ExitTask(message, sender));
+			return true;
 		}
 		return false;
 	}
@@ -265,5 +269,25 @@ public class GameEngine {
 			}
 		}
 		return list;
+	}
+
+	public static boolean acceptPlay(PlayMessage message, String sender) {
+		if (sessionExists(sender)) {
+			service.submit(instance.new PlayTask(message, sender));
+			return true;
+		}
+		return false;
+	}
+	
+	private class PlayTask extends GameTask<PlayMessage>{
+
+		public PlayTask(PlayMessage message, String sender) {
+			super(message, sender);
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+		}		
 	}
 }

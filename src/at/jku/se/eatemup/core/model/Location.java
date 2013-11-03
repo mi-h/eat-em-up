@@ -1,12 +1,12 @@
 package at.jku.se.eatemup.core.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Location {
 	private String name;
 	private Position topLeftPos;
 	private Position bottomRightPos;
-	private List<GoodiePoint> goodiePoints;
+	private ArrayList<GoodiePoint> goodiePoints;
 
 	public String getName() {
 		return name;
@@ -32,11 +32,11 @@ public class Location {
 		this.bottomRightPos = bottomRightPos;
 	}
 
-	public List<GoodiePoint> getGoodiePoints() {
+	public ArrayList<GoodiePoint> getGoodiePoints() {
 		return goodiePoints;
 	}
 
-	public void setGoodiePoints(List<GoodiePoint> goodiePoints) {
+	public void setGoodiePoints(ArrayList<GoodiePoint> goodiePoints) {
 		this.goodiePoints = goodiePoints;
 	}
 }

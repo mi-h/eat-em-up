@@ -30,6 +30,9 @@ public class MessageHandler {
 			case Exit:
 				return GameEngine.acceptExit((ExitMessage) container.message,
 						container.sender);
+			case Play:
+				return GameEngine.acceptPlay((PlayMessage) container.message,
+						container.sender);
 			default:
 				return false;
 			}

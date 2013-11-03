@@ -2,10 +2,9 @@ package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-import at.jku.se.eatemup.core.model.Location;
-import at.jku.se.eatemup.core.model.Player;
-import at.jku.se.eatemup.core.model.Team;
+import at.jku.se.eatemup.core.model.*;
 
 public class Game {
 	private String id;
@@ -14,11 +13,15 @@ public class Game {
 	private Team[] teams;
 	private ArrayList<String> readyToGoPlayers;
 	private boolean startSurveySent;
+	private ConcurrentHashMap<String,Position> playerPositions;
+	private boolean positionProcessingFlag;
+	private static final int radius = 3;
 
 	public Game() {
 		teams = new Team[2];
 		id = UUID.randomUUID().toString();
 		readyToGoPlayers = new ArrayList<>();
+		playerPositions = new ConcurrentHashMap<>();
 	}
 
 	public String getId() {
@@ -113,5 +116,50 @@ public class Game {
 
 	private boolean playerIsInGame(String username) {
 		return teams[0].hasPlayer(username) || teams[1].hasPlayer(username);
+	}
+	
+	public void setPlayerPosition(String username, Position position){
+		playerPositions.put(username, position);
+	}
+	
+	public synchronized boolean setPositionProcLock(){
+		if (positionProcessingFlag) return false;
+		positionProcessingFlag = true;
+		return true;
+	}
+	
+	public synchronized boolean releasePositionProcLock(){
+		if (!positionProcessingFlag) return false;
+		positionProcessingFlag = false;
+		return true;
+	}
+	
+	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String username){
+		ArrayList<GoodiePoint> points = new ArrayList<>();
+		Position playerPos = getPlayerPosition(username);
+		if (playerPos != null){
+			for (GoodiePoint gp : location.getGoodiePoints()){
+				if (gp.hasGoodie() && gp.getPosition().distanceLessThan(playerPos, radius)){
+					points.add(gp);
+				}
+			}
+		}
+		return points;
+	}
+	
+	public ArrayList<String> getPlayersInPlayerRange(String username){
+		ArrayList<String> players = new ArrayList<>();
+		Position playerPos = getPlayerPosition(username);
+		for (Player p : getPlayers()){
+			Position temp = getPlayerPosition(p.getName());
+			if (temp != null && playerPos.distanceLessThan(temp, radius)){
+				players.add(p.getName());
+			}
+		}
+		return players;
+	}
+	
+	public Position getPlayerPosition(String username){
+		return playerPositions.get(username);
 	}
 }

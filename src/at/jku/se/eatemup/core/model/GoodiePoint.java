@@ -19,4 +19,12 @@ public class GoodiePoint {
 	public void setPosition(Position position) {
 		this.position = position;
 	}
+	
+	public boolean hasGoodie(){
+		return goodie!=null;
+	}
+	
+	public void removeGoodie(){
+		goodie = null;
+	}
 }
