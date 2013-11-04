@@ -9,6 +9,7 @@ import at.jku.se.eatemup.core.logging.LogEntry;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.GoodiePoint;
+import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Position;
 
 import com.j256.ormlite.dao.Dao;
@@ -190,6 +191,24 @@ public class DataStore{
 		} catch (SQLException e) {
 			Logger.log("retrieve goodie point positions failed."+Logger.stringifyException(e));
 			return ret;
+		}
+	}
+
+	public void addAccount(Account acc) {
+		try {
+			accountDao.createIfNotExists(acc);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void addGoodiePosition(Position position){
+		try {
+			positionDao.createIfNotExists(position);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

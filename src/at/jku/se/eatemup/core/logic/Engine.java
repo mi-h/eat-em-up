@@ -10,6 +10,7 @@ import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.PasswordHashManager;
 import at.jku.se.eatemup.core.Sender;
+import at.jku.se.eatemup.core.database.DataStore;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Player;
@@ -269,6 +270,8 @@ public class Engine {
 	private static ExecutorService service = Executors.newCachedThreadPool();
 
 	private static Engine instance = new Engine();
+	
+	private static DbManager db = new DbManager();
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
@@ -346,14 +349,16 @@ public class Engine {
 
 	private static boolean checkLoginCredentials(String username,
 			String password) {
-		// DbOperations db = new DbOperations();
-		// TODO get passwordhash for username and check
+		DataStore ds = db.getDataStore();
+		/*
+		passwordhash for username and check
 		try {
 			PasswordHashManager.check(password, "fromdb");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		return true;
 	}
 
@@ -429,5 +434,23 @@ public class Engine {
 			}
 		}
 		return list;
+	}
+	
+	private static class DbManager{
+		private static boolean firstCall = true;
+		
+		public static DataStore getDataStore(){
+			DataStore ds = new DataStore();
+			if (firstCall){
+				ds.createTables();
+				firstCall = false;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			return ds;
+		}
 	}
 }
