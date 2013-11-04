@@ -10,7 +10,6 @@ import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.PasswordHashManager;
 import at.jku.se.eatemup.core.Sender;
-import at.jku.se.eatemup.core.database.DbOperations;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Player;

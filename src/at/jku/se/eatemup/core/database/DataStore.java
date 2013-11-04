@@ -1,7 +1,5 @@
 package at.jku.se.eatemup.core.database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +30,6 @@ public class DataStore{
 	private Dao<Account,String> accountDao;
 	private Dao<LogEntry,String> logDao;
 	private Dao<Position,Integer> positionDao;
-	Connection con;
 
 	public DataStore() {
 		this.url = "camellia.arvixe.com:1433";
@@ -194,32 +191,5 @@ public class DataStore{
 			Logger.log("retrieve goodie point positions failed."+Logger.stringifyException(e));
 			return ret;
 		}
-	}
-
-	public boolean connectToDB() {
-		try {
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		try {
-			this.con = DriverManager.getConnection(connection);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return true;
-	}
-
-	public boolean closeDbConnection() {
-		try {
-			this.con.commit();
-			this.con.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return true;
 	}
 }
