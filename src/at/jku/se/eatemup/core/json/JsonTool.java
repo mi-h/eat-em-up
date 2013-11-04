@@ -2,6 +2,9 @@ package at.jku.se.eatemup.core.json;
 
 import java.util.ArrayList;
 
+import at.jku.se.eatemup.core.MessageContainer;
+import at.jku.se.eatemup.core.Sender;
+import at.jku.se.eatemup.core.TempMessageContainer;
 import at.jku.se.eatemup.core.json.messages.*;
 
 import com.google.gson.Gson;
@@ -29,13 +32,13 @@ public class JsonTool {
 		try {
 			container.direction = direction;
 			container.type = tempContainer.type;
+			container.message = createMessage(tempContainer.message,
+					container.type);
 			if (direction == DirectionType.Incoming) {
-				container.sender = connIds.get(0);
+				container.sender = new Sender(((IncomingMessage)container.message).username,connIds.get(0));
 			} else {
 				container.receivers = connIds;
 			}
-			container.message = createMessage(tempContainer.message,
-					container.type);
 			return container;
 		} catch (Exception ex) {
 			JsonParseException jpe = new JsonParseException();

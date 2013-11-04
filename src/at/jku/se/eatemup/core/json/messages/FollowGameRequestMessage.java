@@ -3,10 +3,11 @@ package at.jku.se.eatemup.core.json.messages;
 import at.jku.se.eatemup.core.json.IncomingMessage;
 import at.jku.se.eatemup.core.json.MessageType;
 
-public class ExitMessage extends IncomingMessage {
+public class FollowGameRequestMessage extends IncomingMessage {
 
 	@Override
 	public MessageType getType() {
-		return MessageType.Exit;
+		return MessageType.FollowGameRequest;
 	}
+
 }

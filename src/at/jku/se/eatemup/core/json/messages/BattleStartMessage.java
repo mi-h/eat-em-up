@@ -3,12 +3,11 @@ package at.jku.se.eatemup.core.json.messages;
 import java.util.Random;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 import at.jku.se.eatemup.core.model.Battle;
 
-public class BattleStartMessage extends Message {
+public class BattleStartMessage extends OutgoingMessage {
 	public String username1;
 	public String username2;
 	public String question;
@@ -27,11 +26,6 @@ public class BattleStartMessage extends Message {
 	@Override
 	public MessageType getType() {
 		return MessageType.BattleStart;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

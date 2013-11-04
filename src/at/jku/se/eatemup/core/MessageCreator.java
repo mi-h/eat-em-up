@@ -6,8 +6,6 @@ import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.JsonParseException;
 import at.jku.se.eatemup.core.json.JsonTool;
 import at.jku.se.eatemup.core.json.Message;
-import at.jku.se.eatemup.core.json.MessageContainer;
-import at.jku.se.eatemup.core.json.TempMessageContainer;
 import at.jku.se.eatemup.core.logging.Logger;
 
 public class MessageCreator {
@@ -20,7 +18,7 @@ public class MessageCreator {
 		container.receivers = receivers;
 		container.type = message.getType();
 		container.castType = message.getCastType();
-		container.sender = "server";
+		container.sender = new Sender("server","null");
 		return container;
 	}
 

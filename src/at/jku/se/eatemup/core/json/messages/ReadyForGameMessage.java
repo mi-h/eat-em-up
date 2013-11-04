@@ -1,11 +1,10 @@
 package at.jku.se.eatemup.core.json.messages;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class ReadyForGameMessage extends Message {
+public class ReadyForGameMessage extends OutgoingMessage {
 
 	public boolean loginSuccess;
 	public Integer points;
@@ -14,11 +13,6 @@ public class ReadyForGameMessage extends Message {
 	@Override
 	public MessageType getType() {
 		return MessageType.ReadyForGame;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

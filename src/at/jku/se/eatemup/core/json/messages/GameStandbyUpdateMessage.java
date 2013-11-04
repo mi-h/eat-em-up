@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class GameStandbyUpdateMessage extends Message {
+public class GameStandbyUpdateMessage extends OutgoingMessage {
 
 	public ArrayList<HashMap<String, Object>> players;
 	public boolean readyForStart;
@@ -16,11 +15,6 @@ public class GameStandbyUpdateMessage extends Message {
 	@Override
 	public MessageType getType() {
 		return MessageType.GameStandbyUpdate;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

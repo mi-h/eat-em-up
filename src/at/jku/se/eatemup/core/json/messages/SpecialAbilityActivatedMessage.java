@@ -1,21 +1,15 @@
 package at.jku.se.eatemup.core.json.messages;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class SpecialAbilityActivatedMessage extends Message {
+public class SpecialAbilityActivatedMessage extends OutgoingMessage {
 	public String specialAbility;
 
 	@Override
 	public MessageType getType() {
 		return MessageType.SpecialAbilityActivated;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import javax.websocket.Session;
 import at.jku.se.eatemup.core.json.*;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
-import at.jku.se.eatemup.core.logic.GameEngine;
+import at.jku.se.eatemup.core.logic.Engine;
 import at.jku.se.eatemup.sockets.SessionStore;
 
 public class MessageHandler {
@@ -14,25 +14,27 @@ public class MessageHandler {
 		try {
 			switch (container.type) {
 			case Login:
-				return GameEngine.acceptLogin((LoginMessage) container.message,
+				return Engine.acceptLogin((LoginMessage) container.message,
 						container.sender);
 			case RequestForGameStart:
-				return GameEngine.acceptRequestForGameStart(
+				return Engine.acceptRequestForGameStart(
 						(RequestForGameStartMessage) container.message,
 						container.sender);
 			case Position:
-				return GameEngine.acceptPosition(
+				return Engine.acceptPosition(
 						(PositionMessage) container.message, container.sender);
 			case BattleAnswer:
-				return GameEngine.acceptBattleAnswer(
+				return Engine.acceptBattleAnswer(
 						(BattleAnswerMessage) container.message,
 						container.sender);
 			case Exit:
-				return GameEngine.acceptExit((ExitMessage) container.message,
+				return Engine.acceptExit((ExitMessage) container.message,
 						container.sender);
 			case Play:
-				return GameEngine.acceptPlay((PlayMessage) container.message,
+				return Engine.acceptPlay((PlayMessage) container.message,
 						container.sender);
+			case FollowGameRequest:
+				return Engine.acceptFollowGameRequest((FollowGameRequestMessage)container.message,container.sender);
 			default:
 				return false;
 			}

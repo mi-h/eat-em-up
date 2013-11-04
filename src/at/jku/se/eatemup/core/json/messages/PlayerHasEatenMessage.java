@@ -3,11 +3,10 @@ package at.jku.se.eatemup.core.json.messages;
 import java.util.HashMap;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class PlayerHasEatenMessage extends Message {
+public class PlayerHasEatenMessage extends OutgoingMessage {
 	public String username;
 	public HashMap<String, Integer> goodie;
 	public int newPoints;
@@ -16,11 +15,6 @@ public class PlayerHasEatenMessage extends Message {
 	@Override
 	public MessageType getType() {
 		return MessageType.PlayerHasEaten;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

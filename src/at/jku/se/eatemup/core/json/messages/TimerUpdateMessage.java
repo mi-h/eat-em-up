@@ -1,22 +1,16 @@
 package at.jku.se.eatemup.core.json.messages;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class TimerUpdateMessage extends Message {
+public class TimerUpdateMessage extends OutgoingMessage {
 	public int remainingTime;
 	public long currentTimestamp;
 
 	@Override
 	public MessageType getType() {
 		return MessageType.TimerUpdate;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

@@ -8,9 +8,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import at.jku.se.eatemup.core.MessageContainer;
 import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
-import at.jku.se.eatemup.core.json.MessageContainer;
 import at.jku.se.eatemup.core.logging.Logger;
 
 @ServerEndpoint("/websocket")

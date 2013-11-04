@@ -3,22 +3,16 @@ package at.jku.se.eatemup.core.json.messages;
 import java.util.HashMap;
 
 import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
-import at.jku.se.eatemup.core.json.Message;
 import at.jku.se.eatemup.core.json.MessageType;
+import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class PlayerMovedMessage extends Message {
+public class PlayerMovedMessage extends OutgoingMessage {
 	public String username;
 	public HashMap<String, Integer> position;
 
 	@Override
 	public MessageType getType() {
 		return MessageType.PlayerMoved;
-	}
-
-	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Outgoing;
 	}
 
 	@Override

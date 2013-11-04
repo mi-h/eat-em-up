@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import at.jku.se.eatemup.core.MessageContainer;
+import at.jku.se.eatemup.core.TempMessageContainer;
 import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.JsonTool;
-import at.jku.se.eatemup.core.json.MessageContainer;
 import at.jku.se.eatemup.core.json.MessageType;
-import at.jku.se.eatemup.core.json.TempMessageContainer;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
 import at.jku.se.eatemup.core.logging.Logger;
 
