@@ -20,7 +20,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-public class DataStore2{
+public class DataStore2 implements IDatabaseAPI{
 
 	private String connection;
 	private String url;
