@@ -19,6 +19,7 @@ public class Game {
 	private boolean positionProcessingFlag;
 	private static final int radius = 3;
 	private CopyOnWriteArrayList<String> audience;
+	private CopyOnWriteArrayList<Battle> battles;
 
 	public Game() {
 		teams = new Team[2];
@@ -26,6 +27,7 @@ public class Game {
 		readyToGoPlayers = new ArrayList<>();
 		playerPositions = new ConcurrentHashMap<>();
 		audience = new CopyOnWriteArrayList<>();
+		battles = new CopyOnWriteArrayList<>();
 	}
 
 	public String getId() {
@@ -190,5 +192,9 @@ public class Game {
 
 	public void removeAudienceUser(String username) {
 		audience.remove(username);
+	}
+	
+	public void addBattle(Battle battle){
+		battles.add(battle);
 	}
 }
