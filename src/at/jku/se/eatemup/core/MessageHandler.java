@@ -5,7 +5,6 @@ import javax.websocket.Session;
 import at.jku.se.eatemup.core.json.*;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
-import at.jku.se.eatemup.core.logic.Engine;
 import at.jku.se.eatemup.sockets.SessionStore;
 
 public class MessageHandler {

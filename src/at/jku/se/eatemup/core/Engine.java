@@ -1,18 +1,14 @@
-package at.jku.se.eatemup.core.logic;
+package at.jku.se.eatemup.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.*;
 
-import at.jku.se.eatemup.core.MessageContainer;
-import at.jku.se.eatemup.core.MessageCreator;
-import at.jku.se.eatemup.core.MessageHandler;
-import at.jku.se.eatemup.core.PasswordHashManager;
-import at.jku.se.eatemup.core.Sender;
 import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
+import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.sockets.SessionStore;
 
@@ -29,20 +25,28 @@ public class Engine {
 		}
 	}
 
+	private static class DbManager{
+		private static boolean firstCall = true;
+		
+		public static DataStore2 getDataStore(){
+			DataStore2 ds = new DataStore2();
+			if (firstCall){
+				ds.createTables();
+				firstCall = false;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			return ds;
+		}
+	}
+
 	private class ExitTask extends GameTask<ExitMessage> {
 
 		public ExitTask(ExitMessage message, Sender sender) {
 			super(message, sender);
-		}
-
-		@Override
-		public void run() {
-			sendLogoutMessage(sender.session,"accepting exit action, user logout", sender.username);
-			removeUserFromAllRunningGames(sender.username);
-			removeUserFromAllStandbyGames(sender.username);
-			removeUserFromAllAudiences(sender.username);
-			userSessionMap.removeUser(sender.session);
-			SessionStore.removeSession(sender.session);
 		}
 
 		private void removeUserFromAllAudiences(String username) {
@@ -50,17 +54,6 @@ public class Engine {
 				try{
 				Game g = runningGames.get(userGameAudienceMap.get(username));
 				g.removeAudienceUser(username);
-				} catch (Exception ex){
-					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
-				}
-			}
-		}
-
-		private void removeUserFromAllStandbyGames(String username) {
-			if(userStandbyGameMap.containsKey(username)){
-				try{
-				Game g = standbyGames.get(userStandbyGameMap.get(username));
-				g.removePlayer(username);
 				} catch (Exception ex){
 					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
 				}
@@ -77,6 +70,27 @@ public class Engine {
 				}
 			}
 		}
+
+		private void removeUserFromAllStandbyGames(String username) {
+			if(userStandbyGameMap.containsKey(username)){
+				try{
+				Game g = standbyGames.get(userStandbyGameMap.get(username));
+				g.removePlayer(username);
+				} catch (Exception ex){
+					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
+				}
+			}
+		}
+
+		@Override
+		public void run() {
+			sendLogoutMessage(sender.session,"accepting exit action, user logout", sender.username);
+			removeUserFromAllRunningGames(sender.username);
+			removeUserFromAllStandbyGames(sender.username);
+			removeUserFromAllAudiences(sender.username);
+			userSessionMap.removeUser(sender.session);
+			SessionStore.removeSession(sender.session);
+		}
 	}
 
 	private class FollowGameRequestTask extends
@@ -85,6 +99,24 @@ public class Engine {
 		public FollowGameRequestTask(FollowGameRequestMessage message,
 				Sender sender) {
 			super(message, sender);
+		}
+
+		private Game getARunningGame() {
+			Random rand = new Random();
+			try {
+				int idx = rand.nextInt(runningGames.size());
+				Game g = runningGames.get((new ArrayList<String>(runningGames
+						.keySet()).get(idx)));
+				return g;
+			} catch (Exception ex) {
+				Logger.log("failed retrieving a running game for audience viewing.</br>"
+						+ Logger.stringifyException(ex));
+				return null;
+			}
+		}
+
+		private boolean isAGameRunning() {
+			return runningGames.size() >= 1;
 		}
 
 		@Override
@@ -100,24 +132,6 @@ public class Engine {
 								+ Logger.stringifyException(ex));
 					}
 				}
-			}
-		}
-
-		private boolean isAGameRunning() {
-			return runningGames.size() >= 1;
-		}
-
-		private Game getARunningGame() {
-			Random rand = new Random();
-			try {
-				int idx = rand.nextInt(runningGames.size());
-				Game g = runningGames.get((new ArrayList<String>(runningGames
-						.keySet()).get(idx)));
-				return g;
-			} catch (Exception ex) {
-				Logger.log("failed retrieving a running game for audience viewing.</br>"
-						+ Logger.stringifyException(ex));
-				return null;
 			}
 		}
 	}
@@ -260,18 +274,16 @@ public class Engine {
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 
 	private static UserSession userSessionMap = new UserSession();
-
-	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
 	
+	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
+
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
 
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 
 	private static ExecutorService service = Executors.newCachedThreadPool();
-
-	private static Engine instance = new Engine();
 	
-	private static DbManager db = new DbManager();
+	private static Engine instance = new Engine();
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
@@ -280,17 +292,6 @@ public class Engine {
 			return true;
 		}
 		return false;
-	}
-
-	public void sendLogoutMessage(String session, String reason, String username) {
-		try{
-		LogoutMessage message = new LogoutMessage();
-		message.reason = reason;
-		message.username = username;
-		MessageHandler.PushMessage(MessageCreator.createMsgContainer(message, username));
-		} catch (Exception ex){
-			Logger.log("failed sending logout message."+Logger.stringifyException(ex));
-		}
 	}
 
 	public static boolean acceptExit(ExitMessage message, Sender sender) {
@@ -347,19 +348,61 @@ public class Engine {
 		return false;
 	}
 
+	private synchronized static boolean addPlayerToStandbyGame(String username) {
+		Player player = new Player(username);
+		Game g = getEmptyStandbyGame();
+		userStandbyGameMap.put(username, g.getId());
+		return g.AddPlayer(player);
+	}
+
 	private static boolean checkLoginCredentials(String username,
 			String password) {
-		DataStore2 ds = db.getDataStore();
+		DataStore2 ds = DbManager.getDataStore();
 		/*
 		passwordhash for username and check
 		try {
 			PasswordHashManager.check(password, "fromdb");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		*/
-		return true;
+		String storedPw = ds.getUserPassword(username);
+		return storedPw.equals(password);
+	}
+
+	private synchronized static Game getEmptyStandbyGame() {
+		for (Game g : standbyGames.values()) {
+			if (!g.isFull()) {
+				return g;
+			}
+		}
+		Game g = new Game();
+		standbyGames.put(g.getId(), g);
+		return g;
+	}
+
+	private synchronized static Game getPlayerStandbyGame(String username) {
+		return standbyGames.get(userStandbyGameMap.get(username));
+	}
+
+	private static ArrayList<String> getReceiverList(ArrayList<Player> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : players) {
+			if (userSessionMap.userExists(p.getName())) {
+				list.add(userSessionMap.getSessionByUsername(p.getName()));
+			}
+		}
+		return list;
+	}
+
+	private static ArrayList<String> getReceiverListById(ArrayList<String> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (String p : players) {
+			if (userSessionMap.userExists(p)) {
+				list.add(userSessionMap.getSessionByUsername(p));
+			}
+		}
+		return list;
 	}
 
 	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
@@ -376,13 +419,24 @@ public class Engine {
 
 	}
 
+	public static void sendLogoutMessage(String session, String reason, String username) {
+		try{
+		LogoutMessage message = new LogoutMessage();
+		message.reason = reason;
+		message.username = username;
+		MessageHandler.PushMessage(MessageCreator.createMsgContainer(message, username));
+		} catch (Exception ex){
+			Logger.log("failed sending logout message."+Logger.stringifyException(ex));
+		}
+	}
+
 	private static boolean sessionExists(Sender sender) {
 		if (userSessionMap.userExistsBySession(sender.session)) {
 			return true;
 		}
 		return tryRecoverUserSession(sender);
 	}
-
+	
 	private static boolean tryRecoverUserSession(Sender sender) {
 		String ses = userSessionMap.getSessionByUsername(sender.username);
 		if (ses != null && ses != "") {
@@ -392,65 +446,5 @@ public class Engine {
 			return true;
 		}
 		return false;
-	}
-
-	private synchronized boolean addPlayerToStandbyGame(String username) {
-		Player player = new Player(username);
-		Game g = getEmptyStandbyGame();
-		userStandbyGameMap.put(username, g.getId());
-		return g.AddPlayer(player);
-	}
-
-	private synchronized Game getEmptyStandbyGame() {
-		for (Game g : standbyGames.values()) {
-			if (!g.isFull()) {
-				return g;
-			}
-		}
-		Game g = new Game();
-		standbyGames.put(g.getId(), g);
-		return g;
-	}
-
-	private synchronized Game getPlayerStandbyGame(String username) {
-		return standbyGames.get(userStandbyGameMap.get(username));
-	}
-
-	private ArrayList<String> getReceiverList(ArrayList<Player> players) {
-		ArrayList<String> list = new ArrayList<>();
-		for (Player p : players) {
-			if (userSessionMap.userExists(p.getName())) {
-				list.add(userSessionMap.getSessionByUsername(p.getName()));
-			}
-		}
-		return list;
-	}
-
-	private ArrayList<String> getReceiverListById(ArrayList<String> players) {
-		ArrayList<String> list = new ArrayList<>();
-		for (String p : players) {
-			if (userSessionMap.userExists(p)) {
-				list.add(userSessionMap.getSessionByUsername(p));
-			}
-		}
-		return list;
-	}
-	
-	private static class DbManager{
-		private static boolean firstCall = true;
-		
-		public static DataStore2 getDataStore(){
-			DataStore2 ds = new DataStore2();
-			if (firstCall){
-				ds.createTables();
-				firstCall = false;
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			return ds;
-		}
 	}
 }

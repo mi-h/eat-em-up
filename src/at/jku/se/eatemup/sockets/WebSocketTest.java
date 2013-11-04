@@ -10,6 +10,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import at.jku.se.eatemup.core.BattleCreator;
 import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.TempMessageContainer;
@@ -19,7 +20,6 @@ import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
 import at.jku.se.eatemup.core.logging.Logger;
-import at.jku.se.eatemup.core.logic.BattleCreator;
 import at.jku.se.eatemup.core.model.Battle;
 
 @ServerEndpoint("/websocketTest")

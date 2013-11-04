@@ -1,4 +1,4 @@
-package at.jku.se.eatemup.core.logic;
+package at.jku.se.eatemup.core;
 
 import java.util.HashSet;
 import java.util.Random;
