@@ -3,6 +3,12 @@ package at.jku.se.eatemup.core.database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
+
+import at.jku.se.eatemup.core.logging.LogEntry;
+import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.GoodiePoint;
 
 public class DbOperations {
 
@@ -12,6 +18,44 @@ public class DbOperations {
 
 	public DbOperations() {
 		this.ds = new DataStore();
+	}
+	
+	public static void saveLogEntry(LogEntry e){
+		//TODO
+	}
+	
+	public static ArrayList<LogEntry> getLogEntries(Date start, Date end){
+		//TODO
+		return null;
+	}
+	
+	public static Account getAccountByUsername(String username){
+		//TODO
+		return null;
+	}
+	
+	public static ArrayList<Account> getAccountsByUsernames(ArrayList<String> usernames){
+		//TODO
+		return null;
+	}
+	
+	public static ArrayList<Account> getHighscore(int topX){
+		//TODO
+		return null;
+	}
+	
+	public static void addUserPoints(String username, int points){
+		//TODO
+	}
+	
+	public static String getUserPassword(String username){
+		//TODO
+		return null;
+	}
+	
+	public static ArrayList<GoodiePoint> getGoodiePoints(){
+		//TODO
+		return null;
 	}
 
 	public int selectUserPoints(String _user) {
