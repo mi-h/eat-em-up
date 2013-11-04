@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import at.jku.se.eatemup.core.database.DataStore2;
+import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Position;
@@ -50,6 +51,7 @@ public class DbTest extends HttpServlet {
 		ArrayList<GoodiePoint> points = ds.getGoodiePoints();
 		ds.addUserPoints("tester", 55);
 		*/
+		Logger.log("testlogmsg");
 	}
 
 	/**

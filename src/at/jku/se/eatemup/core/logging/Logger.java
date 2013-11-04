@@ -1,13 +1,36 @@
 package at.jku.se.eatemup.core.logging;
 
 import java.util.Date;
+import java.util.UUID;
+
+import at.jku.se.eatemup.core.database.DataStore2;
 
 public class Logger {
+	
+	private static DataStore2 ds;
 
 	public static synchronized void log(String message) {
 		Date d = new Date();
-		// TODO: save to db!
+		LogEntry le = new LogEntry();
+		le.created = d;
+		le.text = message; 
+		le.id = UUID.randomUUID().toString();
 		consoleOut(message, d);
+		saveLogEntry(le);		
+	}
+	
+	public static void closeConnection(){
+		if (ds != null){
+			ds.closeConnection();
+		}
+	}
+	
+	private static void saveLogEntry(LogEntry logEntry){
+		if (ds == null){
+			ds = new DataStore2();
+			ds.createTables();
+		}
+		ds.saveLogEntry(logEntry);
 	}
 
 	private static void consoleOut(String message, Date d) {

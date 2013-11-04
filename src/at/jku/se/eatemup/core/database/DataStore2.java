@@ -9,7 +9,6 @@ import at.jku.se.eatemup.core.logging.LogEntry;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.GoodiePoint;
-import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Position;
 
 import com.j256.ormlite.dao.Dao;
