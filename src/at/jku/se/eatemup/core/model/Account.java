@@ -1,9 +1,20 @@
 package at.jku.se.eatemup.core.model;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "accounts")
 public class Account {
+	@DatabaseField(id=true)
 	private String name;
+	@DatabaseField
 	private String password;
+	@DatabaseField(index=true)
 	private int points;
+	
+	public Account(){
+		
+	}
 
 	public String getName() {
 		return name;
