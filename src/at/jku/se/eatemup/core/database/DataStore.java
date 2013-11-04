@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import at.jku.se.eatemup.core.logging.LogEntry;
 import at.jku.se.eatemup.core.logging.Logger;
@@ -160,17 +161,39 @@ public class DataStore{
 	}
 	
 	public void addUserPoints(String username, int points){
-		//TODO
+		Account tmp = getAccountByUsername(username);
+		if (tmp != null){
+			tmp.addPoints(points);
+			try {
+				accountDao.createOrUpdate(tmp);
+			} catch (SQLException e) {
+				Logger.log("account point update failed for "+username+"."+Logger.stringifyException(e));
+			}
+		}
 	}
 	
 	public String getUserPassword(String username){
-		//TODO
+		Account tmp = getAccountByUsername(username);
+		if (tmp != null){
+			return tmp.getName();
+		}
 		return null;
 	}
 	
 	public ArrayList<GoodiePoint> getGoodiePoints(){
-		//TODO
-		return null;
+		ArrayList<GoodiePoint> ret = new ArrayList<GoodiePoint>();
+		try {
+			List<Position> list = positionDao.queryForAll();
+			for (Position pos : list){
+				GoodiePoint tmp = new GoodiePoint();
+				tmp.setPosition(pos);
+				ret.add(tmp);
+			}
+			return ret;
+		} catch (SQLException e) {
+			Logger.log("retrieve goodie point positions failed."+Logger.stringifyException(e));
+			return ret;
+		}
 	}
 
 	public boolean connectToDB() {
