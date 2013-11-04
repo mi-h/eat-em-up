@@ -20,7 +20,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-public class DataStore{
+public class DataStore2{
 
 	private String connection;
 	private String url;
@@ -32,7 +32,7 @@ public class DataStore{
 	private Dao<LogEntry,String> logDao;
 	private Dao<Position,Integer> positionDao;
 
-	public DataStore() {
+	public DataStore2() {
 		this.url = "camellia.arvixe.com:1433";
 		this.dbName = "sepr";
 		this.dbUser = "sepruser";

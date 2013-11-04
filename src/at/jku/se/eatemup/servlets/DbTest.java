@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import at.jku.se.eatemup.core.database.DataStore;
+import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Position;
@@ -33,7 +33,7 @@ public class DbTest extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		DataStore ds = new DataStore();
+		DataStore2 ds = new DataStore2();
 		//ds.createTables();
 		//Account acc = new Account();
 		//acc.setName("tester");

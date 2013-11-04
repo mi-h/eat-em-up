@@ -10,7 +10,7 @@ import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.PasswordHashManager;
 import at.jku.se.eatemup.core.Sender;
-import at.jku.se.eatemup.core.database.DataStore;
+import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Player;
@@ -349,7 +349,7 @@ public class Engine {
 
 	private static boolean checkLoginCredentials(String username,
 			String password) {
-		DataStore ds = db.getDataStore();
+		DataStore2 ds = db.getDataStore();
 		/*
 		passwordhash for username and check
 		try {
@@ -439,8 +439,8 @@ public class Engine {
 	private static class DbManager{
 		private static boolean firstCall = true;
 		
-		public static DataStore getDataStore(){
-			DataStore ds = new DataStore();
+		public static DataStore2 getDataStore(){
+			DataStore2 ds = new DataStore2();
 			if (firstCall){
 				ds.createTables();
 				firstCall = false;
