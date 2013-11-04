@@ -1,8 +1,10 @@
 package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import at.jku.se.eatemup.core.model.*;
 
@@ -16,12 +18,14 @@ public class Game {
 	private ConcurrentHashMap<String,Position> playerPositions;
 	private boolean positionProcessingFlag;
 	private static final int radius = 3;
+	private CopyOnWriteArrayList<String> audience;
 
 	public Game() {
 		teams = new Team[2];
 		id = UUID.randomUUID().toString();
 		readyToGoPlayers = new ArrayList<>();
 		playerPositions = new ConcurrentHashMap<>();
+		audience = new CopyOnWriteArrayList<>();
 	}
 
 	public String getId() {
@@ -71,6 +75,10 @@ public class Game {
 
 	public boolean isInRedTeam(Player player) {
 		return teams[0].hasPlayer(player);
+	}
+	
+	public boolean isInRedTeam(String username) {
+		return teams[0].hasPlayer(username);
 	}
 
 	public ArrayList<Player> getPlayers() {
@@ -161,5 +169,26 @@ public class Game {
 	
 	public Position getPlayerPosition(String username){
 		return playerPositions.get(username);
+	}
+	
+	public void addUserToAudience(String username){
+		audience.add(username);
+	}
+	
+	public List<String> getAudienceNames(){
+		return audience;
+	}
+
+	public void removePlayer(String username) {
+		playerPositions.remove(username);
+		if (isInRedTeam(username)){
+			teams[0].removePlayer(username);
+		} else {
+			teams[1].removePlayer(username);
+		}
+	}
+
+	public void removeAudienceUser(String username) {
+		audience.remove(username);
 	}
 }

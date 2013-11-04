@@ -10,6 +10,12 @@ import at.jku.se.eatemup.core.logging.Logger;
 
 public class MessageCreator {
 
+	/**
+	 * Use for outgoing messages.
+	 * @param message
+	 * @param receivers
+	 * @return
+	 */
 	public static MessageContainer createMsgContainer(Message message,
 			ArrayList<String> receivers) {
 		MessageContainer container = new MessageContainer();
@@ -21,7 +27,25 @@ public class MessageCreator {
 		container.sender = new Sender("server","null");
 		return container;
 	}
+	
+	/**
+	 * Use for outgoing messages (shorthand for single receiver).
+	 * @param message
+	 * @param receivers
+	 * @return
+	 */
+	public static MessageContainer createMsgContainer(Message message, String receiver){
+		ArrayList<String> rec = new ArrayList<>();
+		rec.add(receiver);
+		return createMsgContainer(message,rec);
+	}
 
+	/**
+	 * Use for incoming messages.
+	 * @param message
+	 * @param sessionId
+	 * @return
+	 */
 	public static MessageContainer createMsgContainer(String message,
 			String sessionId) {
 		try {

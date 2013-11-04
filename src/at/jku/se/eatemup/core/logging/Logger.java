@@ -13,4 +13,14 @@ public class Logger {
 	private static void consoleOut(String message, Date d) {
 		System.out.println(d.toString() + ": " + message);
 	}
+	
+	public static String stringifyException(Exception exception){
+		StringBuilder sb = new StringBuilder(exception.getMessage());
+		sb.append("</br>");
+		for (StackTraceElement ste : exception.getStackTrace()){
+			sb.append(ste.toString());
+			sb.append("</br>");
+		}
+		return sb.toString();
+	}
 }

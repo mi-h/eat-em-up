@@ -53,4 +53,17 @@ public class Team {
 		}
 		return false;
 	}
+
+	public void removePlayer(String username) {
+		Player rem = null;
+		for (Player p : players) {
+			if (p.getName().equals(username)) {
+				rem = p;
+				break;
+			}
+		}
+		if (rem != null) {
+			players.remove(rem);
+		}
+	}
 }

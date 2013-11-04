@@ -2,6 +2,7 @@ package at.jku.se.eatemup.core.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.*;
 
 import at.jku.se.eatemup.core.MessageContainer;
@@ -11,6 +12,7 @@ import at.jku.se.eatemup.core.PasswordHashManager;
 import at.jku.se.eatemup.core.Sender;
 import at.jku.se.eatemup.core.database.DbOperations;
 import at.jku.se.eatemup.core.json.messages.*;
+import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.sockets.SessionStore;
 
@@ -26,6 +28,7 @@ public class Engine {
 			// TODO Auto-generated method stub
 		}
 	}
+
 	private class ExitTask extends GameTask<ExitMessage> {
 
 		public ExitTask(ExitMessage message, Sender sender) {
@@ -34,9 +37,48 @@ public class Engine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			sendLogoutMessage(sender.session,"accepting exit action, user logout", sender.username);
+			removeUserFromAllRunningGames(sender.username);
+			removeUserFromAllStandbyGames(sender.username);
+			removeUserFromAllAudiences(sender.username);
+			userSessionMap.removeUser(sender.session);
+			SessionStore.removeSession(sender.session);
+		}
+
+		private void removeUserFromAllAudiences(String username) {
+			if(userGameAudienceMap.containsKey(username)){
+				try{
+				Game g = runningGames.get(userGameAudienceMap.get(username));
+				g.removeAudienceUser(username);
+				} catch (Exception ex){
+					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
+				}
+			}
+		}
+
+		private void removeUserFromAllStandbyGames(String username) {
+			if(userStandbyGameMap.containsKey(username)){
+				try{
+				Game g = standbyGames.get(userStandbyGameMap.get(username));
+				g.removePlayer(username);
+				} catch (Exception ex){
+					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
+				}
+			}
+		}
+
+		private void removeUserFromAllRunningGames(String username) {
+			if(userGameMap.containsKey(username)){
+				try{
+				Game g = runningGames.get(userGameMap.get(username));
+				g.removePlayer(username);
+				} catch (Exception ex){
+					Logger.log("failed to remove player from running game."+Logger.stringifyException(ex));
+				}
+			}
 		}
 	}
+
 	private class FollowGameRequestTask extends
 			GameTask<FollowGameRequestMessage> {
 
@@ -47,9 +89,39 @@ public class Engine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			if (isAGameRunning()) {
+				Game g = getARunningGame();
+				if (g != null) {
+					try {
+						g.addUserToAudience(sender.username);
+						userGameAudienceMap.put(sender.username, g.getId());
+					} catch (Exception ex) {
+						Logger.log("failed adding a viewer to a running game.</br>"
+								+ Logger.stringifyException(ex));
+					}
+				}
+			}
+		}
+
+		private boolean isAGameRunning() {
+			return runningGames.size() >= 1;
+		}
+
+		private Game getARunningGame() {
+			Random rand = new Random();
+			try {
+				int idx = rand.nextInt(runningGames.size());
+				Game g = runningGames.get((new ArrayList<String>(runningGames
+						.keySet()).get(idx)));
+				return g;
+			} catch (Exception ex) {
+				Logger.log("failed retrieving a running game for audience viewing.</br>"
+						+ Logger.stringifyException(ex));
+				return null;
+			}
 		}
 	}
+
 	private abstract class GameTask<T> implements Runnable {
 		protected T message;
 		protected Sender sender;
@@ -59,6 +131,7 @@ public class Engine {
 			this.sender = sender;
 		}
 	}
+
 	private class LoginTask extends GameTask<LoginMessage> {
 
 		public LoginTask(LoginMessage message, Sender sender) {
@@ -68,6 +141,17 @@ public class Engine {
 		@Override
 		public void run() {
 			userSessionMap.addUser(sender);
+		}
+	}
+
+	private class PlayTask extends GameTask<PlayMessage> {
+
+		public PlayTask(PlayMessage message, Sender sender) {
+			super(message, sender);
+		}
+
+		@Override
+		public void run() {
 			GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
 			msg.readyForStart = addPlayerToStandbyGame(message.username);
 			msg.players = new ArrayList<>();
@@ -83,17 +167,7 @@ public class Engine {
 			MessageHandler.PushMessage(container);
 		}
 	}
-	private class PlayTask extends GameTask<PlayMessage> {
 
-		public PlayTask(PlayMessage message, Sender sender) {
-			super(message, sender);
-		}
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-		}
-	}
 	private class PositionTask extends GameTask<PositionMessage> {
 
 		public PositionTask(PositionMessage message, Sender sender) {
@@ -188,6 +262,8 @@ public class Engine {
 	private static UserSession userSessionMap = new UserSession();
 
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
+	
+	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
 
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 
@@ -202,6 +278,17 @@ public class Engine {
 			return true;
 		}
 		return false;
+	}
+
+	public void sendLogoutMessage(String session, String reason, String username) {
+		try{
+		LogoutMessage message = new LogoutMessage();
+		message.reason = reason;
+		message.username = username;
+		MessageHandler.PushMessage(MessageCreator.createMsgContainer(message, username));
+		} catch (Exception ex){
+			Logger.log("failed sending logout message."+Logger.stringifyException(ex));
+		}
 	}
 
 	public static boolean acceptExit(ExitMessage message, Sender sender) {
@@ -260,7 +347,7 @@ public class Engine {
 
 	private static boolean checkLoginCredentials(String username,
 			String password) {
-		//DbOperations db = new DbOperations();
+		// DbOperations db = new DbOperations();
 		// TODO get passwordhash for username and check
 		try {
 			PasswordHashManager.check(password, "fromdb");
