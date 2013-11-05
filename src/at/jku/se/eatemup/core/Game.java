@@ -1,13 +1,19 @@
 package at.jku.se.eatemup.core;
 
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
 import at.jku.se.eatemup.core.model.*;
 import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
 import at.jku.se.eatemup.core.model.specialaction.InvisibleAction;
@@ -31,6 +37,7 @@ public class Game {
 	private static final int minGoodieInGameQuota = 5; //percent of loc points
 	private static final int goodieMinPoints = 5;
 	private static final int goodieMaxPoints = 15;
+	private Timer ticker;
 
 	public Game() {
 		teams = new Team[2];
@@ -331,11 +338,83 @@ public class Game {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
 	
-	public ArrayList<String> getBroadcastReceiverNames(){
+	public ArrayList<String> getPlayerNames(){
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : getPlayers()){
 			list.add(p.getName());
 		}
 		return list;
 	}
+	
+	public ArrayList<String> getBroadcastReceiverNames(){
+		ArrayList<String> list = new ArrayList<>();
+		list.addAll(getPlayerNames());
+		list.addAll(audience);
+		return list;
+	}
+	
+	public void startGame(){
+		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
+	}
+	
+	public void cancelGameTicker(){
+		ticker.cancel();
+	}
+	
+	private class GameTick extends TimerTask{
+		@Override
+		public void run() {
+			playtime--;
+			if (playtime <= 0){
+				cancelGameTicker();
+				endGame();
+			} else {
+				sendTimerUpdate();
+			}
+		}
+	}
+
+	public void endGame() {
+		sendGameEnd();
+		processGameEnd();
+		Engine.endGame(this);
+	}
+	
+	private void processGameEnd() {
+		Engine.updateAccountPoints(getPlayers());
+	}
+
+	private boolean hasTeamRedWon(){
+		int trp = teams[0].calcTotalPoints();
+		int tbp = teams[1].calcTotalPoints();
+		return trp>tbp;
+	}
+
+	private void sendGameEnd() {
+		GameEndMessage message = new GameEndMessage();
+		message.teamRedWin = hasTeamRedWon();
+		message.playerResults = createPlayerResults();
+		MessageContainer container = MessageCreator.createMsgContainer(message, getBroadcastReceiverNames());
+		MessageHandler.PushMessage(container);
+	}
+
+	private ArrayList<HashMap<String, Object>> createPlayerResults() {
+		ArrayList<HashMap<String, Object>> results = new ArrayList<>();
+		for (Player p : getPlayers()){
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("username", p.getName());
+			map.put("points", p.getPoints());
+			results.add(map);
+		}
+		return results;
+	}
+
+	public void sendTimerUpdate() {
+		Date d = new Date();
+		TimerUpdateMessage message = new TimerUpdateMessage();
+		message.remainingTime = playtime;
+		message.currentTimestamp = d.getTime();
+		MessageContainer container = MessageCreator.createMsgContainer(message, getBroadcastReceiverNames());
+		MessageHandler.PushMessage(container);
+	}	
 }

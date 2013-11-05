@@ -2,15 +2,15 @@ package at.jku.se.eatemup.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.*;
 
 import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
-import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
-import at.jku.se.eatemup.core.model.Goodie;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Player;
@@ -356,6 +356,17 @@ public class Engine {
 		public boolean userExistsBySession(String session) {
 			return sessionUsernameMap.containsKey(session);
 		}
+
+		public void removeAllInvolvedUsers(Game game) {
+			for (String name : game.getBroadcastReceiverNames()) {
+				try {
+					removeUser(getSessionByUsername(name));
+				} catch (Exception ex) {
+					Logger.log("trying to remove non-existing session."
+							+ Logger.stringifyException(ex));
+				}
+			}
+		}
 	}
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
@@ -578,5 +589,77 @@ public class Engine {
 			return true;
 		}
 		return false;
+	}
+
+	public static void endGame(Game game) {
+		runningGames.remove(game);
+		try {
+			standbyGames.remove(game);
+		} catch (Exception ex) {
+			Logger.log("failed to end standby game, may have been running already");
+		}
+		try {
+			userSessionMap.removeAllInvolvedUsers(game);
+		} catch (Exception ex) {
+			Logger.log("failed to remove user session");
+		}
+		try {
+			removeGameFromMap(game.getId(), userGameMap);
+		} catch (Exception ex) {
+			Logger.log("failed to remove user from game map");
+		}
+		try {
+			removeGameFromMap(game.getId(), userGameAudienceMap);
+		} catch (Exception ex) {
+			Logger.log("failed to remove user from audience map");
+		}
+		try {
+			removeGameFromMap(game.getId(), userStandbyGameMap);
+		} catch (Exception ex) {
+			Logger.log("failed to remove user from standby game map");
+		}
+	}
+
+	private static void removeGameFromMap(String gameId, Map<String, String> map) {
+		ArrayList<String> remList = new ArrayList<>();
+		for (Entry<String, String> e : map.entrySet()) {
+			if (e.getValue().equals(gameId)) {
+				remList.add(e.getKey());
+			}
+		}
+		for (String key : remList) {
+			map.remove(key);
+		}
+	}
+
+	public static void updateAccountPoints(ArrayList<Player> players) {
+		UpdatePointsTask task = instance.new UpdatePointsTask(players,
+				DbManager.getDataStore());
+		service.execute(task);
+	}
+
+	private class UpdatePointsTask implements Runnable {
+
+		private ArrayList<Player> players;
+		private DataStore2 datastore;
+
+		public UpdatePointsTask(ArrayList<Player> players, DataStore2 datastore) {
+			this.players = players;
+			this.datastore = datastore;
+		}
+
+		@Override
+		public void run() {
+			try {
+				for (Player p : this.players) {
+					this.datastore.addUserPoints(p.getName(), p.getPoints());
+				}
+			} catch (Exception ex) {
+				Logger.log("updating player points failed."
+						+ Logger.stringifyException(ex));
+			} finally {
+				this.datastore.closeConnection();
+			}
+		}
 	}
 }

@@ -66,4 +66,12 @@ public class Team {
 			players.remove(rem);
 		}
 	}
+
+	public int calcTotalPoints() {
+		int sum = 0;
+		for (Player p : players){
+			sum += p.getPoints();
+		}
+		return sum;
+	}
 }
