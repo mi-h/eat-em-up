@@ -10,6 +10,7 @@ import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
+import at.jku.se.eatemup.core.model.Goodie;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Player;
@@ -38,14 +39,16 @@ public class Engine {
 				switch (bw) {
 				case User1: {
 					message.winner = b.getUsername1();
-					points = g.getBattleWinPoints(b.getUsername1(), b.getUsername2());
+					points = g.getBattleWinPoints(b.getUsername1(),
+							b.getUsername2());
 					g.addPlayerPoints(b.getUsername1(), points);
 					g.addPlayerPoints(b.getUsername2(), -points);
 				}
 					break;
 				case User2: {
 					message.winner = b.getUsername2();
-					points = g.getBattleWinPoints(b.getUsername2(), b.getUsername1());
+					points = g.getBattleWinPoints(b.getUsername2(),
+							b.getUsername1());
 					g.addPlayerPoints(b.getUsername2(), points);
 					g.addPlayerPoints(b.getUsername1(), -points);
 				}
@@ -60,7 +63,8 @@ public class Engine {
 				ArrayList<String> recs = new ArrayList<>();
 				recs.add(b.getUsername1());
 				recs.add(b.getUsername2());
-				MessageContainer container = MessageCreator.createMsgContainer(message, recs);
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, recs);
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -253,7 +257,15 @@ public class Engine {
 			Game game = getPlayerStandbyGame(message.username);
 			game.setPlayerReady(message.username);
 			if (game.allPlayersReady()) {
-				// TODO send GameStart etc.
+				ArrayList<Player> players = game.getPlayers();
+				ArrayList<GoodiePoint> goodies = game.getGoodiePoints();
+				GameStartMessage message = new GameStartMessage();
+				message.playerInfo = createPlayerInfoData(players, game);
+				message.goodies = createGoodieData(goodies);
+				message.remainingTime = defaultGameTimeSeconds;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, game.getBroadcastReceiverNames());
+				MessageHandler.PushMessage(container);
 			} else {
 				if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();
@@ -265,6 +277,37 @@ public class Engine {
 					game.setStartSurveySent(true);
 				}
 			}
+		}
+
+		private ArrayList<HashMap<String, Object>> createGoodieData(
+				ArrayList<GoodiePoint> goodies) {
+			ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+			for (GoodiePoint gp : goodies) {
+				HashMap<String, Object> map = new HashMap<>();
+				map.put("latitude", gp.getPosition().getLatitude());
+				map.put("longitude", gp.getPosition().getLongitude());
+				map.put("specialAction", gp.getGoodie().getSpecialAction()
+						.getName());
+				list.add(map);
+			}
+			return list;
+		}
+
+		private ArrayList<HashMap<String, Object>> createPlayerInfoData(
+				ArrayList<Player> players, Game game) {
+			ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+			for (Player p : players) {
+				HashMap<String, Object> map = new HashMap<>();
+				HashMap<String, Object> pMap = new HashMap<>();
+				map.put("username", p.getName());
+				map.put("points", 0);
+				Position pos = game.getPlayerPosition(p.getName());
+				pMap.put("latitude", pos.getLatitude());
+				pMap.put("longitude", pos.getLongitude());
+				map.put("position", pMap);
+				list.add(map);
+			}
+			return list;
 		}
 	}
 
@@ -330,9 +373,10 @@ public class Engine {
 	private static ExecutorService service = Executors.newCachedThreadPool();
 
 	private static Engine instance = new Engine();
-	
+
 	private static final double jkuCenterLat = 48.337050;
 	private static final double jkuCenterLong = 14.319600;
+	private static final int defaultGameTimeSeconds = 600;
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
@@ -391,7 +435,8 @@ public class Engine {
 	public static boolean acceptRequestForGameStart(
 			RequestForGameStartMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new RequestForGameStartTask(message, sender));
+			service.execute(instance.new RequestForGameStartTask(message,
+					sender));
 			return true;
 		}
 		return false;

@@ -9,7 +9,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 public class PlayerHasEatenMessage extends OutgoingMessage {
 	public String username;
 	public HashMap<String, Double> goodie;
-	public int newPoints;
+	public int points;
 	public HashMap<String, Object> team;
 
 	@Override

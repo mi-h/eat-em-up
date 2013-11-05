@@ -326,4 +326,16 @@ public class Game {
 		g.setName(name);
 		return g;
 	}
+
+	public ArrayList<GoodiePoint> getGoodiePoints() {
+		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
+	}
+	
+	public ArrayList<String> getBroadcastReceiverNames(){
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : getPlayers()){
+			list.add(p.getName());
+		}
+		return list;
+	}
 }
