@@ -240,7 +240,22 @@ public class Engine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			String uid = message.username;
+			Position p = new Position();
+			p.setLatitude(message.latitude);
+			p.setLongitude(message.longitude);
+			Game g;
+			if (forStandbyGame(uid)){
+				g = getPlayerStandbyGame(uid);
+				g.setPlayerPosition(uid, p,message.timestamp);
+			} else {
+				g = getPlayerGame(uid);
+				g.processPlayerPositionChange(uid, p,message.timestamp);
+			}
+		}
+
+		private boolean forStandbyGame(String uid) {
+			return userStandbyGameMap.containsKey(uid);
 		}
 	}
 

@@ -51,4 +51,8 @@ public class Position {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	public boolean differentFrom(Position p) {
+		return p.latitude!=this.latitude || p.longitude!=this.longitude;
+	}
 }

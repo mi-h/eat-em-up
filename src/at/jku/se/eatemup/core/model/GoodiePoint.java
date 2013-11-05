@@ -1,9 +1,5 @@
 package at.jku.se.eatemup.core.model;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
-
 public class GoodiePoint {
 	private Goodie goodie;
 	private Position position;

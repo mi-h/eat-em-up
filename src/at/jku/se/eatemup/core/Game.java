@@ -12,7 +12,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
 import at.jku.se.eatemup.core.model.*;
 import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
@@ -28,6 +30,7 @@ public class Game {
 	private ArrayList<String> readyToGoPlayers;
 	private boolean startSurveySent;
 	private ConcurrentHashMap<String, Position> playerPositions;
+	private ConcurrentHashMap<String, Long> playerPositionLastMessage;
 	private boolean positionProcessingFlag;
 	private static final int radius = 3;
 	private CopyOnWriteArrayList<String> audience;
@@ -46,6 +49,7 @@ public class Game {
 		playerPositions = new ConcurrentHashMap<>();
 		audience = new CopyOnWriteArrayList<>();
 		battles = new CopyOnWriteArrayList<>();
+		playerPositionLastMessage = new ConcurrentHashMap<>();
 	}
 
 	public String getId() {
@@ -416,5 +420,75 @@ public class Game {
 		message.currentTimestamp = d.getTime();
 		MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
 		MessageHandler.PushMessage(container);
+	}
+
+	public void setPlayerPosition(String uid, Position p, long timestamp) {
+		setPlayerPosition(uid,p);
+		playerPositionLastMessage.put(uid, timestamp);
+	}
+
+	public void processPlayerPositionChange(String uid, Position p,
+			long timestamp) {
+		Position oldPos = playerPositions.get(uid);
+		if (oldPos.differentFrom(p)){
+			PlayerMovedMessage message = new PlayerMovedMessage();
+			message.username = uid;
+			HashMap<String,Double> pos = new HashMap<>();
+			pos.put("latitude", p.getLatitude());
+			pos.put("longitude", p.getLongitude());
+			message.position = pos;
+			MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
+			MessageHandler.PushMessage(container);
+		}
+		setPlayerPosition(uid,p,timestamp);
+		ArrayList<GoodiePoint> goodiePoints = getGoodiePointsInPlayerRange(uid);
+		boolean hasEaten = false;
+		for (GoodiePoint gp : goodiePoints){
+			Goodie temp = gp.getGoodie();
+			if (temp != null){
+				playerEatsGoodie(uid,temp,gp.getPosition());
+				gp.setGoodie(null);
+				hasEaten = true;
+			}
+		}
+		if (hasEaten){
+			createGoodies(false);
+		}
+		Player battleOp = getPlayerInPlayerRange(uid);
+		if (battleOp != null){
+			Battle b = BattleCreator.CreateBattle(uid, battleOp.getName());
+			battles.add(b);
+			BattleStartMessage message = new BattleStartMessage();
+			message.answers = b.getResult();
+			message.question = b.getQuestion();
+			message.timelimit = b.getTime();
+			message.username1 = b.getUsername1();
+			message.username2 = b.getUsername2();
+			ArrayList<String> receivers = new ArrayList<>();
+			receivers.add(b.getUsername1());
+			receivers.add(b.getUsername2());
+			MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(receivers));
+			MessageHandler.PushMessage(container);
+		}	
+	}
+
+	private Player getPlayerInPlayerRange(String uid) {
+		Position playerPos = playerPositions.get(uid);
+		for (Player p : getPlayers()){
+			if (!p.getName().equals(uid)){
+				Position tempPos = playerPositions.get(p.getName());
+				if (tempPos != null){
+					if(playerPos.calcDistance(tempPos)<radius){
+						return p;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private void playerEatsGoodie(String uid, Goodie temp, Position position) {
+		addPlayerPoints(uid,temp.getPoints());
+		
 	}	
 }
