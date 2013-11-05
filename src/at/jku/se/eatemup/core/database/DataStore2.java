@@ -65,18 +65,21 @@ public class DataStore2 implements IDatabaseAPI{
 	public void createTables(){
 		try {
 			TableUtils.createTableIfNotExists(connectionSource, Account.class);
+			Logger.log("account table created.");
 		} catch (SQLException e) {
 			Logger.log("account table creation failed."+Logger.stringifyException(e));
 		}
 		try {
 			TableUtils.createTableIfNotExists(connectionSource, LogEntry.class);
+			Logger.log("log table created.");
 		} catch (SQLException e) {
 			Logger.log("log table creation failed."+Logger.stringifyException(e));
 		}
 		try {
 			TableUtils.createTable(connectionSource, Position.class);
+			Logger.log("goodieLocation table created.");
 		} catch (SQLException e) {
-			Logger.log("position table creation failed."+Logger.stringifyException(e));
+			Logger.log("goodieLocation table creation failed."+Logger.stringifyException(e));
 		}
 	}
 	
@@ -197,7 +200,6 @@ public class DataStore2 implements IDatabaseAPI{
 		try {
 			accountDao.createIfNotExists(acc);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -206,7 +208,6 @@ public class DataStore2 implements IDatabaseAPI{
 		try {
 			positionDao.createIfNotExists(position);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

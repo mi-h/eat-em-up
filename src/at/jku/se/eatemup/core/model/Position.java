@@ -9,9 +9,9 @@ import at.jku.se.eatemup.core.GPSTool;
 public class Position {
 	@DatabaseField(generatedId=true)
 	private int id;
-	@DatabaseField
+	@DatabaseField(unique=true)
 	private double longitude;
-	@DatabaseField
+	@DatabaseField(unique=true)
 	private double latitude;
 	
 	public Position(){

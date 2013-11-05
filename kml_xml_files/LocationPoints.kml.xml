@@ -1,0 +1,607 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://www.opengis.net/kml/2.2'>
+	<Document>
+		<name>Eat Em Up</name>
+		<description><![CDATA[SE PR]]></description>
+		<Folder>
+			<name>Unbenannte Ebene</name>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 1</name>
+				<Point>
+					<coordinates>14.318532943725586,48.33748844154077,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 2</name>
+				<Point>
+					<coordinates>14.318522214889526,48.337336888342605,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 3</name>
+				<Point>
+					<coordinates>14.318500757217407,48.33721029650233,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 4</name>
+				<Point>
+					<coordinates>14.318481981754303,48.33710331723734,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 5</name>
+				<Point>
+					<coordinates>14.318463206291199,48.337003469720806,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 6</name>
+				<Point>
+					<coordinates>14.31844711303711,48.33689292402797,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 7</name>
+				<Point>
+					<coordinates>14.317975044250488,48.33694284791895,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 8</name>
+				<Point>
+					<coordinates>14.318001866340637,48.33708013836701,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 9</name>
+				<Point>
+					<coordinates>14.31804209947586,48.33731014361379,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 10</name>
+				<Point>
+					<coordinates>14.31806355714798,48.33743851818408,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 11</name>
+				<Point>
+					<coordinates>14.317843616008759,48.3372209944165,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 12</name>
+				<Point>
+					<coordinates>14.317586123943329,48.33723704128351,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 13</name>
+				<Point>
+					<coordinates>14.315823912620544,48.337492007492955,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 14</name>
+				<Point>
+					<coordinates>14.315856099128723,48.337727359785276,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 15</name>
+				<Point>
+					<coordinates>14.315888285636902,48.337944881392346,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 16</name>
+				<Point>
+					<coordinates>14.316220879554749,48.338069688452784,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 17</name>
+				<Point>
+					<coordinates>14.316532015800476,48.338044727065125,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 18</name>
+				<Point>
+					<coordinates>14.316837787628174,48.33801976566528,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 19</name>
+				<Point>
+					<coordinates>14.314761757850647,48.337845035524,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 20</name>
+				<Point>
+					<coordinates>14.314740300178528,48.33774518946013,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 21</name>
+				<Point>
+					<coordinates>14.31470811367035,48.337534798899625,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 22</name>
+				<Point>
+					<coordinates>14.31469202041626,48.33742425435889,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 23</name>
+				<Point>
+					<coordinates>14.314946830272675,48.33754371377151,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 24</name>
+				<Point>
+					<coordinates>14.314970970153809,48.33771131307258,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 25</name>
+				<Point>
+					<coordinates>14.315003156661987,48.33786821404659,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 26</name>
+				<Point>
+					<coordinates>14.315958023071289,48.33660407769917,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 27</name>
+				<Point>
+					<coordinates>14.31593656539917,48.33646500295719,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 28</name>
+				<Point>
+					<coordinates>14.315909743309021,48.33631879576813,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 29</name>
+				<Point>
+					<coordinates>14.31642472743988,48.336571983561626,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 30</name>
+				<Point>
+					<coordinates>14.316397905349731,48.336436474758116,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 31</name>
+				<Point>
+					<coordinates>14.316379129886627,48.336277786359325,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 32</name>
+				<Point>
+					<coordinates>14.319190084934235,48.33770061526132,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 33</name>
+				<Point>
+					<coordinates>14.319410026073456,48.33768278557089,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 34</name>
+				<Point>
+					<coordinates>14.319882094860077,48.33764712617131,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 35</name>
+				<Point>
+					<coordinates>14.320096671581268,48.33763107943338,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 36</name>
+				<Point>
+					<coordinates>14.319131076335907,48.33805007593495,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 37</name>
+				<Point>
+					<coordinates>14.31966483592987,48.33800906791872,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 38</name>
+				<Point>
+					<coordinates>14.320225417613983,48.33796449395066,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 39</name>
+				<Point>
+					<coordinates>14.319005012512207,48.33799123833618,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 40</name>
+				<Point>
+					<coordinates>14.318978190422058,48.33783255477672,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 41</name>
+				<Point>
+					<coordinates>14.31894063949585,48.3375936370252,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 42</name>
+				<Point>
+					<coordinates>14.321019351482391,48.33712114713041,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 43</name>
+				<Point>
+					<coordinates>14.320971071720123,48.336891141030954,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 44</name>
+				<Point>
+					<coordinates>14.320933520793915,48.336664699903864,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 45</name>
+				<Point>
+					<coordinates>14.320895969867706,48.33641686161198,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 46</name>
+				<Point>
+					<coordinates>14.320877194404602,48.33624569201637,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 47</name>
+				<Point>
+					<coordinates>14.320845007896423,48.33603172921371,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 48</name>
+				<Point>
+					<coordinates>14.320828914642334,48.33585520922556,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 49</name>
+				<Point>
+					<coordinates>14.321244657039642,48.336607643713215,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 50</name>
+				<Point>
+					<coordinates>14.321478009223938,48.33665756788352,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 51</name>
+				<Point>
+					<coordinates>14.32167649269104,48.336687878963076,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 52</name>
+				<Point>
+					<coordinates>14.321845471858978,48.33673780305484,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 53</name>
+				<Point>
+					<coordinates>14.32057410478592,48.33648105006218,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 54</name>
+				<Point>
+					<coordinates>14.320582151412964,48.3363865503713,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 55</name>
+				<Point>
+					<coordinates>14.320598244667053,48.33631344671669,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 56</name>
+				<Point>
+					<coordinates>14.318302273750305,48.3360459934285,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 57</name>
+				<Point>
+					<coordinates>14.31831568479538,48.33613514468043,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 58</name>
+				<Point>
+					<coordinates>14.318334460258484,48.33623321087753,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 59</name>
+				<Point>
+					<coordinates>14.322046637535095,48.33592118141385,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 60</name>
+				<Point>
+					<coordinates>14.321896433830261,48.33591583232068,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 61</name>
+				<Point>
+					<coordinates>14.322223663330078,48.3358106333743,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 62</name>
+				<Point>
+					<coordinates>14.322347044944763,48.335733962819006,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 63</name>
+				<Point>
+					<coordinates>14.322486519813538,48.335651943027564,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 64</name>
+				<Point>
+					<coordinates>14.322628676891327,48.33577140659297,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 65</name>
+				<Point>
+					<coordinates>14.322762787342072,48.33568760382267,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 66</name>
+				<Point>
+					<coordinates>14.32267427444458,48.33555744179989,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 67</name>
+				<Point>
+					<coordinates>14.322803020477295,48.33561093308234,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 68</name>
+				<Point>
+					<coordinates>14.322888851165771,48.335826680685244,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 69</name>
+				<Point>
+					<coordinates>14.322980046272278,48.335760708374636,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 70</name>
+				<Point>
+					<coordinates>14.322950541973114,48.335678688626224,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 71</name>
+				<Point>
+					<coordinates>14.323210716247559,48.33587482258774,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 72</name>
+				<Point>
+					<coordinates>14.32329922914505,48.33579993516419,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 73</name>
+				<Point>
+					<coordinates>14.323390424251556,48.335726830668456,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 74</name>
+				<Point>
+					<coordinates>14.323360919952393,48.33561449916585,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 75</name>
+				<Point>
+					<coordinates>14.323245584964752,48.335568140060865,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 76</name>
+				<Point>
+					<coordinates>14.322985410690308,48.33544332687644,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 77</name>
+				<Point>
+					<coordinates>14.322856664657593,48.33538805236857,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 78</name>
+				<Point>
+					<coordinates>14.324001967906952,48.33527215401233,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 79</name>
+				<Point>
+					<coordinates>14.323883950710297,48.335339910006425,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 80</name>
+				<Point>
+					<coordinates>14.323744475841522,48.33542371334823,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 81</name>
+				<Point>
+					<coordinates>14.324248731136322,48.33510811281167,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 82</name>
+				<Point>
+					<coordinates>14.324342608451843,48.33503500732396,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 83</name>
+				<Point>
+					<coordinates>14.324125349521637,48.335204397928216,0.0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#icon-959-FF7C2F</styleUrl>
+				<name>Punkt 84</name>
+				<Point>
+					<coordinates>14.32443380355835,48.334965467860314,0.0</coordinates>
+				</Point>
+			</Placemark>
+		</Folder>
+		<Style id='icon-959-FF7C2F'>
+			<IconStyle>
+				<color>ff2F7CFF</color>
+				<scale>1.1</scale>
+				<Icon>
+					<href>http://www.gstatic.com/mapspro/images/stock/959-wht-circle-blank.png</href>
+				</Icon>
+			</IconStyle>
+		</Style>
+	</Document>
+</kml>
