@@ -14,7 +14,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
+import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
 import at.jku.se.eatemup.core.model.*;
 import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
@@ -489,6 +491,34 @@ public class Game {
 
 	private void playerEatsGoodie(String uid, Goodie temp, Position position) {
 		addPlayerPoints(uid,temp.getPoints());
-		
+		PlayerHasEatenMessage message = new PlayerHasEatenMessage();
+		message.points = getPlayerPoints(uid);
+		message.username = uid;
+		HashMap<String,Double> posMap = new HashMap<>();
+		HashMap<String,Object> teamMap = new HashMap<>();
+		posMap.put("latitude", position.getLatitude());
+		posMap.put("longitude", position.getLongitude());
+		if (isInRedTeam(uid)){
+			teamMap.put("teamRed",true);
+			teamMap.put("newTeamPoints", teams[0].getPoints());
+		} else {
+			teamMap.put("teamRed",false);
+			teamMap.put("newTeamPoints", teams[1].getPoints());
+		}
+		message.goodie = posMap;
+		message.team = teamMap;
+		MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
+		MessageHandler.PushMessage(container);
+		if (!temp.getSpecialAction().getName().equals("NoAction")){
+			activateSpecialAction(uid,temp.getSpecialAction());
+		}
+	}
+
+	private void activateSpecialAction(String uid, SpecialAction specialAction) {
+		SpecialActionActivatedMessage message = new SpecialActionActivatedMessage();
+		message.specialAction = specialAction.getName();
+		MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
+		MessageHandler.PushMessage(container);
+		Engine.scheduleSpecialActionDeactivation(uid,specialAction,Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
 	}	
 }
