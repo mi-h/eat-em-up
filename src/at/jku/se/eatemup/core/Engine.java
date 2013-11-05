@@ -337,7 +337,7 @@ public class Engine {
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new BattleAnswerTask(message, sender));
+			service.execute(instance.new BattleAnswerTask(message, sender));
 			return true;
 		}
 		return false;
@@ -345,7 +345,7 @@ public class Engine {
 
 	public static boolean acceptExit(ExitMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new ExitTask(message, sender));
+			service.execute(instance.new ExitTask(message, sender));
 			return true;
 		}
 		return false;
@@ -354,7 +354,7 @@ public class Engine {
 	public static boolean acceptFollowGameRequest(
 			FollowGameRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new FollowGameRequestTask(message, sender));
+			service.execute(instance.new FollowGameRequestTask(message, sender));
 			return true;
 		}
 		return false;
@@ -365,7 +365,7 @@ public class Engine {
 			boolean check = checkLoginCredentials(message.username,
 					message.password);
 			if (check) {
-				service.submit(instance.new LoginTask(message, sender));
+				service.execute(instance.new LoginTask(message, sender));
 			}
 			return check;
 		}
@@ -374,7 +374,7 @@ public class Engine {
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new PlayTask(message, sender));
+			service.execute(instance.new PlayTask(message, sender));
 			return true;
 		}
 		return false;
@@ -382,7 +382,7 @@ public class Engine {
 
 	public static boolean acceptPosition(PositionMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new PositionTask(message, sender));
+			service.execute(instance.new PositionTask(message, sender));
 			return true;
 		}
 		return false;
@@ -391,7 +391,7 @@ public class Engine {
 	public static boolean acceptRequestForGameStart(
 			RequestForGameStartMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.submit(instance.new RequestForGameStartTask(message, sender));
+			service.execute(instance.new RequestForGameStartTask(message, sender));
 			return true;
 		}
 		return false;
@@ -413,6 +413,7 @@ public class Engine {
 		 * { e.printStackTrace(); }
 		 */
 		String storedPw = ds.getUserPassword(username);
+		ds.closeConnection();
 		return storedPw.equals(password);
 	}
 
