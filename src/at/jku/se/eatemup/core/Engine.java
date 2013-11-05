@@ -64,7 +64,7 @@ public class Engine {
 				recs.add(b.getUsername1());
 				recs.add(b.getUsername2());
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, recs);
+						message, userSessionMap.convertNameListToSessionList(recs));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -264,7 +264,7 @@ public class Engine {
 				message.goodies = createGoodieData(goodies);
 				message.remainingTime = defaultGameTimeSeconds;
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, game.getBroadcastReceiverNames());
+						message, userSessionMap.convertNameListToSessionList(game.getBroadcastReceiverNames()));
 				MessageHandler.PushMessage(container);
 			} else {
 				if (!game.isStartSurveySent()) {
@@ -311,7 +311,7 @@ public class Engine {
 		}
 	}
 
-	private static class UserSession {
+	static class UserSession {
 		private ConcurrentHashMap<String, String> usernameSessionMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
 
@@ -367,13 +367,24 @@ public class Engine {
 				}
 			}
 		}
+		
+		public ArrayList<String> convertNameListToSessionList(ArrayList<String> nameList){
+			ArrayList<String> list = new ArrayList<>();
+			for (String name : nameList){
+				String ses = getSessionByUsername(name);
+				if (ses != null && !ses.equals("")){
+					list.add(ses);
+				}
+			}
+			return list;
+		}
 	}
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
 
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 
-	private static UserSession userSessionMap = new UserSession();
+	public static UserSession userSessionMap = new UserSession();
 
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
 
@@ -566,7 +577,7 @@ public class Engine {
 			message.reason = reason;
 			message.username = username;
 			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
-					message, username));
+					message, userSessionMap.getSessionByUsername(username)));
 		} catch (Exception ex) {
 			Logger.log("failed sending logout message."
 					+ Logger.stringifyException(ex));

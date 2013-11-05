@@ -394,7 +394,7 @@ public class Game {
 		GameEndMessage message = new GameEndMessage();
 		message.teamRedWin = hasTeamRedWon();
 		message.playerResults = createPlayerResults();
-		MessageContainer container = MessageCreator.createMsgContainer(message, getBroadcastReceiverNames());
+		MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
 		MessageHandler.PushMessage(container);
 	}
 
@@ -414,7 +414,7 @@ public class Game {
 		TimerUpdateMessage message = new TimerUpdateMessage();
 		message.remainingTime = playtime;
 		message.currentTimestamp = d.getTime();
-		MessageContainer container = MessageCreator.createMsgContainer(message, getBroadcastReceiverNames());
+		MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
 		MessageHandler.PushMessage(container);
 	}	
 }
