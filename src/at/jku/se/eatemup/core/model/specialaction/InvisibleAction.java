@@ -7,4 +7,9 @@ public class InvisibleAction implements SpecialAction {
 		return "InvisibleAction";
 	}
 
+	@Override
+	public int getDuration() {
+		return 30;
+	}
+
 }

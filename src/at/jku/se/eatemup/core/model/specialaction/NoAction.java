@@ -7,4 +7,9 @@ public class NoAction implements SpecialAction {
 		return "NoAction";
 	}
 
+	@Override
+	public int getDuration() {
+		return 0;
+	}
+
 }

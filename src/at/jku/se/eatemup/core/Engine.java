@@ -15,6 +15,7 @@ import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.core.model.Position;
+import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 import at.jku.se.eatemup.sockets.SessionStore;
 
 public class Engine {
@@ -64,7 +65,8 @@ public class Engine {
 				recs.add(b.getUsername1());
 				recs.add(b.getUsername2());
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, userSessionMap.convertNameListToSessionList(recs));
+						message,
+						userSessionMap.convertNameListToSessionList(recs));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -245,12 +247,12 @@ public class Engine {
 			p.setLatitude(message.latitude);
 			p.setLongitude(message.longitude);
 			Game g;
-			if (forStandbyGame(uid)){
+			if (forStandbyGame(uid)) {
 				g = getPlayerStandbyGame(uid);
-				g.setPlayerPosition(uid, p,message.timestamp);
+				g.setPlayerPosition(uid, p, message.timestamp);
 			} else {
 				g = getPlayerGame(uid);
-				g.processPlayerPositionChange(uid, p,message.timestamp);
+				g.processPlayerPositionChange(uid, p, message.timestamp);
 			}
 		}
 
@@ -279,7 +281,9 @@ public class Engine {
 				message.goodies = createGoodieData(goodies);
 				message.remainingTime = defaultGameTimeSeconds;
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, userSessionMap.convertNameListToSessionList(game.getBroadcastReceiverNames()));
+						message, userSessionMap
+								.convertNameListToSessionList(game
+										.getBroadcastReceiverNames()));
 				MessageHandler.PushMessage(container);
 			} else {
 				if (!game.isStartSurveySent()) {
@@ -382,12 +386,13 @@ public class Engine {
 				}
 			}
 		}
-		
-		public ArrayList<String> convertNameListToSessionList(ArrayList<String> nameList){
+
+		public ArrayList<String> convertNameListToSessionList(
+				ArrayList<String> nameList) {
 			ArrayList<String> list = new ArrayList<>();
-			for (String name : nameList){
+			for (String name : nameList) {
 				String ses = getSessionByUsername(name);
-				if (ses != null && !ses.equals("")){
+				if (ses != null && !ses.equals("")) {
 					list.add(ses);
 				}
 			}
@@ -687,5 +692,44 @@ public class Engine {
 				this.datastore.closeConnection();
 			}
 		}
+	}
+
+	private class SpecialActionDeactivationTask implements Runnable {
+
+		private String actionName;
+		private long delay;
+		private String username;
+		private ArrayList<String> receivers;
+
+		public SpecialActionDeactivationTask(String username,
+				SpecialAction specialAction, ArrayList<String> receivers) {
+			this.actionName = specialAction.getName();
+			this.delay = specialAction.getDuration() * 1000l;
+			this.username = username;
+			this.receivers = receivers;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(this.delay);
+			} catch (InterruptedException e) {
+				Logger.log("special action deactivation task delay has been interrupted."
+						+ Logger.stringifyException(e));
+			} finally {
+				SpecialActionDeactivatedMessage message = new SpecialActionDeactivatedMessage();
+				message.specialAction = this.actionName;
+				message.username = this.username;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, this.receivers);
+				MessageHandler.PushMessage(container);
+			}
+		}
+	}
+
+	public static void scheduleSpecialActionDeactivation(String uid,
+			SpecialAction specialAction, ArrayList<String> receivers) {
+		service.execute(instance.new SpecialActionDeactivationTask(uid,
+				specialAction, receivers));
 	}
 }

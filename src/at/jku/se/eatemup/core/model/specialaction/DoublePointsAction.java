@@ -6,5 +6,9 @@ public class DoublePointsAction implements SpecialAction {
 	public String getName() {
 		return "DoublePointsAction";
 	}
-	
+
+	@Override
+	public int getDuration() {
+		return 60;
+	}	
 }

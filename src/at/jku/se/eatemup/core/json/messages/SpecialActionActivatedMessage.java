@@ -6,6 +6,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class SpecialActionActivatedMessage extends OutgoingMessage {
 	public String specialAction;
+	public String username;
 
 	@Override
 	public MessageType getType() {
@@ -14,6 +15,6 @@ public class SpecialActionActivatedMessage extends OutgoingMessage {
 
 	@Override
 	public CastType getCastType() {
-		return CastType.Unicast;
+		return CastType.Broadcast;
 	}
 }
