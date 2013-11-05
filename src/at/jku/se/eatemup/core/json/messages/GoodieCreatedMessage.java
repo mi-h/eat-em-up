@@ -4,16 +4,20 @@ import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class SpecialAbilityActivatedMessage extends OutgoingMessage {
-	public String specialAbility;
+public class GoodieCreatedMessage extends OutgoingMessage {
+	
+	public double latitude;
+	public double longitude;
+	public String specialAction;
 
 	@Override
 	public MessageType getType() {
-		return MessageType.SpecialAbilityActivated;
+		return MessageType.GoodieCreated;
 	}
 
 	@Override
 	public CastType getCastType() {
-		return CastType.Unicast;
+		return CastType.Broadcast;
 	}
+
 }

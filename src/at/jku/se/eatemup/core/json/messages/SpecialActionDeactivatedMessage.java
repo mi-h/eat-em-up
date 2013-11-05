@@ -4,18 +4,16 @@ import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class BattleResultMessage extends OutgoingMessage {
-	public String winner;
-	public String correctResult;
-	public int points;
+public class SpecialActionDeactivatedMessage extends OutgoingMessage {
+	public String specialAction;
 
 	@Override
 	public MessageType getType() {
-		return MessageType.BattleResult;
+		return MessageType.SpecialActionDeactivated;
 	}
 
 	@Override
 	public CastType getCastType() {
-		return CastType.Multicast;
+		return CastType.Unicast;
 	}
 }

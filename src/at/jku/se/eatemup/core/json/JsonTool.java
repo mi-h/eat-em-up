@@ -35,7 +35,9 @@ public class JsonTool {
 			container.message = createMessage(tempContainer.message,
 					container.type);
 			if (direction == DirectionType.Incoming) {
-				container.sender = new Sender(((IncomingMessage)container.message).username,connIds.get(0));
+				container.sender = new Sender(
+						((IncomingMessage) container.message).username,
+						connIds.get(0));
 			} else {
 				container.receivers = connIds;
 			}
@@ -100,17 +102,19 @@ public class JsonTool {
 			return gson.fromJson(message, ReadyForGameMessage.class);
 		case RequestForGameStart:
 			return gson.fromJson(message, RequestForGameStartMessage.class);
-		case SpecialAbilityActivated:
-			return gson.fromJson(message, SpecialAbilityActivatedMessage.class);
-		case SpecialAbilityDeactivated:
-			return gson.fromJson(message,
-					SpecialAbilityDeactivatedMessage.class);
+		case SpecialActionActivated:
+			return gson.fromJson(message, SpecialActionActivatedMessage.class);
+		case SpecialActionDeactivated:
+			return gson
+					.fromJson(message, SpecialActionDeactivatedMessage.class);
 		case TimerUpdate:
 			return gson.fromJson(message, TimerUpdateMessage.class);
 		case Exit:
 			return gson.fromJson(message, ExitMessage.class);
 		case Logout:
 			return gson.fromJson(message, LogoutMessage.class);
+		case GoodieCreated:
+			return gson.fromJson(message, GoodieCreatedMessage.class);
 		default:
 			return null;
 		}
