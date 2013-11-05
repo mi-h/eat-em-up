@@ -1,12 +1,14 @@
 package at.jku.se.eatemup.core.model;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Location {
 	private String name;
 	private Position topLeftPos;
 	private Position bottomRightPos;
-	private ArrayList<GoodiePoint> goodiePoints;
+	private Position centerPosition;
+	private CopyOnWriteArrayList<GoodiePoint> goodiePoints;
 
 	public String getName() {
 		return name;
@@ -32,11 +34,19 @@ public class Location {
 		this.bottomRightPos = bottomRightPos;
 	}
 
-	public ArrayList<GoodiePoint> getGoodiePoints() {
+	public CopyOnWriteArrayList<GoodiePoint> getGoodiePoints() {
 		return goodiePoints;
 	}
 
-	public void setGoodiePoints(ArrayList<GoodiePoint> goodiePoints) {
+	public void setGoodiePoints(CopyOnWriteArrayList<GoodiePoint> goodiePoints) {
 		this.goodiePoints = goodiePoints;
+	}
+
+	public Position getCenterPosition() {
+		return centerPosition;
+	}
+
+	public void setCenterPosition(Position centerPosition) {
+		this.centerPosition = centerPosition;
 	}
 }

@@ -1,12 +1,18 @@
 package at.jku.se.eatemup.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import at.jku.se.eatemup.core.model.*;
+import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
+import at.jku.se.eatemup.core.model.specialaction.InvisibleAction;
+import at.jku.se.eatemup.core.model.specialaction.NoAction;
+import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 
 public class Game {
 	private String id;
@@ -21,6 +27,10 @@ public class Game {
 	private CopyOnWriteArrayList<String> audience;
 	private CopyOnWriteArrayList<Battle> battles;
 	private static final double battleWinQuota = 0.5;
+	private static final int specialGoodieQuota = 5; //percent
+	private static final int minGoodieInGameQuota = 5; //percent of loc points
+	private static final int goodieMinPoints = 5;
+	private static final int goodieMaxPoints = 15;
 
 	public Game() {
 		teams = new Team[2];
@@ -259,5 +269,61 @@ public class Game {
 			return p.getPoints();
 		}
 		return -1;
+	}
+
+	public void createGoodies(boolean start) {
+		Random rand = new Random();
+		ArrayList<GoodiePoint> points = new ArrayList<GoodiePoint>(location.getGoodiePoints());
+		Collections.shuffle(points);
+		int createGoodies = start ? points.size() : howManyGoodiesToCreate(points);
+		int createdCnt = 0;
+		for (GoodiePoint p : points){
+			if (createdCnt < createGoodies){
+				Goodie g = createGoodie(createSpecialAction(rand),rand,UUID.randomUUID().toString());				
+				p.setGoodie(g);
+				createdCnt++;
+			} else {
+				break;
+			}
+		}
+	}
+	
+	private int createGoodiePoints(Random rand){
+		int temp = rand.nextInt(goodieMaxPoints-goodieMinPoints)+1;
+		return temp+goodieMinPoints;
+	}
+	
+	private int howManyGoodiesToCreate(ArrayList<GoodiePoint> points) {
+		int fullPoints = 0;
+		for (GoodiePoint p : points){
+			if (p.getGoodie() != null){
+				fullPoints++;
+			}
+		}
+		int quota = (int) points.size()/fullPoints*100;
+		if (quota < minGoodieInGameQuota){
+			return minGoodieInGameQuota-quota;
+		}
+		return 0;
+	}
+	
+	private SpecialAction createSpecialAction(Random rand){
+		int i = rand.nextInt(100)+1;
+		if (i>specialGoodieQuota){
+			return new NoAction();
+		}
+		i = rand.nextInt(2);
+		if (i == 0){
+			return new DoublePointsAction();
+		}
+		return new InvisibleAction();
+	}
+
+	private Goodie createGoodie(SpecialAction special, Random rand, String name){
+		Goodie g = new Goodie();
+		g.setPoints(createGoodiePoints(rand));
+		g.setSpecialAction(special);
+		g.setName(name);
+		return g;
 	}
 }

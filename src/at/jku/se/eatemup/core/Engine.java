@@ -10,7 +10,10 @@ import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
+import at.jku.se.eatemup.core.model.GoodiePoint;
+import at.jku.se.eatemup.core.model.Location;
 import at.jku.se.eatemup.core.model.Player;
+import at.jku.se.eatemup.core.model.Position;
 import at.jku.se.eatemup.sockets.SessionStore;
 
 public class Engine {
@@ -327,6 +330,9 @@ public class Engine {
 	private static ExecutorService service = Executors.newCachedThreadPool();
 
 	private static Engine instance = new Engine();
+	
+	private static final double jkuCenterLat = 48.337050;
+	private static final double jkuCenterLong = 14.319600;
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
@@ -417,8 +423,28 @@ public class Engine {
 			}
 		}
 		Game g = new Game();
+		setupGame(g);
 		standbyGames.put(g.getId(), g);
 		return g;
+	}
+
+	private static void setupGame(Game g) {
+		DataStore2 db = DbManager.getDataStore();
+		g.setLocation(createNewLocation(db));
+		db.closeConnection();
+		g.createGoodies(true);
+	}
+
+	private static Location createNewLocation(DataStore2 db) {
+		Location loc = new Location();
+		CopyOnWriteArrayList<GoodiePoint> points = new CopyOnWriteArrayList<GoodiePoint>();
+		points.addAll(db.getGoodiePoints());
+		loc.setGoodiePoints(points);
+		Position center = new Position();
+		center.setLatitude(jkuCenterLat);
+		center.setLongitude(jkuCenterLong);
+		loc.setCenterPosition(center);
+		return loc;
 	}
 
 	private synchronized static Game getPlayerStandbyGame(String username) {
