@@ -1,5 +1,8 @@
 package at.jku.se.eatemup.core.model;
 
+import at.jku.se.eatemup.core.BattleAnswer;
+import at.jku.se.eatemup.core.BattleWinner;
+
 public class Battle {
 	private String username1;
 	private String username2;
@@ -9,6 +12,7 @@ public class Battle {
 	 * first result results[0] is correct
 	 */
 	private int[] results;
+	private BattleAnswer[] answers = new BattleAnswer[2];
 
 	public String getUsername1() {
 		return username1;
@@ -48,5 +52,47 @@ public class Battle {
 
 	public void setTime(int time) {
 		this.time = time;
+	}
+	
+	public boolean setAnswer(String username, int answer, long timestamp){
+		BattleAnswer ba = new BattleAnswer(username,answer,timestamp);
+		if (username1.equals(username)){
+			answers[0] = ba;
+		}
+		if (username2.equals(username)){
+			answers[1] = ba;
+		}
+		return allAnswersReady();
+	}
+	
+	public boolean allAnswersReady(){
+		return answers[0] != null && answers[1] != null;
+	}
+	
+	public BattleWinner getWinner(){
+		if (allAnswersReady()){
+			BattleAnswer ba1 = answers[0];
+			BattleAnswer ba2 = answers[1];
+			if (isAnswerCorrect(ba1) && !isAnswerCorrect(ba2)){
+				return BattleWinner.User1;
+			}else if (!isAnswerCorrect(ba1) && isAnswerCorrect(ba2)){
+				return BattleWinner.User2;
+			} else if (isAnswerCorrect(ba1) && isAnswerCorrect(ba2)){
+				if (ba1.timestamp<ba2.timestamp){
+					return BattleWinner.User1;
+				} else if (ba1.timestamp>ba2.timestamp){
+					return BattleWinner.User2;
+				}
+			}
+		}
+		return BattleWinner.Draw;
+	}
+	
+	private boolean isAnswerCorrect(BattleAnswer ba){
+		return ba.answer == results[0];
+	}
+	
+	public boolean isParticipant(String username){
+		return username.equals(username1) || username.equals(username2);
 	}
 }

@@ -9,6 +9,7 @@ import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.Battle;
 import at.jku.se.eatemup.core.model.Player;
 import at.jku.se.eatemup.sockets.SessionStore;
 
@@ -21,16 +22,53 @@ public class Engine {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			Game g = getPlayerGame(sender.username);
+			if (g != null) {
+				Battle b = g.addBattleAnswer(message.username,
+						Integer.parseInt(message.answer), message.timestamp);
+				if (b == null)
+					return;
+				BattleResultMessage message = new BattleResultMessage();
+				message.correctResult = b.getResult()[0] + "";
+				BattleWinner bw = b.getWinner();
+				int points = -1;
+				switch (bw) {
+				case User1: {
+					message.winner = b.getUsername1();
+					points = g.getBattleWinPoints(b.getUsername1(), b.getUsername2());
+					g.addPlayerPoints(b.getUsername1(), points);
+					g.addPlayerPoints(b.getUsername2(), -points);
+				}
+					break;
+				case User2: {
+					message.winner = b.getUsername2();
+					points = g.getBattleWinPoints(b.getUsername2(), b.getUsername1());
+					g.addPlayerPoints(b.getUsername2(), points);
+					g.addPlayerPoints(b.getUsername1(), -points);
+				}
+					break;
+				case Draw: {
+					message.winner = "Draw";
+				}
+					break;
+				default:
+					return;
+				}
+				ArrayList<String> recs = new ArrayList<>();
+				recs.add(b.getUsername1());
+				recs.add(b.getUsername2());
+				MessageContainer container = MessageCreator.createMsgContainer(message, recs);
+				MessageHandler.PushMessage(container);
+			}
 		}
 	}
 
-	private static class DbManager{
+	private static class DbManager {
 		private static boolean firstCall = true;
-		
-		public static DataStore2 getDataStore(){
+
+		public static DataStore2 getDataStore() {
 			DataStore2 ds = new DataStore2();
-			if (firstCall){
+			if (firstCall) {
 				ds.createTables();
 				firstCall = false;
 				try {
@@ -50,41 +88,46 @@ public class Engine {
 		}
 
 		private void removeUserFromAllAudiences(String username) {
-			if(userGameAudienceMap.containsKey(username)){
-				try{
-				Game g = runningGames.get(userGameAudienceMap.get(username));
-				g.removeAudienceUser(username);
-				} catch (Exception ex){
-					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
+			if (userGameAudienceMap.containsKey(username)) {
+				try {
+					Game g = runningGames
+							.get(userGameAudienceMap.get(username));
+					g.removeAudienceUser(username);
+				} catch (Exception ex) {
+					Logger.log("failed to remove player from standby game."
+							+ Logger.stringifyException(ex));
 				}
 			}
 		}
 
 		private void removeUserFromAllRunningGames(String username) {
-			if(userGameMap.containsKey(username)){
-				try{
-				Game g = runningGames.get(userGameMap.get(username));
-				g.removePlayer(username);
-				} catch (Exception ex){
-					Logger.log("failed to remove player from running game."+Logger.stringifyException(ex));
+			if (userGameMap.containsKey(username)) {
+				try {
+					Game g = runningGames.get(userGameMap.get(username));
+					g.removePlayer(username);
+				} catch (Exception ex) {
+					Logger.log("failed to remove player from running game."
+							+ Logger.stringifyException(ex));
 				}
 			}
 		}
 
 		private void removeUserFromAllStandbyGames(String username) {
-			if(userStandbyGameMap.containsKey(username)){
-				try{
-				Game g = standbyGames.get(userStandbyGameMap.get(username));
-				g.removePlayer(username);
-				} catch (Exception ex){
-					Logger.log("failed to remove player from standby game."+Logger.stringifyException(ex));
+			if (userStandbyGameMap.containsKey(username)) {
+				try {
+					Game g = standbyGames.get(userStandbyGameMap.get(username));
+					g.removePlayer(username);
+				} catch (Exception ex) {
+					Logger.log("failed to remove player from standby game."
+							+ Logger.stringifyException(ex));
 				}
 			}
 		}
 
 		@Override
 		public void run() {
-			sendLogoutMessage(sender.session,"accepting exit action, user logout", sender.username);
+			sendLogoutMessage(sender.session,
+					"accepting exit action, user logout", sender.username);
 			removeUserFromAllRunningGames(sender.username);
 			removeUserFromAllStandbyGames(sender.username);
 			removeUserFromAllAudiences(sender.username);
@@ -274,7 +317,7 @@ public class Engine {
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 
 	private static UserSession userSessionMap = new UserSession();
-	
+
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
 
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
@@ -282,7 +325,7 @@ public class Engine {
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 
 	private static ExecutorService service = Executors.newCachedThreadPool();
-	
+
 	private static Engine instance = new Engine();
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
@@ -359,13 +402,10 @@ public class Engine {
 			String password) {
 		DataStore2 ds = DbManager.getDataStore();
 		/*
-		passwordhash for username and check
-		try {
-			PasswordHashManager.check(password, "fromdb");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
+		 * passwordhash for username and check try {
+		 * PasswordHashManager.check(password, "fromdb"); } catch (Exception e)
+		 * { e.printStackTrace(); }
+		 */
 		String storedPw = ds.getUserPassword(username);
 		return storedPw.equals(password);
 	}
@@ -382,7 +422,23 @@ public class Engine {
 	}
 
 	private synchronized static Game getPlayerStandbyGame(String username) {
-		return standbyGames.get(userStandbyGameMap.get(username));
+		try {
+			return standbyGames.get(userStandbyGameMap.get(username));
+		} catch (Exception ex) {
+			Logger.log("trying to get player-game which is not playing a running game."
+					+ Logger.stringifyException(ex));
+			return null;
+		}
+	}
+
+	private synchronized static Game getPlayerGame(String username) {
+		try {
+			return runningGames.get(userGameMap.get(username));
+		} catch (Exception ex) {
+			Logger.log("trying to get player-game which is not playing a running game."
+					+ Logger.stringifyException(ex));
+			return null;
+		}
 	}
 
 	private static ArrayList<String> getReceiverList(ArrayList<Player> players) {
@@ -395,7 +451,8 @@ public class Engine {
 		return list;
 	}
 
-	private static ArrayList<String> getReceiverListById(ArrayList<String> players) {
+	private static ArrayList<String> getReceiverListById(
+			ArrayList<String> players) {
 		ArrayList<String> list = new ArrayList<>();
 		for (String p : players) {
 			if (userSessionMap.userExists(p)) {
@@ -419,14 +476,17 @@ public class Engine {
 
 	}
 
-	public static void sendLogoutMessage(String session, String reason, String username) {
-		try{
-		LogoutMessage message = new LogoutMessage();
-		message.reason = reason;
-		message.username = username;
-		MessageHandler.PushMessage(MessageCreator.createMsgContainer(message, username));
-		} catch (Exception ex){
-			Logger.log("failed sending logout message."+Logger.stringifyException(ex));
+	public static void sendLogoutMessage(String session, String reason,
+			String username) {
+		try {
+			LogoutMessage message = new LogoutMessage();
+			message.reason = reason;
+			message.username = username;
+			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
+					message, username));
+		} catch (Exception ex) {
+			Logger.log("failed sending logout message."
+					+ Logger.stringifyException(ex));
 		}
 	}
 
@@ -436,7 +496,7 @@ public class Engine {
 		}
 		return tryRecoverUserSession(sender);
 	}
-	
+
 	private static boolean tryRecoverUserSession(Sender sender) {
 		String ses = userSessionMap.getSessionByUsername(sender.username);
 		if (ses != null && ses != "") {
