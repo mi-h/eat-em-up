@@ -11,6 +11,10 @@ public class Account {
 	private String password;
 	@DatabaseField(index=true)
 	private int points;
+	@DatabaseField(canBeNull=true)
+	private String avatar;
+	@DatabaseField(canBeNull=true)
+	private byte[] avatarImage;
 	
 	public Account(){
 		
@@ -42,5 +46,21 @@ public class Account {
 	
 	public void addPoints(int points){
 		this.points += points;
+	}
+	
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public byte[] getAvatarImage() {
+		return avatarImage;
+	}
+
+	public void setAvatarImage(byte[] avatarImage) {
+		this.avatarImage = avatarImage;
 	}
 }

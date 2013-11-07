@@ -2,6 +2,7 @@ package at.jku.se.eatemup.core.json;
 
 import java.util.ArrayList;
 
+import at.jku.se.eatemup.core.Avatar;
 import at.jku.se.eatemup.core.MessageContainer;
 import at.jku.se.eatemup.core.Sender;
 import at.jku.se.eatemup.core.TempMessageContainer;
@@ -118,5 +119,15 @@ public class JsonTool {
 		default:
 			return null;
 		}
+	}
+	
+	public static String SerializeAvatar(Avatar avatar){
+		Gson gson = new Gson();
+		return gson.toJson(avatar);
+	}
+	
+	public static Avatar DeSerializeAvatar(String avatar){
+		Gson gson = new Gson();
+		return gson.fromJson(avatar, Avatar.class);
 	}
 }
