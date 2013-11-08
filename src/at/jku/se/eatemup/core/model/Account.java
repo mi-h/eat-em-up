@@ -1,5 +1,6 @@
 package at.jku.se.eatemup.core.model;
 
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -13,7 +14,7 @@ public class Account {
 	private int points;
 	@DatabaseField(canBeNull=true)
 	private String avatar;
-	@DatabaseField(canBeNull=true)
+	@DatabaseField(canBeNull=true,dataType=DataType.BYTE_ARRAY)
 	private byte[] avatarImage;
 	
 	public Account(){
