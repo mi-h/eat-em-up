@@ -79,12 +79,12 @@
     }
 
     function start() {
-    	writeText('sending: {"type":"Login","message":"{\"password\":\"a\",\"username\":\"a\"}"} to the server');
-      	webSocket.send('{"type":"Login","message":"{\"password\":\"a\",\"username\":\"a\"}"}');
+    	writeText('sending: {"type":"Login","message":"{"password":"a","username":"a"}"} to the server');
+      	webSocket.send('{"type":"Login","message":"{"password":"a","username":"a"}"}');
     }
     
     function sendValid(){
-    	writeText('sending: {"type":"Login","message":"{\"password\":\"stinkt\",\"username\":\"java\"}"} to the server');
+    	writeText('sending: {"type":"Login","message":"{"password":"stinkt","username":"java"}"} to the server');
       	webSocket.send('{"type":"Login","message":{"password":"stinkt","username":"java"}}');
     }
   </script>

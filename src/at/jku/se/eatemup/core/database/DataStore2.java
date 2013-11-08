@@ -175,7 +175,7 @@ public class DataStore2 implements IDatabaseAPI{
 	public String getUserPassword(String username){
 		Account tmp = getAccountByUsername(username);
 		if (tmp != null){
-			return tmp.getName();
+			return tmp.getPassword();
 		}
 		return null;
 	}

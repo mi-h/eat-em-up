@@ -11,6 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 import at.jku.se.eatemup.core.MessageContainer;
 import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
+import at.jku.se.eatemup.core.json.JsonTool;
 import at.jku.se.eatemup.core.logging.Logger;
 
 @ServerEndpoint("/websocket")
@@ -22,7 +23,8 @@ public class MessageSocket {
 		setSession(session);
 		Logger.log("received message from " + session.getId());
 		String sesid = session.getId();
-		MessageContainer container = MessageCreator.createMsgContainer(message,
+		String convertedMessage = JsonTool.convertMessage(message);
+		MessageContainer container = MessageCreator.createMsgContainer(convertedMessage,
 				sesid);
 		if (container != null) {
 			if (MessageHandler.ReceiveMessage(container)) {

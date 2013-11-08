@@ -447,15 +447,12 @@ public class Engine {
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
-		if (sessionExists(sender)) {
 			boolean check = checkLoginCredentials(message.username,
 					message.password);
 			if (check) {
 				service.execute(instance.new LoginTask(message, sender));
 			}
 			return check;
-		}
-		return false;
 	}
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {

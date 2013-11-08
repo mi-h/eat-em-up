@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import at.jku.se.eatemup.core.Avatar;
 import at.jku.se.eatemup.core.MessageContainer;
+import at.jku.se.eatemup.core.ReceivedMessageContainer;
 import at.jku.se.eatemup.core.Sender;
 import at.jku.se.eatemup.core.TempMessageContainer;
 import at.jku.se.eatemup.core.json.messages.*;
@@ -47,51 +48,6 @@ public class JsonTool {
 			JsonParseException jpe = new JsonParseException();
 			jpe.setStackTrace(ex.getStackTrace());
 			throw jpe;
-		}
-	}
-
-	private static Message createMessage2(Object message, MessageType type) {
-		switch (type) {
-		case BattleAnswer:
-			return (BattleAnswerMessage)message;
-		case BattleResult:
-			return (BattleResultMessage)message;
-		case BattleStart:
-			return (BattleStartMessage)message;
-		case GameEnd:
-			return (GameEndMessage)message;
-		case GameStandbyUpdate:
-			return (GameStandbyUpdateMessage)message;
-		case GameStart:
-			return (GameStartMessage)message;
-		case GameStartSurvey:
-			return (GameStartSurveyMessage)message;
-		case Login:
-			return (LoginMessage)message;
-		case PlayerHasEaten:
-			return (PlayerHasEatenMessage)message;
-		case PlayerMoved:
-			return (PlayerMovedMessage)message;
-		case Position:
-			return (PositionMessage)message;
-		case ReadyForGame:
-			return (ReadyForGameMessage)message;
-		case RequestForGameStart:
-			return (RequestForGameStartMessage)message;
-		case SpecialActionActivated:
-			return (SpecialActionActivatedMessage)message;
-		case SpecialActionDeactivated:
-			return (SpecialActionDeactivatedMessage)message;
-		case TimerUpdate:
-			return (TimerUpdateMessage)message;
-		case Exit:
-			return (ExitMessage)message;
-		case Logout:
-			return (LogoutMessage)message;
-		case GoodieCreated:
-			return (GoodieCreatedMessage)message;
-		default:
-			return null;
 		}
 	}
 
@@ -174,5 +130,14 @@ public class JsonTool {
 	public static Avatar DeSerializeAvatar(String avatar){
 		Gson gson = new Gson();
 		return gson.fromJson(avatar, Avatar.class);
+	}
+
+	public static String convertMessage(String message) {
+		Gson gson = new Gson();
+		ReceivedMessageContainer temp = gson.fromJson(message, ReceivedMessageContainer.class);
+		TempMessageContainer temp2 = new TempMessageContainer();
+		temp2.message = gson.toJson(temp.message);
+		temp2.type = temp.type;
+		return gson.toJson(temp2);
 	}
 }
