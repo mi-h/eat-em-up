@@ -39,13 +39,14 @@
 			<p>Hello World!</p>
 		</div>
 		<div>
-    <input type="submit" value="Start" onclick="start()" />
+    <input type="submit" value="Invalid credentials" onclick="start()" /><br/>
+    <input type="submit" value="valid credentials" onclick="sendValid()" />
   </div>
   <div id="messages"></div>
   <script type="text/javascript">
     var webSocket = 
       //new WebSocket('ws://eat-em-up.marce155.eu.cloudbees.net/websocketTest');
-    	new WebSocket('ws://localhost:8080/websocketTest');
+    	new WebSocket('ws://localhost:8080/websocket');
 
     webSocket.onerror = function(event) {
       onError(event)
@@ -58,10 +59,14 @@
     webSocket.onmessage = function(event) {
       onMessage(event)
     };
+    
+    function writeText(text){
+    document.getElementById('messages').innerHTML 
+        += '<br />'+text;
+    }
 
     function onMessage(event) {
-      document.getElementById('messages').innerHTML 
-        += '<br />' + event.data;
+      writeText(event.data);
     }
 
     function onOpen(event) {
@@ -74,8 +79,13 @@
     }
 
     function start() {
-      webSocket.send('hello');
-      return false;
+    	writeText('sending: {"type":"Login","message":"{\"password\":\"a\",\"username\":\"a\"}"} to the server');
+      	webSocket.send('{"type":"Login","message":"{\"password\":\"a\",\"username\":\"a\"}"}');
+    }
+    
+    function sendValid(){
+    	writeText('sending: {"type":"Login","message":"{\"password\":\"stinkt\",\"username\":\"java\"}"} to the server');
+      	webSocket.send('{"type":"Login","message":{"password":"stinkt","username":"java"}}');
     }
   </script>
 </body>

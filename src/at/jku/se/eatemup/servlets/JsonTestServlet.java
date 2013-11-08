@@ -11,12 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import at.jku.se.eatemup.core.MessageContainer;
+import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.TempMessageContainer;
 import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.JsonTool;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.LoginMessage;
 import at.jku.se.eatemup.core.logging.Logger;
 
 /**
@@ -59,12 +61,20 @@ public class JsonTestServlet extends HttpServlet {
 			temp.message = serial1;
 			temp.type = MessageType.GameEnd;
 			String serial2 = JsonTool.SerializeTempMessageContainer(temp);
-			TempMessageContainer temp2 = JsonTool
-					.CreateTempMessageContainer(serial2);
+			//TempMessageContainer temp2 = JsonTool.CreateTempMessageContainer(serial2);
 			ArrayList<String> tList = new ArrayList<>();
 			tList.add("testid");
-			MessageContainer container = JsonTool.CreateMessageContainer(temp2,
-					DirectionType.Incoming, tList);
+			//MessageContainer container = JsonTool.CreateMessageContainer(temp2, DirectionType.Incoming, tList);
+			LoginMessage message = new LoginMessage();
+			message.password = "stinkt";
+			message.username = "java";
+			serial1 = JsonTool.SerializeMessage(message);
+			temp = new TempMessageContainer();
+			temp.message = serial1;
+			temp.type = MessageType.Login;
+			serial2 = JsonTool.SerializeTempMessageContainer(temp);
+			MessageCreator.createMsgContainer(serial2, null);
+			
 		} catch (Exception ex) {
 			Logger.log("jsontest died");
 		}

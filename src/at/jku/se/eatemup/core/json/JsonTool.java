@@ -50,6 +50,51 @@ public class JsonTool {
 		}
 	}
 
+	private static Message createMessage2(Object message, MessageType type) {
+		switch (type) {
+		case BattleAnswer:
+			return (BattleAnswerMessage)message;
+		case BattleResult:
+			return (BattleResultMessage)message;
+		case BattleStart:
+			return (BattleStartMessage)message;
+		case GameEnd:
+			return (GameEndMessage)message;
+		case GameStandbyUpdate:
+			return (GameStandbyUpdateMessage)message;
+		case GameStart:
+			return (GameStartMessage)message;
+		case GameStartSurvey:
+			return (GameStartSurveyMessage)message;
+		case Login:
+			return (LoginMessage)message;
+		case PlayerHasEaten:
+			return (PlayerHasEatenMessage)message;
+		case PlayerMoved:
+			return (PlayerMovedMessage)message;
+		case Position:
+			return (PositionMessage)message;
+		case ReadyForGame:
+			return (ReadyForGameMessage)message;
+		case RequestForGameStart:
+			return (RequestForGameStartMessage)message;
+		case SpecialActionActivated:
+			return (SpecialActionActivatedMessage)message;
+		case SpecialActionDeactivated:
+			return (SpecialActionDeactivatedMessage)message;
+		case TimerUpdate:
+			return (TimerUpdateMessage)message;
+		case Exit:
+			return (ExitMessage)message;
+		case Logout:
+			return (LogoutMessage)message;
+		case GoodieCreated:
+			return (GoodieCreatedMessage)message;
+		default:
+			return null;
+		}
+	}
+
 	public static String SerializeMessage(Message message)
 			throws JsonCreateException {
 		try {

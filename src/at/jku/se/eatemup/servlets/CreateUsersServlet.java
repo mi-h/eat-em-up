@@ -31,7 +31,15 @@ public class CreateUsersServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		DataStore2 ds = new DataStore2();
-		//addAccountIfNotExists("stefan","password",ds);
+		addAccountIfNotExists("stefan","isteinediva",ds);
+		addAccountIfNotExists("einediva","iststefan",ds);
+		addAccountIfNotExists("christian","tutnix",ds);
+		addAccountIfNotExists("java","stinkt",ds);
+		addAccountIfNotExists("alles","kaputt",ds);
+		addAccountIfNotExists("seppforcher","istalt",ds);
+		addAccountIfNotExists("karlmoik","ausbraunau",ds);
+		addAccountIfNotExists("markus","hatkeinelustmehr",ds);
+		addAccountIfNotExists("michael","tutauchnix",ds);
 		ds.closeConnection();
 	}
 	
