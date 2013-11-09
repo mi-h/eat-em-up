@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
+import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Location;
@@ -207,6 +209,17 @@ public class Engine {
 		@Override
 		public void run() {
 			userSessionMap.addUser(sender);
+			DataStore2 ds = DbManager.getDataStore();
+			Account acc = ds.getAccountByUsername(message.username);
+			if (acc != null){
+				ReadyForGameMessage message = new ReadyForGameMessage();
+				message.adCode = UUID.randomUUID().toString().substring(0, 8);
+				message.loginSuccess = true;
+				message.points = acc.getPoints();
+				MessageContainer container = MessageCreator.createMsgContainer(message,
+						sender.session);
+				MessageHandler.PushMessage(container);
+			}
 		}
 	}
 
