@@ -21,7 +21,7 @@ import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
 import at.jku.se.eatemup.core.model.*;
 import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
-import at.jku.se.eatemup.core.model.specialaction.InvisibleAction;
+import at.jku.se.eatemup.core.model.specialaction.InvincibleAction;
 import at.jku.se.eatemup.core.model.specialaction.NoAction;
 import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 
@@ -345,7 +345,7 @@ public class Game {
 		if (i == 0){
 			return new DoublePointsAction();
 		}
-		return new InvisibleAction();
+		return new InvincibleAction();
 	}
 
 	private Goodie createGoodie(SpecialAction special, Random rand, String name){

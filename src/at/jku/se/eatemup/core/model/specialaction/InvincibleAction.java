@@ -1,10 +1,10 @@
 package at.jku.se.eatemup.core.model.specialaction;
 
-public class InvisibleAction implements SpecialAction {
+public class InvincibleAction implements SpecialAction {
 
 	@Override
 	public String getName() {
-		return "InvisibleAction";
+		return "InvincibleAction";
 	}
 
 	@Override
