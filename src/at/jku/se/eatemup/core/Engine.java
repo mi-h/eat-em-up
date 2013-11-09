@@ -408,6 +408,10 @@ public class Engine {
 				Logger.log("special action deactivation task delay has been interrupted."
 						+ Logger.stringifyException(e));
 			} finally {
+				Game g = getPlayerGame(username);
+				if (g != null) {
+					g.disableSpecialAction(username);
+				}
 				SpecialActionDeactivatedMessage message = new SpecialActionDeactivatedMessage();
 				message.specialAction = this.actionName;
 				message.username = this.username;
@@ -740,7 +744,7 @@ public class Engine {
 	}
 
 	private static void removePlayerFromGame(String name, Game game) {
-
+		// TODO
 	}
 
 	public static void scheduleSpecialActionDeactivation(String uid,
