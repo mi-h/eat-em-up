@@ -485,32 +485,45 @@ public class Game {
 		for (GoodiePoint gp : goodiePoints) {
 			Goodie temp = gp.getGoodie();
 			if (temp != null) {
-				playerEatsGoodie(uid, temp, gp.getPosition());
-				gp.setGoodie(null);
-				hasEaten = true;
+				if (playerEatsGoodie(uid, temp, gp.getPosition())) {
+					gp.setGoodie(null);
+					hasEaten = true;
+				}
 			}
 		}
 		if (hasEaten) {
 			createGoodies(false);
 		}
-		Player battleOp = getPlayerInPlayerRange(uid);
-		if (battleOp != null) {
-			Battle b = BattleCreator.CreateBattle(uid, battleOp.getName());
-			battles.add(b);
-			BattleStartMessage message = new BattleStartMessage();
-			message.answers = b.getResult();
-			message.question = b.getQuestion();
-			message.timelimit = b.getTime();
-			message.username1 = b.getUsername1();
-			message.username2 = b.getUsername2();
-			ArrayList<String> receivers = new ArrayList<>();
-			receivers.add(b.getUsername1());
-			receivers.add(b.getUsername2());
-			MessageContainer container = MessageCreator.createMsgContainer(
-					message, Engine.userSessionMap
-							.convertNameListToSessionList(receivers));
-			MessageHandler.PushMessage(container);
+		if (!playerIsInvincible(uid)) {
+			Player battleOp = getPlayerInPlayerRange(uid);
+			if (battleOp != null) {
+				Battle b = BattleCreator.CreateBattle(uid, battleOp.getName());
+				battles.add(b);
+				BattleStartMessage message = new BattleStartMessage();
+				message.answers = b.getResult();
+				message.question = b.getQuestion();
+				message.timelimit = b.getTime();
+				message.username1 = b.getUsername1();
+				message.username2 = b.getUsername2();
+				ArrayList<String> receivers = new ArrayList<>();
+				receivers.add(b.getUsername1());
+				receivers.add(b.getUsername2());
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, Engine.userSessionMap
+								.convertNameListToSessionList(receivers));
+				MessageHandler.PushMessage(container);
+			}
 		}
+	}
+
+	private boolean playerIsInvincible(String uid) {
+		SpecialAction action = playerActionMap.get(uid);
+		if (action != null) {
+			if (action instanceof InvincibleAction) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Player getPlayerInPlayerRange(String uid) {
@@ -528,8 +541,24 @@ public class Game {
 		return null;
 	}
 
-	private void playerEatsGoodie(String uid, Goodie temp, Position position) {
-		addPlayerPoints(uid, temp.getPoints());
+	private boolean playerEatsGoodie(String uid, Goodie goodie,
+			Position position) {
+		SpecialAction temp = playerActionMap.get(uid);
+		if (!goodie.getSpecialAction().getName().equals("NoAction")) {
+			if (temp != null) {
+				return false;
+			} else {
+				activateSpecialAction(uid, goodie.getSpecialAction());
+				return true;
+			}
+		}
+		int points = -1;
+		if (temp != null && temp instanceof DoublePointsAction) {
+			points = goodie.getPoints() * 2;
+		} else {
+			points = goodie.getPoints();
+		}
+		addPlayerPoints(uid, points);
 		PlayerHasEatenMessage message = new PlayerHasEatenMessage();
 		message.points = getPlayerPoints(uid);
 		message.username = uid;
@@ -552,9 +581,7 @@ public class Game {
 						Engine.userSessionMap
 								.convertNameListToSessionList(getBroadcastReceiverNames()));
 		MessageHandler.PushMessage(container);
-		if (!temp.getSpecialAction().getName().equals("NoAction")) {
-			activateSpecialAction(uid, temp.getSpecialAction());
-		}
+		return true;
 	}
 
 	private void activateSpecialAction(String uid, SpecialAction specialAction) {
