@@ -117,6 +117,10 @@ public class JsonTool {
 			return gson.fromJson(message, LogoutMessage.class);
 		case GoodieCreated:
 			return gson.fromJson(message, GoodieCreatedMessage.class);
+		case HighscoreRequest:
+			return gson.fromJson(message, HighscoreRequestMessage.class);
+		case Highscore:
+			return gson.fromJson(message, HighscoreMessage.class);
 		default:
 			return null;
 		}

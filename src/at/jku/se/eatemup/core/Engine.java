@@ -200,6 +200,47 @@ public class Engine {
 		}
 	}
 
+	private class HighscoreRequestTask extends
+			GameTask<HighscoreRequestMessage> {
+
+		public HighscoreRequestTask(HighscoreRequestMessage message,
+				Sender sender) {
+			super(message, sender);
+		}
+
+		private ArrayList<HashMap<String, Object>> createHighscore(
+				ArrayList<Account> list) {
+			ArrayList<HashMap<String, Object>> ret = new ArrayList<>();
+			for (Account a : list) {
+				HashMap<String, Object> map = new HashMap<>();
+				map.put("username", a.getName());
+				map.put("points", a.getPoints());
+				ret.add(map);
+			}
+			return ret;
+		}
+
+		@Override
+		public void run() {
+			DataStore2 ds = DbManager.getDataStore();
+			try {
+				ArrayList<Account> list = ds.getHighscore(message.topx);
+				HighscoreMessage msg = new HighscoreMessage();
+				msg.topx = message.topx > list.size() ? list.size()
+						: message.topx;
+				msg.highscore = createHighscore(list);
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, sender.session);
+				MessageHandler.PushMessage(container);
+			} catch (Exception e) {
+				Logger.log("retrieving highscore failed. "
+						+ Logger.stringifyException(e));
+			} finally {
+				ds.closeConnection();
+			}
+		}
+	}
+
 	private class LoginTask extends GameTask<LoginMessage> {
 
 		public LoginTask(LoginMessage message, Sender sender) {
@@ -211,13 +252,13 @@ public class Engine {
 			userSessionMap.addUser(sender);
 			DataStore2 ds = DbManager.getDataStore();
 			Account acc = ds.getAccountByUsername(message.username);
-			if (acc != null){
+			if (acc != null) {
 				ReadyForGameMessage message = new ReadyForGameMessage();
 				message.adCode = UUID.randomUUID().toString().substring(0, 8);
 				message.loginSuccess = true;
 				message.points = acc.getPoints();
-				MessageContainer container = MessageCreator.createMsgContainer(message,
-						sender.session);
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, sender.session);
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -253,6 +294,10 @@ public class Engine {
 			super(message, sender);
 		}
 
+		private boolean forStandbyGame(String uid) {
+			return userStandbyGameMap.containsKey(uid);
+		}
+
 		@Override
 		public void run() {
 			String uid = message.username;
@@ -268,10 +313,6 @@ public class Engine {
 				g.processPlayerPositionChange(uid, p, message.timestamp);
 			}
 		}
-
-		private boolean forStandbyGame(String uid) {
-			return userStandbyGameMap.containsKey(uid);
-		}
 	}
 
 	private class RequestForGameStartTask extends
@@ -280,35 +321,6 @@ public class Engine {
 		public RequestForGameStartTask(RequestForGameStartMessage message,
 				Sender sender) {
 			super(message, sender);
-		}
-
-		@Override
-		public void run() {
-			Game game = getPlayerStandbyGame(message.username);
-			game.setPlayerReady(message.username);
-			if (game.allPlayersReady()) {
-				ArrayList<Player> players = game.getPlayers();
-				ArrayList<GoodiePoint> goodies = game.getGoodiePoints();
-				GameStartMessage message = new GameStartMessage();
-				message.playerInfo = createPlayerInfoData(players, game);
-				message.goodies = createGoodieData(goodies);
-				message.remainingTime = defaultGameTimeSeconds;
-				MessageContainer container = MessageCreator.createMsgContainer(
-						message, userSessionMap
-								.convertNameListToSessionList(game
-										.getBroadcastReceiverNames()));
-				MessageHandler.PushMessage(container);
-			} else {
-				if (!game.isStartSurveySent()) {
-					GameStartSurveyMessage msg = new GameStartSurveyMessage();
-					msg.requestingUser = message.username;
-					MessageContainer container = MessageCreator
-							.createMsgContainer(msg, getReceiverListById(game
-									.getNotReadyPlayers()));
-					MessageHandler.PushMessage(container);
-					game.setStartSurveySent(true);
-				}
-			}
 		}
 
 		private ArrayList<HashMap<String, Object>> createGoodieData(
@@ -342,6 +354,93 @@ public class Engine {
 			}
 			return list;
 		}
+
+		@Override
+		public void run() {
+			Game game = getPlayerStandbyGame(message.username);
+			game.setPlayerReady(message.username);
+			if (game.allPlayersReady()) {
+				ArrayList<Player> players = game.getPlayers();
+				ArrayList<GoodiePoint> goodies = game.getGoodiePoints();
+				GameStartMessage message = new GameStartMessage();
+				message.playerInfo = createPlayerInfoData(players, game);
+				message.goodies = createGoodieData(goodies);
+				message.remainingTime = defaultGameTimeSeconds;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, userSessionMap
+								.convertNameListToSessionList(game
+										.getBroadcastReceiverNames()));
+				MessageHandler.PushMessage(container);
+			} else {
+				if (!game.isStartSurveySent()) {
+					GameStartSurveyMessage msg = new GameStartSurveyMessage();
+					msg.requestingUser = message.username;
+					MessageContainer container = MessageCreator
+							.createMsgContainer(msg, getReceiverListById(game
+									.getNotReadyPlayers()));
+					MessageHandler.PushMessage(container);
+					game.setStartSurveySent(true);
+				}
+			}
+		}
+	}
+
+	private class SpecialActionDeactivationTask implements Runnable {
+
+		private String actionName;
+		private long delay;
+		private String username;
+		private ArrayList<String> receivers;
+
+		public SpecialActionDeactivationTask(String username,
+				SpecialAction specialAction, ArrayList<String> receivers) {
+			this.actionName = specialAction.getName();
+			this.delay = specialAction.getDuration() * 1000l;
+			this.username = username;
+			this.receivers = receivers;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(this.delay);
+			} catch (InterruptedException e) {
+				Logger.log("special action deactivation task delay has been interrupted."
+						+ Logger.stringifyException(e));
+			} finally {
+				SpecialActionDeactivatedMessage message = new SpecialActionDeactivatedMessage();
+				message.specialAction = this.actionName;
+				message.username = this.username;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, this.receivers);
+				MessageHandler.PushMessage(container);
+			}
+		}
+	}
+
+	private class UpdatePointsTask implements Runnable {
+
+		private ArrayList<Player> players;
+		private DataStore2 datastore;
+
+		public UpdatePointsTask(ArrayList<Player> players, DataStore2 datastore) {
+			this.players = players;
+			this.datastore = datastore;
+		}
+
+		@Override
+		public void run() {
+			try {
+				for (Player p : this.players) {
+					this.datastore.addUserPoints(p.getName(), p.getPoints());
+				}
+			} catch (Exception ex) {
+				Logger.log("updating player points failed."
+						+ Logger.stringifyException(ex));
+			} finally {
+				this.datastore.closeConnection();
+			}
+		}
 	}
 
 	static class UserSession {
@@ -361,12 +460,35 @@ public class Engine {
 			sessionUsernameMap.put(sessionid, username);
 		}
 
+		public ArrayList<String> convertNameListToSessionList(
+				ArrayList<String> nameList) {
+			ArrayList<String> list = new ArrayList<>();
+			for (String name : nameList) {
+				String ses = getSessionByUsername(name);
+				if (ses != null && !ses.equals("")) {
+					list.add(ses);
+				}
+			}
+			return list;
+		}
+
 		public String getSessionByUsername(String username) {
 			return usernameSessionMap.get(username);
 		}
 
 		public String getUsernameBySession(String sessionid) {
 			return sessionUsernameMap.get(sessionid);
+		}
+
+		public void removeAllInvolvedUsers(Game game) {
+			for (String name : game.getBroadcastReceiverNames()) {
+				try {
+					removeUser(getSessionByUsername(name));
+				} catch (Exception ex) {
+					Logger.log("trying to remove non-existing session."
+							+ Logger.stringifyException(ex));
+				}
+			}
 		}
 
 		public void removeUser(String sessionid) {
@@ -389,29 +511,6 @@ public class Engine {
 		public boolean userExistsBySession(String session) {
 			return sessionUsernameMap.containsKey(session);
 		}
-
-		public void removeAllInvolvedUsers(Game game) {
-			for (String name : game.getBroadcastReceiverNames()) {
-				try {
-					removeUser(getSessionByUsername(name));
-				} catch (Exception ex) {
-					Logger.log("trying to remove non-existing session."
-							+ Logger.stringifyException(ex));
-				}
-			}
-		}
-
-		public ArrayList<String> convertNameListToSessionList(
-				ArrayList<String> nameList) {
-			ArrayList<String> list = new ArrayList<>();
-			for (String name : nameList) {
-				String ses = getSessionByUsername(name);
-				if (ses != null && !ses.equals("")) {
-					list.add(ses);
-				}
-			}
-			return list;
-		}
 	}
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
@@ -425,13 +524,13 @@ public class Engine {
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
 
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
-
 	private static ExecutorService service = Executors.newCachedThreadPool();
-
 	private static Engine instance = new Engine();
 
 	private static final double jkuCenterLat = 48.337050;
+
 	private static final double jkuCenterLong = 14.319600;
+
 	private static final int defaultGameTimeSeconds = 600;
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
@@ -460,13 +559,22 @@ public class Engine {
 		return false;
 	}
 
+	public static boolean acceptHighscoreRequest(
+			HighscoreRequestMessage message, Sender sender) {
+		if (sessionExists(sender)) {
+			service.execute(instance.new HighscoreRequestTask(message, sender));
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
-			boolean check = checkLoginCredentials(message.username,
-					message.password);
-			if (check) {
-				service.execute(instance.new LoginTask(message, sender));
-			}
-			return check;
+		boolean check = checkLoginCredentials(message.username,
+				message.password);
+		if (check) {
+			service.execute(instance.new LoginTask(message, sender));
+		}
+		return check;
 	}
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {
@@ -515,25 +623,6 @@ public class Engine {
 		return storedPw.equals(password);
 	}
 
-	private synchronized static Game getEmptyStandbyGame() {
-		for (Game g : standbyGames.values()) {
-			if (!g.isFull()) {
-				return g;
-			}
-		}
-		Game g = new Game();
-		setupGame(g);
-		standbyGames.put(g.getId(), g);
-		return g;
-	}
-
-	private static void setupGame(Game g) {
-		DataStore2 db = DbManager.getDataStore();
-		g.setLocation(createNewLocation(db));
-		db.closeConnection();
-		g.createGoodies(true);
-	}
-
 	private static Location createNewLocation(DataStore2 db) {
 		Location loc = new Location();
 		CopyOnWriteArrayList<GoodiePoint> points = new CopyOnWriteArrayList<GoodiePoint>();
@@ -544,93 +633,6 @@ public class Engine {
 		center.setLongitude(jkuCenterLong);
 		loc.setCenterPosition(center);
 		return loc;
-	}
-
-	private synchronized static Game getPlayerStandbyGame(String username) {
-		try {
-			return standbyGames.get(userStandbyGameMap.get(username));
-		} catch (Exception ex) {
-			Logger.log("trying to get player-game which is not playing a running game."
-					+ Logger.stringifyException(ex));
-			return null;
-		}
-	}
-
-	private synchronized static Game getPlayerGame(String username) {
-		try {
-			return runningGames.get(userGameMap.get(username));
-		} catch (Exception ex) {
-			Logger.log("trying to get player-game which is not playing a running game."
-					+ Logger.stringifyException(ex));
-			return null;
-		}
-	}
-
-	private static ArrayList<String> getReceiverList(ArrayList<Player> players) {
-		ArrayList<String> list = new ArrayList<>();
-		for (Player p : players) {
-			if (userSessionMap.userExists(p.getName())) {
-				list.add(userSessionMap.getSessionByUsername(p.getName()));
-			}
-		}
-		return list;
-	}
-
-	private static ArrayList<String> getReceiverListById(
-			ArrayList<String> players) {
-		ArrayList<String> list = new ArrayList<>();
-		for (String p : players) {
-			if (userSessionMap.userExists(p)) {
-				list.add(userSessionMap.getSessionByUsername(p));
-			}
-		}
-		return list;
-	}
-
-	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
-		for (String id : invalidSessionIds) {
-			String username = userSessionMap.getUsernameBySession(id);
-			String gameId = userGameMap.get(username);
-			Game g = runningGames.get(gameId);
-			removePlayerFromGame(username, g);
-			userSessionMap.removeUser(id);
-		}
-	}
-
-	private static void removePlayerFromGame(String name, Game game) {
-
-	}
-
-	public static void sendLogoutMessage(String session, String reason,
-			String username) {
-		try {
-			LogoutMessage message = new LogoutMessage();
-			message.reason = reason;
-			message.username = username;
-			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
-					message, userSessionMap.getSessionByUsername(username)));
-		} catch (Exception ex) {
-			Logger.log("failed sending logout message."
-					+ Logger.stringifyException(ex));
-		}
-	}
-
-	private static boolean sessionExists(Sender sender) {
-		if (userSessionMap.userExistsBySession(sender.session)) {
-			return true;
-		}
-		return tryRecoverUserSession(sender);
-	}
-
-	private static boolean tryRecoverUserSession(Sender sender) {
-		String ses = userSessionMap.getSessionByUsername(sender.username);
-		if (ses != null && ses != "") {
-			userSessionMap.updateUserSession(sender.username, sender.session,
-					ses);
-			SessionStore.removeSession(ses);
-			return true;
-		}
-		return false;
 	}
 
 	public static void endGame(Game game) {
@@ -662,6 +664,59 @@ public class Engine {
 		}
 	}
 
+	private synchronized static Game getEmptyStandbyGame() {
+		for (Game g : standbyGames.values()) {
+			if (!g.isFull()) {
+				return g;
+			}
+		}
+		Game g = new Game();
+		setupGame(g);
+		standbyGames.put(g.getId(), g);
+		return g;
+	}
+
+	private synchronized static Game getPlayerGame(String username) {
+		try {
+			return runningGames.get(userGameMap.get(username));
+		} catch (Exception ex) {
+			Logger.log("trying to get player-game which is not playing a running game."
+					+ Logger.stringifyException(ex));
+			return null;
+		}
+	}
+
+	private synchronized static Game getPlayerStandbyGame(String username) {
+		try {
+			return standbyGames.get(userStandbyGameMap.get(username));
+		} catch (Exception ex) {
+			Logger.log("trying to get player-game which is not playing a running game."
+					+ Logger.stringifyException(ex));
+			return null;
+		}
+	}
+
+	private static ArrayList<String> getReceiverList(ArrayList<Player> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : players) {
+			if (userSessionMap.userExists(p.getName())) {
+				list.add(userSessionMap.getSessionByUsername(p.getName()));
+			}
+		}
+		return list;
+	}
+
+	private static ArrayList<String> getReceiverListById(
+			ArrayList<String> players) {
+		ArrayList<String> list = new ArrayList<>();
+		for (String p : players) {
+			if (userSessionMap.userExists(p)) {
+				list.add(userSessionMap.getSessionByUsername(p));
+			}
+		}
+		return list;
+	}
+
 	private static void removeGameFromMap(String gameId, Map<String, String> map) {
 		ArrayList<String> remList = new ArrayList<>();
 		for (Entry<String, String> e : map.entrySet()) {
@@ -674,73 +729,68 @@ public class Engine {
 		}
 	}
 
-	public static void updateAccountPoints(ArrayList<Player> players) {
-		UpdatePointsTask task = instance.new UpdatePointsTask(players,
-				DbManager.getDataStore());
-		service.execute(task);
-	}
-
-	private class UpdatePointsTask implements Runnable {
-
-		private ArrayList<Player> players;
-		private DataStore2 datastore;
-
-		public UpdatePointsTask(ArrayList<Player> players, DataStore2 datastore) {
-			this.players = players;
-			this.datastore = datastore;
-		}
-
-		@Override
-		public void run() {
-			try {
-				for (Player p : this.players) {
-					this.datastore.addUserPoints(p.getName(), p.getPoints());
-				}
-			} catch (Exception ex) {
-				Logger.log("updating player points failed."
-						+ Logger.stringifyException(ex));
-			} finally {
-				this.datastore.closeConnection();
-			}
+	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
+		for (String id : invalidSessionIds) {
+			String username = userSessionMap.getUsernameBySession(id);
+			String gameId = userGameMap.get(username);
+			Game g = runningGames.get(gameId);
+			removePlayerFromGame(username, g);
+			userSessionMap.removeUser(id);
 		}
 	}
 
-	private class SpecialActionDeactivationTask implements Runnable {
+	private static void removePlayerFromGame(String name, Game game) {
 
-		private String actionName;
-		private long delay;
-		private String username;
-		private ArrayList<String> receivers;
-
-		public SpecialActionDeactivationTask(String username,
-				SpecialAction specialAction, ArrayList<String> receivers) {
-			this.actionName = specialAction.getName();
-			this.delay = specialAction.getDuration() * 1000l;
-			this.username = username;
-			this.receivers = receivers;
-		}
-
-		@Override
-		public void run() {
-			try {
-				Thread.sleep(this.delay);
-			} catch (InterruptedException e) {
-				Logger.log("special action deactivation task delay has been interrupted."
-						+ Logger.stringifyException(e));
-			} finally {
-				SpecialActionDeactivatedMessage message = new SpecialActionDeactivatedMessage();
-				message.specialAction = this.actionName;
-				message.username = this.username;
-				MessageContainer container = MessageCreator.createMsgContainer(
-						message, this.receivers);
-				MessageHandler.PushMessage(container);
-			}
-		}
 	}
 
 	public static void scheduleSpecialActionDeactivation(String uid,
 			SpecialAction specialAction, ArrayList<String> receivers) {
 		service.execute(instance.new SpecialActionDeactivationTask(uid,
 				specialAction, receivers));
+	}
+
+	public static void sendLogoutMessage(String session, String reason,
+			String username) {
+		try {
+			LogoutMessage message = new LogoutMessage();
+			message.reason = reason;
+			message.username = username;
+			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
+					message, userSessionMap.getSessionByUsername(username)));
+		} catch (Exception ex) {
+			Logger.log("failed sending logout message."
+					+ Logger.stringifyException(ex));
+		}
+	}
+
+	private static boolean sessionExists(Sender sender) {
+		if (userSessionMap.userExistsBySession(sender.session)) {
+			return true;
+		}
+		return tryRecoverUserSession(sender);
+	}
+
+	private static void setupGame(Game g) {
+		DataStore2 db = DbManager.getDataStore();
+		g.setLocation(createNewLocation(db));
+		db.closeConnection();
+		g.createGoodies(true);
+	}
+
+	private static boolean tryRecoverUserSession(Sender sender) {
+		String ses = userSessionMap.getSessionByUsername(sender.username);
+		if (ses != null && ses != "") {
+			userSessionMap.updateUserSession(sender.username, sender.session,
+					ses);
+			SessionStore.removeSession(ses);
+			return true;
+		}
+		return false;
+	}
+
+	public static void updateAccountPoints(ArrayList<Player> players) {
+		UpdatePointsTask task = instance.new UpdatePointsTask(players,
+				DbManager.getDataStore());
+		service.execute(task);
 	}
 }
