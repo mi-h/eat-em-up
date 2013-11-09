@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.GoodieCreatedMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
 import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
@@ -38,10 +39,10 @@ public class Game {
 	private CopyOnWriteArrayList<String> audience;
 	private CopyOnWriteArrayList<Battle> battles;
 	private static final double battleWinQuota = 0.5;
-	private static final int specialGoodieQuota = 5; //percent
-	private static final int minGoodieInGameQuota = 5; //percent of loc points
-	private static final int goodieMinPoints = 5;
-	private static final int goodieMaxPoints = 15;
+	private static final int specialGoodieQuota = 10; //percent
+	private static final int minGoodieInGameQuota = 50; //percent of loc points
+	private static final int smallGoodiePoints = 25;
+	private static final int bigGoodiePoints = 50;
 	private Timer ticker;
 
 	public Game() {
@@ -290,20 +291,35 @@ public class Game {
 		Collections.shuffle(points);
 		int createGoodies = start ? points.size() : howManyGoodiesToCreate(points);
 		int createdCnt = 0;
+		ArrayList<GoodiePoint> filledPoints = new ArrayList<>();
 		for (GoodiePoint p : points){
 			if (createdCnt < createGoodies){
 				Goodie g = createGoodie(createSpecialAction(rand),rand,UUID.randomUUID().toString());				
 				p.setGoodie(g);
 				createdCnt++;
+				filledPoints.add(p);
 			} else {
 				break;
 			}
 		}
+		if(!start){
+			for(GoodiePoint gp : filledPoints){
+				GoodieCreatedMessage message = new GoodieCreatedMessage();
+				message.latitude = gp.getPosition().getLatitude();
+				message.longitude = gp.getPosition().getLongitude();
+				message.points = gp.getGoodie().getPoints();
+				MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap.convertNameListToSessionList(getBroadcastReceiverNames()));
+				MessageHandler.PushMessage(container);
+			}			
+		}
 	}
 	
 	private int createGoodiePoints(Random rand){
-		int temp = rand.nextInt(goodieMaxPoints-goodieMinPoints)+1;
-		return temp+goodieMinPoints;
+		int swap = rand.nextInt(2);
+		if (swap == 0){
+			return smallGoodiePoints;
+		}
+		return bigGoodiePoints;
 	}
 	
 	private int howManyGoodiesToCreate(ArrayList<GoodiePoint> points) {
@@ -334,7 +350,8 @@ public class Game {
 
 	private Goodie createGoodie(SpecialAction special, Random rand, String name){
 		Goodie g = new Goodie();
-		g.setPoints(createGoodiePoints(rand));
+		boolean sa = !(special instanceof NoAction);
+		g.setPoints(sa ? 0 : createGoodiePoints(rand));
 		g.setSpecialAction(special);
 		g.setName(name);
 		return g;

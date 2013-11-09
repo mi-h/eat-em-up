@@ -320,6 +320,7 @@ public class Engine {
 				map.put("longitude", gp.getPosition().getLongitude());
 				map.put("specialAction", gp.getGoodie().getSpecialAction()
 						.getName());
+				map.put("points", gp.getGoodie().getPoints());
 				list.add(map);
 			}
 			return list;

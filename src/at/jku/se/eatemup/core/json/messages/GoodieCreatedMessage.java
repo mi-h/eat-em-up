@@ -9,6 +9,7 @@ public class GoodieCreatedMessage extends OutgoingMessage {
 	public double latitude;
 	public double longitude;
 	public String specialAction;
+	public int points;
 
 	@Override
 	public MessageType getType() {
