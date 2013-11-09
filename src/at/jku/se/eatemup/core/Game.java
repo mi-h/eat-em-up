@@ -26,6 +26,18 @@ import at.jku.se.eatemup.core.model.specialaction.NoAction;
 import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 
 public class Game {
+	private class GameTick extends TimerTask {
+		@Override
+		public void run() {
+			playtime--;
+			if (playtime <= 0) {
+				cancelGameTicker();
+				endGame();
+			} else {
+				sendTimerUpdate();
+			}
+		}
+	}
 	private String id;
 	private int playtime;
 	private Location location;
@@ -44,6 +56,7 @@ public class Game {
 	private static final int minGoodieInGameQuota = 50; // percent of loc points
 	private static final int smallGoodiePoints = 25;
 	private static final int bigGoodiePoints = 50;
+
 	private Timer ticker;
 
 	public Game() {
@@ -57,171 +70,21 @@ public class Game {
 		playerActionMap = new ConcurrentHashMap<>();
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public int getPlaytime() {
-		return playtime;
-	}
-
-	public void setPlaytime(int playtime) {
-		this.playtime = playtime;
-	}
-
-	public Location getLocation() {
-		return location;
-	}
-
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
-	public Team[] getTeams() {
-		return teams;
-	}
-
-	public void setTeams(Team[] teams) {
-		this.teams = teams;
-	}
-
-	public boolean AddPlayer(Player player) {
-		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
-			teams[1].getPlayers().add(player);
-		} else {
-			teams[0].getPlayers().add(player);
-		}
-		if (teams[0].getPlayers().size() >= 1
-				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isInRedTeam(Player player) {
-		return teams[0].hasPlayer(player);
-	}
-
-	public boolean isInRedTeam(String username) {
-		return teams[0].hasPlayer(username);
-	}
-
-	public ArrayList<Player> getPlayers() {
-		ArrayList<Player> list = new ArrayList<>();
-		list.addAll(teams[0].getPlayers());
-		list.addAll(teams[1].getPlayers());
-		return list;
-	}
-
-	public boolean isFull() {
-		return getPlayers().size() == 6;
-	}
-
-	public boolean isStartSurveySent() {
-		return startSurveySent;
-	}
-
-	public synchronized void setStartSurveySent(boolean startSurveySent) {
-		this.startSurveySent = startSurveySent;
-	}
-
-	public boolean allPlayersReady() {
-		return readyToGoPlayers.size() == getPlayers().size();
-	}
-
-	public synchronized void setPlayerReady(String username) {
-		if (playerIsInGame(username)) {
-			if (!readyToGoPlayers.contains(username)) {
-				readyToGoPlayers.add(username);
-			}
-		}
-	}
-
-	public ArrayList<String> getNotReadyPlayers() {
-		ArrayList<String> list = new ArrayList<>();
-		for (Player p : getPlayers()) {
-			if (!readyToGoPlayers.contains(p.getName())) {
-				list.add(p.getName());
-			}
-		}
-		return list;
-	}
-
-	private boolean playerIsInGame(String username) {
-		return teams[0].hasPlayer(username) || teams[1].hasPlayer(username);
-	}
-
-	public void setPlayerPosition(String username, Position position) {
-		playerPositions.put(username, position);
-	}
-
-	public synchronized boolean setPositionProcLock() {
-		if (positionProcessingFlag)
-			return false;
-		positionProcessingFlag = true;
-		return true;
-	}
-
-	public synchronized boolean releasePositionProcLock() {
-		if (!positionProcessingFlag)
-			return false;
-		positionProcessingFlag = false;
-		return true;
-	}
-
-	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String username) {
-		ArrayList<GoodiePoint> points = new ArrayList<>();
-		Position playerPos = getPlayerPosition(username);
-		if (playerPos != null) {
-			for (GoodiePoint gp : location.getGoodiePoints()) {
-				if (gp.hasGoodie()
-						&& gp.getPosition().distanceLessThan(playerPos, radius)) {
-					points.add(gp);
-				}
-			}
-		}
-		return points;
-	}
-
-	public ArrayList<String> getPlayersInPlayerRange(String username) {
-		ArrayList<String> players = new ArrayList<>();
-		Position playerPos = getPlayerPosition(username);
-		for (Player p : getPlayers()) {
-			Position temp = getPlayerPosition(p.getName());
-			if (temp != null && playerPos.distanceLessThan(temp, radius)) {
-				players.add(p.getName());
-			}
-		}
-		return players;
-	}
-
-	public Position getPlayerPosition(String username) {
-		return playerPositions.get(username);
-	}
-
-	public void addUserToAudience(String username) {
-		audience.add(username);
-	}
-
-	public List<String> getAudienceNames() {
-		return audience;
-	}
-
-	public void removePlayer(String username) {
-		playerPositions.remove(username);
-		if (isInRedTeam(username)) {
-			teams[0].removePlayer(username);
-		} else {
-			teams[1].removePlayer(username);
-		}
-	}
-
-	public void removeAudienceUser(String username) {
-		audience.remove(username);
+	private void activateSpecialAction(String uid, SpecialAction specialAction) {
+		SpecialActionActivatedMessage message = new SpecialActionActivatedMessage();
+		message.specialAction = specialAction.getName();
+		MessageContainer container = MessageCreator
+				.createMsgContainer(
+						message,
+						Engine.userSessionMap
+								.convertNameListToSessionList(getBroadcastReceiverNames()));
+		MessageHandler.PushMessage(container);
+		playerActionMap.put(uid, specialAction);
+		Engine.scheduleSpecialActionDeactivation(
+				uid,
+				specialAction,
+				Engine.userSessionMap
+						.convertNameListToSessionList(getBroadcastReceiverNames()));
 	}
 
 	public void addBattle(Battle battle) {
@@ -239,12 +102,17 @@ public class Game {
 		return null;
 	}
 
-	private Battle getUserBattle(String username) {
-		for (Battle b : battles) {
-			if (b.isParticipant(username))
-				return b;
+	public boolean AddPlayer(Player player) {
+		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
+			teams[1].getPlayers().add(player);
+		} else {
+			teams[0].getPlayers().add(player);
 		}
-		return null;
+		if (teams[0].getPlayers().size() >= 1
+				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
+			return true;
+		}
+		return false;
 	}
 
 	public void addPlayerPoints(String username, int points) {
@@ -260,30 +128,33 @@ public class Game {
 		}
 	}
 
-	public int getBattleWinPoints(String winnerName, String loserName) {
-		int p1 = getPlayerPoints(winnerName);
-		int p2 = getPlayerPoints(loserName);
-		if (p1 != -1 && p2 != -1) {
-			int changePoints = (int) Math.floor(p2 * battleWinQuota);
-			return changePoints;
-		}
-		return -1;
+	public void addUserToAudience(String username) {
+		audience.add(username);
 	}
 
-	public Player getPlayerByUsername(String username) {
-		for (Player p : getPlayers()) {
-			if (p.getName().equals(username))
-				return p;
-		}
-		return null;
+	public boolean allPlayersReady() {
+		return readyToGoPlayers.size() == getPlayers().size();
 	}
 
-	public int getPlayerPoints(String username) {
-		Player p = getPlayerByUsername(username);
-		if (p != null) {
-			return p.getPoints();
+	public void cancelGameTicker() {
+		ticker.cancel();
+	}
+
+	private Goodie createGoodie(SpecialAction special, Random rand, String name) {
+		Goodie g = new Goodie();
+		boolean sa = !(special instanceof NoAction);
+		g.setPoints(sa ? 0 : createGoodiePoints(rand));
+		g.setSpecialAction(special);
+		g.setName(name);
+		return g;
+	}
+
+	private int createGoodiePoints(Random rand) {
+		int swap = rand.nextInt(2);
+		if (swap == 0) {
+			return smallGoodiePoints;
 		}
-		return -1;
+		return bigGoodiePoints;
 	}
 
 	public void createGoodies(boolean start) {
@@ -322,12 +193,182 @@ public class Game {
 		}
 	}
 
-	private int createGoodiePoints(Random rand) {
-		int swap = rand.nextInt(2);
-		if (swap == 0) {
-			return smallGoodiePoints;
+	private ArrayList<HashMap<String, Object>> createPlayerResults() {
+		ArrayList<HashMap<String, Object>> results = new ArrayList<>();
+		for (Player p : getPlayers()) {
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("username", p.getName());
+			map.put("points", p.getPoints());
+			results.add(map);
 		}
-		return bigGoodiePoints;
+		return results;
+	}
+
+	private SpecialAction createSpecialAction(Random rand) {
+		int i = rand.nextInt(100) + 1;
+		if (i > specialGoodieQuota) {
+			return new NoAction();
+		}
+		i = rand.nextInt(2);
+		if (i == 0) {
+			return new DoublePointsAction();
+		}
+		return new InvincibleAction();
+	}
+
+	public void disableSpecialAction(String username) {
+		try {
+			playerActionMap.remove(username);
+		} catch (NullPointerException ex) {
+			// fail silently
+		}
+	}
+
+	public void endGame() {
+		sendGameEnd();
+		processGameEnd();
+		Engine.endGame(this);
+	}
+
+	public List<String> getAudienceNames() {
+		return audience;
+	}
+
+	public int getBattleWinPoints(String winnerName, String loserName) {
+		int p1 = getPlayerPoints(winnerName);
+		int p2 = getPlayerPoints(loserName);
+		if (p1 != -1 && p2 != -1) {
+			int changePoints = (int) Math.floor(p2 * battleWinQuota);
+			return changePoints;
+		}
+		return -1;
+	}
+
+	public ArrayList<String> getBroadcastReceiverNames() {
+		ArrayList<String> list = new ArrayList<>();
+		list.addAll(getPlayerNames());
+		list.addAll(audience);
+		return list;
+	}
+
+	public ArrayList<GoodiePoint> getGoodiePoints() {
+		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
+	}
+
+	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String username) {
+		ArrayList<GoodiePoint> points = new ArrayList<>();
+		Position playerPos = getPlayerPosition(username);
+		if (playerPos != null) {
+			for (GoodiePoint gp : location.getGoodiePoints()) {
+				if (gp.hasGoodie()
+						&& gp.getPosition().distanceLessThan(playerPos, radius)) {
+					points.add(gp);
+				}
+			}
+		}
+		return points;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public ArrayList<String> getNotReadyPlayers() {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : getPlayers()) {
+			if (!readyToGoPlayers.contains(p.getName())) {
+				list.add(p.getName());
+			}
+		}
+		return list;
+	}
+
+	public Player getPlayerByUsername(String username) {
+		for (Player p : getPlayers()) {
+			if (p.getName().equals(username))
+				return p;
+		}
+		return null;
+	}
+
+	private Player getPlayerInPlayerRange(String uid) {
+		Position playerPos = playerPositions.get(uid);
+		for (Player p : getPlayers()) {
+			if (!p.getName().equals(uid)) {
+				Position tempPos = playerPositions.get(p.getName());
+				if (tempPos != null) {
+					if (playerPos.calcDistance(tempPos) < radius) {
+						return p;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public ArrayList<String> getPlayerNames() {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : getPlayers()) {
+			list.add(p.getName());
+		}
+		return list;
+	}
+
+	public int getPlayerPoints(String username) {
+		Player p = getPlayerByUsername(username);
+		if (p != null) {
+			return p.getPoints();
+		}
+		return -1;
+	}
+
+	public Position getPlayerPosition(String username) {
+		return playerPositions.get(username);
+	}
+
+	public ArrayList<Player> getPlayers() {
+		ArrayList<Player> list = new ArrayList<>();
+		list.addAll(teams[0].getPlayers());
+		list.addAll(teams[1].getPlayers());
+		return list;
+	}
+
+	public ArrayList<String> getPlayersInPlayerRange(String username) {
+		ArrayList<String> players = new ArrayList<>();
+		Position playerPos = getPlayerPosition(username);
+		for (Player p : getPlayers()) {
+			Position temp = getPlayerPosition(p.getName());
+			if (temp != null && playerPos.distanceLessThan(temp, radius)) {
+				players.add(p.getName());
+			}
+		}
+		return players;
+	}
+
+	public int getPlaytime() {
+		return playtime;
+	}
+
+	public Team[] getTeams() {
+		return teams;
+	}
+
+	private Battle getUserBattle(String username) {
+		for (Battle b : battles) {
+			if (b.isParticipant(username))
+				return b;
+		}
+		return null;
+	}
+
+	private boolean hasTeamRedWon() {
+		int trp = teams[0].calcTotalPoints();
+		int tbp = teams[1].calcTotalPoints();
+		return trp > tbp;
 	}
 
 	private int howManyGoodiesToCreate(ArrayList<GoodiePoint> points) {
@@ -344,122 +385,81 @@ public class Game {
 		return 0;
 	}
 
-	private SpecialAction createSpecialAction(Random rand) {
-		int i = rand.nextInt(100) + 1;
-		if (i > specialGoodieQuota) {
-			return new NoAction();
-		}
-		i = rand.nextInt(2);
-		if (i == 0) {
-			return new DoublePointsAction();
-		}
-		return new InvincibleAction();
+	public boolean isFull() {
+		return getPlayers().size() == 6;
 	}
 
-	private Goodie createGoodie(SpecialAction special, Random rand, String name) {
-		Goodie g = new Goodie();
-		boolean sa = !(special instanceof NoAction);
-		g.setPoints(sa ? 0 : createGoodiePoints(rand));
-		g.setSpecialAction(special);
-		g.setName(name);
-		return g;
+	public boolean isInRedTeam(Player player) {
+		return teams[0].hasPlayer(player);
 	}
 
-	public ArrayList<GoodiePoint> getGoodiePoints() {
-		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
+	public boolean isInRedTeam(String username) {
+		return teams[0].hasPlayer(username);
 	}
 
-	public ArrayList<String> getPlayerNames() {
-		ArrayList<String> list = new ArrayList<>();
-		for (Player p : getPlayers()) {
-			list.add(p.getName());
-		}
-		return list;
+	public boolean isStartSurveySent() {
+		return startSurveySent;
 	}
 
-	public ArrayList<String> getBroadcastReceiverNames() {
-		ArrayList<String> list = new ArrayList<>();
-		list.addAll(getPlayerNames());
-		list.addAll(audience);
-		return list;
-	}
-
-	public void startGame() {
-		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
-	}
-
-	public void cancelGameTicker() {
-		ticker.cancel();
-	}
-
-	private class GameTick extends TimerTask {
-		@Override
-		public void run() {
-			playtime--;
-			if (playtime <= 0) {
-				cancelGameTicker();
-				endGame();
+	private boolean playerEatsGoodie(String uid, Goodie goodie,
+			Position position) {
+		SpecialAction temp = playerActionMap.get(uid);
+		if (!goodie.getSpecialAction().getName().equals("NoAction")) {
+			if (temp != null) {
+				return false;
 			} else {
-				sendTimerUpdate();
+				activateSpecialAction(uid, goodie.getSpecialAction());
+				return true;
 			}
 		}
+		int points = -1;
+		if (temp != null && temp instanceof DoublePointsAction) {
+			points = goodie.getPoints() * 2;
+		} else {
+			points = goodie.getPoints();
+		}
+		addPlayerPoints(uid, points);
+		PlayerHasEatenMessage message = new PlayerHasEatenMessage();
+		message.points = getPlayerPoints(uid);
+		message.username = uid;
+		HashMap<String, Double> posMap = new HashMap<>();
+		HashMap<String, Object> teamMap = new HashMap<>();
+		posMap.put("latitude", position.getLatitude());
+		posMap.put("longitude", position.getLongitude());
+		if (isInRedTeam(uid)) {
+			teamMap.put("teamRed", true);
+			teamMap.put("newTeamPoints", teams[0].getPoints());
+		} else {
+			teamMap.put("teamRed", false);
+			teamMap.put("newTeamPoints", teams[1].getPoints());
+		}
+		message.goodie = posMap;
+		message.team = teamMap;
+		MessageContainer container = MessageCreator
+				.createMsgContainer(
+						message,
+						Engine.userSessionMap
+								.convertNameListToSessionList(getBroadcastReceiverNames()));
+		MessageHandler.PushMessage(container);
+		return true;
 	}
 
-	public void endGame() {
-		sendGameEnd();
-		processGameEnd();
-		Engine.endGame(this);
+	private boolean playerIsInGame(String username) {
+		return teams[0].hasPlayer(username) || teams[1].hasPlayer(username);
+	}
+
+	private boolean playerIsInvincible(String uid) {
+		SpecialAction action = playerActionMap.get(uid);
+		if (action != null) {
+			if (action instanceof InvincibleAction) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void processGameEnd() {
 		Engine.updateAccountPoints(getPlayers());
-	}
-
-	private boolean hasTeamRedWon() {
-		int trp = teams[0].calcTotalPoints();
-		int tbp = teams[1].calcTotalPoints();
-		return trp > tbp;
-	}
-
-	private void sendGameEnd() {
-		GameEndMessage message = new GameEndMessage();
-		message.teamRedWin = hasTeamRedWon();
-		message.playerResults = createPlayerResults();
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
-		MessageHandler.PushMessage(container);
-	}
-
-	private ArrayList<HashMap<String, Object>> createPlayerResults() {
-		ArrayList<HashMap<String, Object>> results = new ArrayList<>();
-		for (Player p : getPlayers()) {
-			HashMap<String, Object> map = new HashMap<>();
-			map.put("username", p.getName());
-			map.put("points", p.getPoints());
-			results.add(map);
-		}
-		return results;
-	}
-
-	public void sendTimerUpdate() {
-		Date d = new Date();
-		TimerUpdateMessage message = new TimerUpdateMessage();
-		message.remainingTime = playtime;
-		message.currentTimestamp = d.getTime();
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
-		MessageHandler.PushMessage(container);
-	}
-
-	public void setPlayerPosition(String uid, Position p, long timestamp) {
-		setPlayerPosition(uid, p);
-		playerPositionLastMessage.put(uid, timestamp);
 	}
 
 	public void processPlayerPositionChange(String uid, Position p,
@@ -516,96 +516,96 @@ public class Game {
 		}
 	}
 
-	private boolean playerIsInvincible(String uid) {
-		SpecialAction action = playerActionMap.get(uid);
-		if (action != null) {
-			if (action instanceof InvincibleAction) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Player getPlayerInPlayerRange(String uid) {
-		Position playerPos = playerPositions.get(uid);
-		for (Player p : getPlayers()) {
-			if (!p.getName().equals(uid)) {
-				Position tempPos = playerPositions.get(p.getName());
-				if (tempPos != null) {
-					if (playerPos.calcDistance(tempPos) < radius) {
-						return p;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	private boolean playerEatsGoodie(String uid, Goodie goodie,
-			Position position) {
-		SpecialAction temp = playerActionMap.get(uid);
-		if (!goodie.getSpecialAction().getName().equals("NoAction")) {
-			if (temp != null) {
-				return false;
-			} else {
-				activateSpecialAction(uid, goodie.getSpecialAction());
-				return true;
-			}
-		}
-		int points = -1;
-		if (temp != null && temp instanceof DoublePointsAction) {
-			points = goodie.getPoints() * 2;
-		} else {
-			points = goodie.getPoints();
-		}
-		addPlayerPoints(uid, points);
-		PlayerHasEatenMessage message = new PlayerHasEatenMessage();
-		message.points = getPlayerPoints(uid);
-		message.username = uid;
-		HashMap<String, Double> posMap = new HashMap<>();
-		HashMap<String, Object> teamMap = new HashMap<>();
-		posMap.put("latitude", position.getLatitude());
-		posMap.put("longitude", position.getLongitude());
-		if (isInRedTeam(uid)) {
-			teamMap.put("teamRed", true);
-			teamMap.put("newTeamPoints", teams[0].getPoints());
-		} else {
-			teamMap.put("teamRed", false);
-			teamMap.put("newTeamPoints", teams[1].getPoints());
-		}
-		message.goodie = posMap;
-		message.team = teamMap;
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
-		MessageHandler.PushMessage(container);
+	public synchronized boolean releasePositionProcLock() {
+		if (!positionProcessingFlag)
+			return false;
+		positionProcessingFlag = false;
 		return true;
 	}
 
-	private void activateSpecialAction(String uid, SpecialAction specialAction) {
-		SpecialActionActivatedMessage message = new SpecialActionActivatedMessage();
-		message.specialAction = specialAction.getName();
+	public void removeAudienceUser(String username) {
+		audience.remove(username);
+	}
+
+	public void removePlayer(String username) {
+		playerPositions.remove(username);
+		if (isInRedTeam(username)) {
+			teams[0].removePlayer(username);
+		} else {
+			teams[1].removePlayer(username);
+		}
+	}
+
+	private void sendGameEnd() {
+		GameEndMessage message = new GameEndMessage();
+		message.teamRedWin = hasTeamRedWon();
+		message.playerResults = createPlayerResults();
 		MessageContainer container = MessageCreator
 				.createMsgContainer(
 						message,
 						Engine.userSessionMap
 								.convertNameListToSessionList(getBroadcastReceiverNames()));
 		MessageHandler.PushMessage(container);
-		playerActionMap.put(uid, specialAction);
-		Engine.scheduleSpecialActionDeactivation(
-				uid,
-				specialAction,
-				Engine.userSessionMap
-						.convertNameListToSessionList(getBroadcastReceiverNames()));
 	}
 
-	public void disableSpecialAction(String username) {
-		try {
-			playerActionMap.remove(username);
-		} catch (NullPointerException ex) {
-			// fail silently
+	public void sendTimerUpdate() {
+		Date d = new Date();
+		TimerUpdateMessage message = new TimerUpdateMessage();
+		message.remainingTime = playtime;
+		message.currentTimestamp = d.getTime();
+		MessageContainer container = MessageCreator
+				.createMsgContainer(
+						message,
+						Engine.userSessionMap
+								.convertNameListToSessionList(getBroadcastReceiverNames()));
+		MessageHandler.PushMessage(container);
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public void setPlayerPosition(String username, Position position) {
+		playerPositions.put(username, position);
+	}
+
+	public void setPlayerPosition(String uid, Position p, long timestamp) {
+		setPlayerPosition(uid, p);
+		playerPositionLastMessage.put(uid, timestamp);
+	}
+
+	public synchronized void setPlayerReady(String username) {
+		if (playerIsInGame(username)) {
+			if (!readyToGoPlayers.contains(username)) {
+				readyToGoPlayers.add(username);
+			}
 		}
+	}
+
+	public void setPlaytime(int playtime) {
+		this.playtime = playtime;
+	}
+
+	public synchronized boolean setPositionProcLock() {
+		if (positionProcessingFlag)
+			return false;
+		positionProcessingFlag = true;
+		return true;
+	}
+
+	public synchronized void setStartSurveySent(boolean startSurveySent) {
+		this.startSurveySent = startSurveySent;
+	}
+
+	public void setTeams(Team[] teams) {
+		this.teams = teams;
+	}
+
+	public void startGame() {
+		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
 	}
 }

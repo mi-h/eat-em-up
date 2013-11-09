@@ -744,7 +744,7 @@ public class Engine {
 	}
 
 	private static void removePlayerFromGame(String name, Game game) {
-		// TODO
+		game.removePlayer(name);
 	}
 
 	public static void scheduleSpecialActionDeactivation(String uid,
