@@ -67,6 +67,11 @@ public class MessageHandler {
 
 	private static void _sendMsgAsync(String session, String message) {
 		Session ses = SessionStore.getSession(session);
+		try{
+			message = message.replace("\\\"", "\"");
+		} catch (Exception ex){
+			//fail silently
+		}
 		if (ses != null) {
 			ses.getAsyncRemote().sendText(message);
 			Logger.log("message sent to " + session);
