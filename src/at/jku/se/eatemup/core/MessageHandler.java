@@ -69,6 +69,7 @@ public class MessageHandler {
 		Session ses = SessionStore.getSession(session);
 		try{
 			message = message.replace("\\\"", "\"");
+			message = message.replace("\"{", "{").replace("}\"", "}");
 		} catch (Exception ex){
 			//fail silently
 		}
