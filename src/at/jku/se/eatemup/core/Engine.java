@@ -230,7 +230,7 @@ public class Engine {
 						: message.topx;
 				msg.highscore = createHighscore(list);
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, sender.session);
+						msg, sender.session);
 				MessageHandler.PushMessage(container);
 			} catch (Exception e) {
 				Logger.log("retrieving highscore failed. "
@@ -583,11 +583,8 @@ public class Engine {
 
 	public static boolean acceptHighscoreRequest(
 			HighscoreRequestMessage message, Sender sender) {
-		if (sessionExists(sender)) {
-			service.execute(instance.new HighscoreRequestTask(message, sender));
-			return true;
-		}
-		return false;
+		service.execute(instance.new HighscoreRequestTask(message, sender));
+		return true;
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
