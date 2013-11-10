@@ -3,7 +3,7 @@ eat-em-up
 
 SE PR WS13
 
-Technology (Auswertung der Umfrage)
+Technology
 =========
 - Glassfish 4
 - Oracle JDK 7u45
