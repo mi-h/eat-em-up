@@ -242,13 +242,13 @@ public class Engine {
 	}
 
 	private class LoginTask extends GameTask<LoginMessage> {
-		
+
 		private boolean credentialResult;
 
 		public LoginTask(LoginMessage message, Sender sender) {
 			super(message, sender);
 		}
-		
+
 		public LoginTask(LoginMessage message, Sender sender, boolean credResult) {
 			super(message, sender);
 			credentialResult = credResult;
@@ -256,27 +256,28 @@ public class Engine {
 
 		@Override
 		public void run() {
-			if (!credentialResult){
+			if (!credentialResult) {
 				ReadyForGameMessage message = new ReadyForGameMessage();
 				message.adCode = "";
 				message.loginSuccess = credentialResult;
 				message.points = -1;
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message, sender.session);
-				MessageHandler.PushMessage(container);	
+				MessageHandler.PushMessage(container);
 			} else {
 				userSessionMap.addUser(sender);
 				DataStore2 ds = DbManager.getDataStore();
 				Account acc = ds.getAccountByUsername(message.username);
 				if (acc != null) {
 					ReadyForGameMessage message = new ReadyForGameMessage();
-					message.adCode = UUID.randomUUID().toString().substring(0, 8);
+					message.adCode = UUID.randomUUID().toString()
+							.substring(0, 8);
 					message.loginSuccess = credentialResult;
 					message.points = acc.getPoints();
-					MessageContainer container = MessageCreator.createMsgContainer(
-							message, sender.session);
+					MessageContainer container = MessageCreator
+							.createMsgContainer(message, sender.session);
 					MessageHandler.PushMessage(container);
-				}	
+				}
 			}
 		}
 	}
@@ -641,7 +642,11 @@ public class Engine {
 		 */
 		String storedPw = ds.getUserPassword(username);
 		ds.closeConnection();
-		return storedPw.equals(password);
+		try {
+			return storedPw.equals(password);
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 
 	private static Location createNewLocation(DataStore2 db) {
