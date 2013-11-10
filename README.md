@@ -5,17 +5,14 @@ SE PR WS13
 
 Technology (Auswertung der Umfrage)
 =========
-- Apache Tomcat 7.0.42
+- Glassfish 4
 - Oracle JDK 7u45
 - Eclipse Kepler
 - Git + GitHub + SourceTree
-- Apache Tomcat WebSockets
+- WebSockets
 - jQuery + jQuery mobile (=WebClient) - jeweils aktuellste Version
-- Twitter Bootstrap 3
-- WebFramework noch offen!! (JSF, JSP, oder etwas anderes)
-- Datenbank noch offen!! (MySQL, SQLite, MongoDB oder SQL Server)
-- Es wird für Entwicklungszwecke jeweils eine lokale Datenbank verwendet
+- Microsoft SQL Server
 - Alles als 64bit Version
 - Dokumentation wird mit LaTeX erstellt
-- Wir hosten auf einem Cloud-Service (welcher ist noch offen!)
+- Wir hosten auf cloudbees solange die Leistung ausreicht, sonst Instituts-Server
 - Wir arbeiten nicht mit Maven
