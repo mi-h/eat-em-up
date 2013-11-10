@@ -242,24 +242,41 @@ public class Engine {
 	}
 
 	private class LoginTask extends GameTask<LoginMessage> {
+		
+		private boolean credentialResult;
 
 		public LoginTask(LoginMessage message, Sender sender) {
 			super(message, sender);
 		}
+		
+		public LoginTask(LoginMessage message, Sender sender, boolean credResult) {
+			super(message, sender);
+			credentialResult = credResult;
+		}
 
 		@Override
 		public void run() {
-			userSessionMap.addUser(sender);
-			DataStore2 ds = DbManager.getDataStore();
-			Account acc = ds.getAccountByUsername(message.username);
-			if (acc != null) {
+			if (!credentialResult){
 				ReadyForGameMessage message = new ReadyForGameMessage();
-				message.adCode = UUID.randomUUID().toString().substring(0, 8);
-				message.loginSuccess = true;
-				message.points = acc.getPoints();
+				message.adCode = "";
+				message.loginSuccess = credentialResult;
+				message.points = -1;
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message, sender.session);
-				MessageHandler.PushMessage(container);
+				MessageHandler.PushMessage(container);	
+			} else {
+				userSessionMap.addUser(sender);
+				DataStore2 ds = DbManager.getDataStore();
+				Account acc = ds.getAccountByUsername(message.username);
+				if (acc != null) {
+					ReadyForGameMessage message = new ReadyForGameMessage();
+					message.adCode = UUID.randomUUID().toString().substring(0, 8);
+					message.loginSuccess = credentialResult;
+					message.points = acc.getPoints();
+					MessageContainer container = MessageCreator.createMsgContainer(
+							message, sender.session);
+					MessageHandler.PushMessage(container);
+				}	
 			}
 		}
 	}
@@ -575,9 +592,9 @@ public class Engine {
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
 		boolean check = checkLoginCredentials(message.username,
 				message.password);
-		if (check) {
-			service.execute(instance.new LoginTask(message, sender));
-		}
+		LoginTask task = instance.new LoginTask(message, sender, check);
+		service.execute(task);
+
 		return check;
 	}
 
