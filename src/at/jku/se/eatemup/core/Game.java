@@ -620,7 +620,10 @@ public class Game {
 			tickCnt++;
 			if (tickCnt >= fullUpdateTicks){
 				tickCnt = 0;
-				Engine.scheduleFullGameUpdate(Game.this);
+				/*
+				 * disabled on Stefan's request
+				 * Engine.scheduleFullGameUpdate(Game.this,null);
+				 */				
 			}
 		}
 	}

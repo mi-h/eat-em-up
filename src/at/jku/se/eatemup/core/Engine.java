@@ -346,7 +346,7 @@ public class Engine {
 			Game game = getPlayerStandbyGame(message.username);
 			game.setPlayerReady(message.username);
 			if (game.allPlayersReady()) {
-				scheduleFullGameUpdate(game);
+				scheduleFullGameUpdate(game, null);
 			} else {
 				if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();
@@ -730,23 +730,30 @@ public class Engine {
 				specialAction, receivers));
 	}
 	
-	public static void scheduleFullGameUpdate(Game game){
-		service.execute(instance.new FullGameUpdateTask(game));
+	public static void scheduleFullGameUpdate(Game game, String receiverName){
+		service.execute(instance.new FullGameUpdateTask(game, receiverName));
 	}
 	
 	private class FullGameUpdateTask implements Runnable{
 
 		private Game game;
+		private String receiverName;
 		
-		public FullGameUpdateTask(Game game){
+		public FullGameUpdateTask(Game game, String receiverName){
 			this.game = game;
 		}
 		
 		@Override
 		public void run() {
 			GameStateMessage message = this.game.createGameStateMessage();
-			MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap
-								.convertNameListToSessionList(this.game.getBroadcastReceiverNames()));
+			ArrayList<String> recs;
+			if (receiverName == null){
+				recs = userSessionMap.convertNameListToSessionList(this.game.getBroadcastReceiverNames());
+			} else {
+				recs = new ArrayList<>();
+				recs.add(userSessionMap.getSessionByUsername(receiverName));
+			}
+			MessageContainer container = MessageCreator.createMsgContainer(message, recs);
 			MessageHandler.PushMessage(container);
 		}
 	}
@@ -794,5 +801,34 @@ public class Engine {
 		UpdatePointsTask task = instance.new UpdatePointsTask(players,
 				DbManager.getDataStore());
 		service.execute(task);
+	}
+
+	public static boolean acceptGameStateRequest(
+			GameStateRequestMessage message, Sender sender) {
+		if (sessionExists(sender)) {
+			service.execute(instance.new GameStateRequestTask(message,
+					sender));
+			return true;
+		}
+		return false;
+	}
+	
+	private class GameStateRequestTask extends GameTask<GameStateRequestMessage>{
+		
+		private String receiver;
+
+		public GameStateRequestTask(GameStateRequestMessage message,
+				Sender sender) {
+			super(message, sender);
+			receiver = sender.username;
+		}
+
+		@Override
+		public void run() {
+			Game g = getPlayerGame(this.receiver);
+			if (g != null){
+				scheduleFullGameUpdate(g,this.receiver);
+			}
+		}		
 	}
 }

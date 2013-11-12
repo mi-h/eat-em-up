@@ -36,6 +36,8 @@ public class MessageHandler {
 				return Engine.acceptFollowGameRequest((FollowGameRequestMessage)container.message,container.sender);
 			case HighscoreRequest:
 				return Engine.acceptHighscoreRequest((HighscoreRequestMessage)container.message,container.sender);
+			case GameStateRequest:
+				return Engine.acceptGameStateRequest((GameStateRequestMessage)container.message,container.sender);
 			default:
 				return false;
 			}

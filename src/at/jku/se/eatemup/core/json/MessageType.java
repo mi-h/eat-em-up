@@ -5,5 +5,5 @@ public enum MessageType {
 	GameStartSurvey, Position, GameState, PlayerMoved, PlayerHasEaten, 
 	TimerUpdate, SpecialActionActivated, SpecialActionDeactivated, BattleStart, 
 	BattleAnswer, BattleResult, GameEnd, Exit, Logout, Play, FollowGameRequest, 
-	GoodieCreated, HighscoreRequest, Highscore
+	GoodieCreated, HighscoreRequest, Highscore, GameStateRequest
 }

@@ -123,6 +123,8 @@ public class JsonTool {
 			return gson.fromJson(message, HighscoreMessage.class);
 		case Play:
 			return gson.fromJson(message, PlayMessage.class);
+		case GameStateRequest:
+			return gson.fromJson(message, GameStateRequestMessage.class);
 		default:
 			return null;
 		}
