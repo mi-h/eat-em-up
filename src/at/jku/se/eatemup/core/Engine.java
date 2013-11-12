@@ -341,54 +341,12 @@ public class Engine {
 			super(message, sender);
 		}
 
-		private ArrayList<HashMap<String, Object>> createGoodieData(
-				ArrayList<GoodiePoint> goodies) {
-			ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-			for (GoodiePoint gp : goodies) {
-				HashMap<String, Object> map = new HashMap<>();
-				map.put("latitude", gp.getPosition().getLatitude());
-				map.put("longitude", gp.getPosition().getLongitude());
-				map.put("specialAction", gp.getGoodie().getSpecialAction()
-						.getName());
-				map.put("points", gp.getGoodie().getPoints());
-				list.add(map);
-			}
-			return list;
-		}
-
-		private ArrayList<HashMap<String, Object>> createPlayerInfoData(
-				ArrayList<Player> players, Game game) {
-			ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-			for (Player p : players) {
-				HashMap<String, Object> map = new HashMap<>();
-				HashMap<String, Object> pMap = new HashMap<>();
-				map.put("username", p.getName());
-				map.put("points", 0);
-				Position pos = game.getPlayerPosition(p.getName());
-				pMap.put("latitude", pos.getLatitude());
-				pMap.put("longitude", pos.getLongitude());
-				map.put("position", pMap);
-				list.add(map);
-			}
-			return list;
-		}
-
 		@Override
 		public void run() {
 			Game game = getPlayerStandbyGame(message.username);
 			game.setPlayerReady(message.username);
 			if (game.allPlayersReady()) {
-				ArrayList<Player> players = game.getPlayers();
-				ArrayList<GoodiePoint> goodies = game.getGoodiePoints();
-				GameStartMessage message = new GameStartMessage();
-				message.playerInfo = createPlayerInfoData(players, game);
-				message.goodies = createGoodieData(goodies);
-				message.remainingTime = defaultGameTimeSeconds;
-				MessageContainer container = MessageCreator.createMsgContainer(
-						message, userSessionMap
-								.convertNameListToSessionList(game
-										.getBroadcastReceiverNames()));
-				MessageHandler.PushMessage(container);
+				scheduleFullGameUpdate(game);
 			} else {
 				if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();
@@ -693,7 +651,7 @@ public class Engine {
 				return g;
 			}
 		}
-		Game g = new Game();
+		Game g = new Game(defaultGameTimeSeconds);
 		setupGame(g);
 		standbyGames.put(g.getId(), g);
 		return g;
@@ -770,6 +728,27 @@ public class Engine {
 			SpecialAction specialAction, ArrayList<String> receivers) {
 		service.execute(instance.new SpecialActionDeactivationTask(uid,
 				specialAction, receivers));
+	}
+	
+	public static void scheduleFullGameUpdate(Game game){
+		service.execute(instance.new FullGameUpdateTask(game));
+	}
+	
+	private class FullGameUpdateTask implements Runnable{
+
+		private Game game;
+		
+		public FullGameUpdateTask(Game game){
+			this.game = game;
+		}
+		
+		@Override
+		public void run() {
+			GameStateMessage message = this.game.createGameStateMessage();
+			MessageContainer container = MessageCreator.createMsgContainer(message, Engine.userSessionMap
+								.convertNameListToSessionList(this.game.getBroadcastReceiverNames()));
+			MessageHandler.PushMessage(container);
+		}
 	}
 
 	public static void sendLogoutMessage(String session, String reason,

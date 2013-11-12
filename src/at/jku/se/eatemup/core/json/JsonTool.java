@@ -88,8 +88,8 @@ public class JsonTool {
 			return gson.fromJson(message, GameEndMessage.class);
 		case GameStandbyUpdate:
 			return gson.fromJson(message, GameStandbyUpdateMessage.class);
-		case GameStart:
-			return gson.fromJson(message, GameStartMessage.class);
+		case GameState:
+			return gson.fromJson(message, GameStateMessage.class);
 		case GameStartSurvey:
 			return gson.fromJson(message, GameStartSurveyMessage.class);
 		case Login:

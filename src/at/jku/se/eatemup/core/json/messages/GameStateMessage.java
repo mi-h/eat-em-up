@@ -7,14 +7,14 @@ import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
-public class GameStartMessage extends OutgoingMessage {
+public class GameStateMessage extends OutgoingMessage {
 	public int remainingTime;
 	public ArrayList<HashMap<String, Object>> playerInfo;
 	public ArrayList<HashMap<String, Object>> goodies;
 
 	@Override
 	public MessageType getType() {
-		return MessageType.GameStart;
+		return MessageType.GameState;
 	}
 
 	@Override
