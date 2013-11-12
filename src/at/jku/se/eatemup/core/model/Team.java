@@ -8,8 +8,9 @@ public class Team {
 	private TeamType type;
 	private List<Player> players;
 
-	public Team() {
+	public Team(TeamType type) {
 		players = new ArrayList<Player>();
+		this.type = type;
 	}
 
 	public int getPoints() {

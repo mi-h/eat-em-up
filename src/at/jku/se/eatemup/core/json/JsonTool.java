@@ -121,6 +121,8 @@ public class JsonTool {
 			return gson.fromJson(message, HighscoreRequestMessage.class);
 		case Highscore:
 			return gson.fromJson(message, HighscoreMessage.class);
+		case Play:
+			return gson.fromJson(message, PlayMessage.class);
 		default:
 			return null;
 		}

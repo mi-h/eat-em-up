@@ -61,6 +61,8 @@ public class Game {
 
 	public Game() {
 		teams = new Team[2];
+		teams[0] = new Team(TeamType.RED);
+		teams[1] = new Team(TeamType.BLUE);
 		id = UUID.randomUUID().toString();
 		readyToGoPlayers = new ArrayList<>();
 		playerPositions = new ConcurrentHashMap<>();
