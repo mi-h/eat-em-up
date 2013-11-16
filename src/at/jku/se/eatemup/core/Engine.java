@@ -831,4 +831,9 @@ public class Engine {
 			}
 		}		
 	}
+
+	public static boolean acceptPong(PongMessage message, Sender sender) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -125,6 +125,10 @@ public class JsonTool {
 			return gson.fromJson(message, PlayMessage.class);
 		case GameStateRequest:
 			return gson.fromJson(message, GameStateRequestMessage.class);
+		case Ping:
+			return gson.fromJson(message, PingMessage.class);
+		case Pong:
+			return gson.fromJson(message, PongMessage.class);
 		default:
 			return null;
 		}
