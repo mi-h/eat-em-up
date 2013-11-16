@@ -392,7 +392,7 @@ public class Engine {
 			if (game.allPlayersReady()) {
 				scheduleFullGameUpdate(game, null);
 			} else {
-				if (!game.isStartSurveySent()) {
+				//if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();
 					msg.requestingUser = message.username;
 					msg.requestingUserId = message.userid;
@@ -401,7 +401,7 @@ public class Engine {
 									.getNotReadyPlayers()));
 					MessageHandler.PushMessage(container);
 					game.setStartSurveySent(true);
-				}
+				//}
 			}
 		}
 	}
