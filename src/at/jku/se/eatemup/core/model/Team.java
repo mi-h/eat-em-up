@@ -39,26 +39,26 @@ public class Team {
 
 	public boolean hasPlayer(Player player) {
 		for (Player p : players) {
-			if (p.getName().equals(player.getName())) {
+			if (p.getUserid().equals(player.getUserid())) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean hasPlayer(String username) {
+	public boolean hasPlayer(String userid) {
 		for (Player p : players) {
-			if (p.getName().equals(username)) {
+			if (p.getUserid().equals(userid)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void removePlayer(String username) {
+	public void removePlayer(String userid) {
 		Player rem = null;
 		for (Player p : players) {
-			if (p.getName().equals(username)) {
+			if (p.getUserid().equals(userid)) {
 				rem = p;
 				break;
 			}

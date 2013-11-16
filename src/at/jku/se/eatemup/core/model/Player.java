@@ -5,6 +5,7 @@ import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 
 public class Player {
 	private String name;
+	private String userid;
 	private int points;
 	private SpecialAction specialAction;
 
@@ -36,5 +37,13 @@ public class Player {
 
 	public void setSpecialAction(SpecialAction specialAction) {
 		this.specialAction = specialAction;
+	}
+
+	public String getUserid() {
+		return userid;
+	}
+
+	public void setUserid(String userid) {
+		this.userid = userid;
 	}
 }

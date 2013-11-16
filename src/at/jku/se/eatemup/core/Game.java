@@ -237,13 +237,6 @@ public class Game {
 		return -1;
 	}
 
-	public ArrayList<String> getBroadcastReceiverNames() {
-		ArrayList<String> list = new ArrayList<>();
-		list.addAll(getPlayerNames());
-		list.addAll(audience);
-		return list;
-	}
-
 	public ArrayList<GoodiePoint> getGoodiePoints() {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
@@ -303,10 +296,10 @@ public class Game {
 		return null;
 	}
 
-	public ArrayList<String> getPlayerNames() {
+	public ArrayList<String> getPlayerIds() {
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : getPlayers()) {
-			list.add(p.getName());
+			list.add(p.getUserid());
 		}
 		return list;
 	}
@@ -665,6 +658,13 @@ public class Game {
 			map.put("position", pMap);
 			list.add(map);
 		}
+		return list;
+	}
+
+	public ArrayList<String> getBroadcastReceiverIds() {
+		ArrayList<String> list = new ArrayList<>();
+		list.addAll(getPlayerIds());
+		list.addAll(audience);
 		return list;
 	}
 }
