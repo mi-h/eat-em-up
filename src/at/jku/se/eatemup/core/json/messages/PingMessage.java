@@ -9,6 +9,7 @@ public class PingMessage extends OutgoingMessage {
 	public String username;
 	public String userid;
 	public boolean secondAttempt;
+	public String pingid;
 
 	@Override
 	public CastType getCastType() {

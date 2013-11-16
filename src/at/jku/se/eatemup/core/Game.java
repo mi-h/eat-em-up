@@ -71,7 +71,6 @@ public class Game {
 	private static final int bigGoodiePoints = 50;
 	private Timer ticker;
 	private static final int fullUpdateTicks = 15;
-
 	private int tickCnt;
 
 	public Game(int playtime) {

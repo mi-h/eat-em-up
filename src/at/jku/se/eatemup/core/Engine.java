@@ -3,8 +3,10 @@ package at.jku.se.eatemup.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.*;
 
@@ -119,8 +121,8 @@ public class Engine {
 				try {
 					Game g = runningGames.get(userGameMap.get(userid));
 					g.removePlayer(userid);
-					for(String uid : g.getBroadcastReceiverIds()){
-						scheduleFullGameUpdate(g,uid);
+					for (String uid : g.getBroadcastReceiverIds()) {
+						scheduleFullGameUpdate(g, uid);
 					}
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from running game."
@@ -144,8 +146,9 @@ public class Engine {
 						map.put("teamRed", g.isInRedTeam(p));
 						msg.players.add(map);
 					}
-					MessageContainer container = MessageCreator.createMsgContainer(msg,
-							getReceiverList(g.getPlayers()));
+					MessageContainer container = MessageCreator
+							.createMsgContainer(msg,
+									getReceiverList(g.getPlayers()));
 					MessageHandler.PushMessage(container);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from standby game."
@@ -388,6 +391,157 @@ public class Engine {
 		}
 	}
 
+	private static class PingManager {
+		private class Ping {
+			public String userid;
+			public boolean secondAttempt;
+			public String pingId;
+			public String gameid;
+		}
+		private class PingTask extends TimerTask {
+
+			private void cleanupUsers() {
+				ArrayList<String> lostPlayers = new ArrayList<String>();
+				for (Ping p : secondAttemptPings.values()) {
+					secondAttemptPings.remove(p);
+					lostPlayers.add(p.userid);
+				}
+				removeLostPlayers(lostPlayers);
+			}
+
+			private void escalateFirstAttempts() {
+				ArrayList<PingMessage> messages = new ArrayList<>();
+				for (Ping p : firstAttemptPings.values()) {
+					p.secondAttempt = true;
+					messages.add(createPingMessage(p));
+					secondAttemptPings.put(p.pingId, p);
+					firstAttemptPings.remove(p);
+				}
+				sendPingMessages(messages);
+			}
+
+			@Override
+			public void run() {
+				startGamePings();
+				escalateFirstAttempts();
+				cleanupUsers();
+			}
+
+			private void startGamePings() {
+				for (Game g : observerMap.values()) {
+					service.execute(new ProcessGamePingTask(g));
+				}
+			}
+		}
+		private class ProcessGamePingTask implements Runnable {
+			private Game game;
+
+			public ProcessGamePingTask(Game game) {
+				this.game = game;
+			}
+
+			@Override
+			public void run() {
+				ArrayList<String> ids = game.getBroadcastReceiverIds();
+				ArrayList<Ping> pings = new ArrayList<>(ids.size());
+				for (String uid : ids) {
+					if (!userWithActivePing.contains(uid)) {
+						Ping ping = new Ping();
+						ping.pingId = UUID.randomUUID().toString();
+						ping.secondAttempt = false;
+						ping.userid = uid;
+						ping.gameid = game.getId();
+						pings.add(ping);
+					}
+				}
+				ArrayList<PingMessage> messages = new ArrayList<>(pings.size());
+				ArrayList<String> users = new ArrayList<>();
+				for (Ping ping : pings) {
+					messages.add(createPingMessage(ping));
+					firstAttemptPings.put(ping.pingId, ping);
+					users.add(ping.userid);
+				}
+				userWithActivePing.addAll(users);
+				sendPingMessages(messages);
+			}
+		}
+		private static ConcurrentHashMap<String, Game> observerMap;
+		private static ConcurrentHashMap<String, Ping> firstAttemptPings;
+		private static ConcurrentHashMap<String, Ping> secondAttemptPings;
+		private static CopyOnWriteArrayList<String> userWithActivePing;
+		private static Timer ticker;
+
+		private static PingMessage createPingMessage(Ping ping) {
+			PingMessage temp = new PingMessage();
+			temp.secondAttempt = ping.secondAttempt;
+			temp.userid = ping.userid;
+			temp.username = ping.userid;
+			return temp;
+		}
+
+		private static void sendPingMessages(ArrayList<PingMessage> messages) {
+			for (PingMessage msg : messages) {
+				MessageContainer container = MessageCreator.createMsgContainer(
+						msg, userManager.getSessionByUserid(msg.userid));
+				MessageHandler.PushMessage(container);
+			}
+		}
+
+		public PingManager() {
+			observerMap = new ConcurrentHashMap<>();
+			firstAttemptPings = new ConcurrentHashMap<>();
+			secondAttemptPings = new ConcurrentHashMap<>();
+			userWithActivePing = new CopyOnWriteArrayList<>();
+			/*
+			 * disabled
+			 * ticker.scheduleAtFixedRate(new PingTask(), 30000, pingInterval);
+			 */			
+		}
+
+		public void acceptPong(PongMessage pong) {
+			if (!pong.secondAttempt) {
+				firstAttemptPings.remove(pong.pingid);
+			} else {
+				secondAttemptPings.remove(pong.pingid);
+			}
+			userWithActivePing.remove(pong.userid);
+		}
+
+		public void addGame(Game game) {
+			observerMap.put(game.getId(), game);
+		}
+
+		private void cleanupAttempts(String gameid) {
+			ArrayList<String> remList = new ArrayList<>();
+			ArrayList<String> userList = new ArrayList<>();
+			for (Ping p : secondAttemptPings.values()) {
+				if (p.gameid.equals(gameid)) {
+					remList.add(p.pingId);
+					userList.add(p.userid);
+				}
+			}
+			for (String s : remList) {
+				secondAttemptPings.remove(s);
+			}
+			remList.clear();
+			for (Ping p : firstAttemptPings.values()) {
+				if (p.gameid.equals(gameid)) {
+					remList.add(p.pingId);
+					userList.add(p.userid);
+				}
+			}
+			for (String s : remList) {
+				firstAttemptPings.remove(s);
+			}
+			userWithActivePing.removeAll(userList);
+		}
+
+		public void removeGame(Game game) {
+			observerMap.remove(game.getId());
+			cleanupAttempts(game.getId());
+		}
+	}
+
 	private class PlayTask extends GameTask<PlayMessage> {
 
 		public PlayTask(PlayMessage message, Sender sender) {
@@ -455,16 +609,15 @@ public class Engine {
 			if (game.allPlayersReady()) {
 				scheduleFullGameUpdate(game, null);
 			} else {
-				//if (!game.isStartSurveySent()) {
-					GameStartSurveyMessage msg = new GameStartSurveyMessage();
-					msg.requestingUser = message.username;
-					msg.requestingUserId = message.userid;
-					MessageContainer container = MessageCreator
-							.createMsgContainer(msg, getReceiverListById(game
-									.getNotReadyPlayers()));
-					MessageHandler.PushMessage(container);
-					game.setStartSurveySent(true);
-				//}
+				// if (!game.isStartSurveySent()) {
+				GameStartSurveyMessage msg = new GameStartSurveyMessage();
+				msg.requestingUser = message.username;
+				msg.requestingUserId = message.userid;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						msg, getReceiverListById(game.getNotReadyPlayers()));
+				MessageHandler.PushMessage(container);
+				game.setStartSurveySent(true);
+				// }
 			}
 		}
 	}
@@ -533,11 +686,12 @@ public class Engine {
 			}
 		}
 	}
+
 	public static class UserManager {
-		private ConcurrentHashMap<String, String> useridSessionMap = new ConcurrentHashMap<>();
-		private ConcurrentHashMap<String, String> sessionUseridMap = new ConcurrentHashMap<>();
-		private ConcurrentHashMap<String, String> useridUsernameMap = new ConcurrentHashMap<>();
-		private ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, String> useridSessionMap = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, String> sessionUseridMap = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, String> useridUsernameMap = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
 
 		public void addUser(Sender sender) {
 			String userid = sender.userid;
@@ -617,16 +771,17 @@ public class Engine {
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 	public static UserManager userManager = new UserManager();
+	private static PingManager pingManager = new PingManager();
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 	private static ExecutorService service = Executors.newCachedThreadPool();
 	private static Engine instance = new Engine();
 	private static final double jkuCenterLat = 48.337050;
-
 	private static final double jkuCenterLong = 14.319600;
-
 	private static final int defaultGameTimeSeconds = 600;
+
+	private static final int pingInterval = 30000; // millisecs
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
@@ -686,8 +841,8 @@ public class Engine {
 	}
 
 	public static boolean acceptPong(PongMessage message, Sender sender) {
-		// TODO Auto-generated method stub
-		return false;
+		pingManager.acceptPong(message);
+		return true;
 	}
 
 	public static boolean acceptPosition(PositionMessage message, Sender sender) {
@@ -730,6 +885,7 @@ public class Engine {
 
 	public static void endGame(Game game) {
 		runningGames.remove(game);
+		pingManager.removeGame(game);
 		try {
 			standbyGames.remove(game);
 		} catch (Exception ex) {
@@ -766,6 +922,7 @@ public class Engine {
 		Game g = new Game(defaultGameTimeSeconds);
 		setupGame(g);
 		standbyGames.put(g.getId(), g);
+		pingManager.addGame(g);
 		return g;
 	}
 
