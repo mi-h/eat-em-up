@@ -119,6 +119,9 @@ public class Engine {
 				try {
 					Game g = runningGames.get(userGameMap.get(userid));
 					g.removePlayer(userid);
+					for(String uid : g.getBroadcastReceiverIds()){
+						scheduleFullGameUpdate(g,uid);
+					}
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from running game."
 							+ Logger.stringifyException(ex));
@@ -131,6 +134,19 @@ public class Engine {
 				try {
 					Game g = standbyGames.get(userStandbyGameMap.get(userid));
 					g.removePlayer(userid);
+					GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
+					msg.readyForStart = addPlayerToStandbyGame(message.userid);
+					msg.players = new ArrayList<>();
+					for (Player p : g.getPlayers()) {
+						HashMap<String, Object> map = new HashMap<>();
+						map.put("username", p.getName());
+						map.put("userid", p.getUserid());
+						map.put("teamRed", g.isInRedTeam(p));
+						msg.players.add(map);
+					}
+					MessageContainer container = MessageCreator.createMsgContainer(msg,
+							getReceiverList(g.getPlayers()));
+					MessageHandler.PushMessage(container);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from standby game."
 							+ Logger.stringifyException(ex));
