@@ -2,6 +2,7 @@ package at.jku.se.eatemup.core.json.messages;
 
 import java.util.Random;
 
+import at.jku.se.eatemup.core.Engine;
 import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
@@ -17,8 +18,10 @@ public class BattleStartMessage extends OutgoingMessage {
 	public int[] answers;
 
 	public void setBattle(Battle battle) {
-		username1 = battle.getUsername1();
-		username2 = battle.getUsername2();
+		userid1 = battle.getUserid1();
+		userid2 = battle.getUserid2();
+		username1 = Engine.userManager.getUsernameByUserid(userid1);
+		username2 = Engine.userManager.getUsernameByUserid(userid2);
 		question = battle.getQuestion();
 		timelimit = battle.getTime();
 		answers = battle.getResult().clone();
