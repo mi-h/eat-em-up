@@ -24,7 +24,7 @@ public class MessageCreator {
 		container.receivers = receivers;
 		container.type = message.getType();
 		container.castType = message.getCastType();
-		container.sender = new Sender("server","null");
+		container.sender = new Sender("server","null","server");
 		return container;
 	}
 	

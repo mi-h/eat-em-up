@@ -37,9 +37,8 @@ public class JsonTool {
 			container.message = createMessage(tempContainer.message,
 					container.type);
 			if (direction == DirectionType.Incoming) {
-				container.sender = new Sender(
-						((IncomingMessage) container.message).username,
-						connIds.get(0));
+				IncomingMessage tempMsg = (IncomingMessage) container.message;
+				container.sender = new Sender(tempMsg.username,connIds.get(0),tempMsg.userid);
 			} else {
 				container.receivers = connIds;
 			}
