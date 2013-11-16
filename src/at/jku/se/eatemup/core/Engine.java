@@ -85,7 +85,7 @@ public class Engine {
 				ds.createTables();
 				firstCall = false;
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -100,12 +100,12 @@ public class Engine {
 			super(message, sender);
 		}
 
-		private void removeUserFromAllAudiences(String username) {
-			if (userGameAudienceMap.containsKey(username)) {
+		private void removeUserFromAllAudiences(String userid) {
+			if (userGameAudienceMap.containsKey(userid)) {
 				try {
 					Game g = runningGames
-							.get(userGameAudienceMap.get(username));
-					g.removeAudienceUser(username);
+							.get(userGameAudienceMap.get(userid));
+					g.removeAudienceUser(userid);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from standby game."
 							+ Logger.stringifyException(ex));
@@ -113,11 +113,11 @@ public class Engine {
 			}
 		}
 
-		private void removeUserFromAllRunningGames(String username) {
-			if (userGameMap.containsKey(username)) {
+		private void removeUserFromAllRunningGames(String userid) {
+			if (userGameMap.containsKey(userid)) {
 				try {
-					Game g = runningGames.get(userGameMap.get(username));
-					g.removePlayer(username);
+					Game g = runningGames.get(userGameMap.get(userid));
+					g.removePlayer(userid);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from running game."
 							+ Logger.stringifyException(ex));
@@ -125,11 +125,11 @@ public class Engine {
 			}
 		}
 
-		private void removeUserFromAllStandbyGames(String username) {
-			if (userStandbyGameMap.containsKey(username)) {
+		private void removeUserFromAllStandbyGames(String userid) {
+			if (userStandbyGameMap.containsKey(userid)) {
 				try {
-					Game g = standbyGames.get(userStandbyGameMap.get(username));
-					g.removePlayer(username);
+					Game g = standbyGames.get(userStandbyGameMap.get(userid));
+					g.removePlayer(userid);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from standby game."
 							+ Logger.stringifyException(ex));
@@ -144,7 +144,7 @@ public class Engine {
 			removeUserFromAllRunningGames(sender.username);
 			removeUserFromAllStandbyGames(sender.username);
 			removeUserFromAllAudiences(sender.username);
-			userSessionMap.removeUser(sender.session);
+			userManager.removeUser(sender.session);
 			SessionStore.removeSession(sender.session);
 		}
 	}
@@ -267,7 +267,7 @@ public class Engine {
 						message, sender.session);
 				MessageHandler.PushMessage(container);
 			} else {
-				userSessionMap.addUser(sender);
+				userManager.addUser(sender);
 				DataStore2 ds = DbManager.getDataStore();
 				Account acc = ds.getAccountByUsername(message.username);
 				if (acc != null) {
@@ -770,13 +770,14 @@ public class Engine {
 	}
 
 	public static void sendLogoutMessage(String session, String reason,
-			String username) {
+			String userid) {
 		try {
 			LogoutMessage message = new LogoutMessage();
 			message.reason = reason;
-			message.username = username;
+			message.username = userManager.getUsernameByUserid(userid);
+			message.userid = userid;
 			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
-					message, userSessionMap.getSessionByUsername(username)));
+					message, userManager.getSessionByUserid(userid)));
 		} catch (Exception ex) {
 			Logger.log("failed sending logout message."
 					+ Logger.stringifyException(ex));
@@ -784,7 +785,7 @@ public class Engine {
 	}
 
 	private static boolean sessionExists(Sender sender) {
-		if (userSessionMap.userExistsBySession(sender.session)) {
+		if (userManager.userExistsBySession(sender.session)) {
 			return true;
 		}
 		return tryRecoverUserSession(sender);
@@ -792,15 +793,18 @@ public class Engine {
 
 	private static void setupGame(Game g) {
 		DataStore2 db = DbManager.getDataStore();
-		g.setLocation(createNewLocation(db));
-		db.closeConnection();
+		try{
+		g.setLocation(createNewLocation(db));		
 		g.createGoodies(true);
+		} finally {
+			db.closeConnection();
+		}
 	}
 
 	private static boolean tryRecoverUserSession(Sender sender) {
-		String ses = userSessionMap.getSessionByUsername(sender.username);
+		String ses = userManager.getSessionByUserid(sender.userid);
 		if (ses != null && ses != "") {
-			userSessionMap.updateUserSession(sender.username, sender.session,
+			userManager.updateUserSession(sender.userid, sender.session,
 					ses);
 			SessionStore.removeSession(ses);
 			return true;
@@ -831,7 +835,7 @@ public class Engine {
 		public GameStateRequestTask(GameStateRequestMessage message,
 				Sender sender) {
 			super(message, sender);
-			receiver = sender.username;
+			receiver = sender.userid;
 		}
 
 		@Override
