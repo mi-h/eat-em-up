@@ -27,6 +27,30 @@ import at.jku.se.eatemup.core.model.specialaction.NoAction;
 import at.jku.se.eatemup.core.model.specialaction.SpecialAction;
 
 public class Game {
+	private class GameTick extends TimerTask {
+		private void checkForFullUpdate() {
+			tickCnt++;
+			if (tickCnt >= fullUpdateTicks){
+				tickCnt = 0;
+				/*
+				 * disabled on Stefan's request
+				 * Engine.scheduleFullGameUpdate(Game.this,null);
+				 */				
+			}
+		}
+
+		@Override
+		public void run() {
+			playtime--;
+			if (playtime <= 0) {
+				cancelGameTicker();
+				endGame();
+			} else {
+				sendTimerUpdate();
+			}
+			checkForFullUpdate();
+		}
+	}
 	private String id;
 	private int playtime;
 	private Location location;
@@ -47,6 +71,7 @@ public class Game {
 	private static final int bigGoodiePoints = 50;
 	private Timer ticker;
 	private static final int fullUpdateTicks = 15;
+
 	private int tickCnt;
 
 	public Game(int playtime) {
@@ -134,6 +159,14 @@ public class Game {
 		ticker.cancel();
 	}
 
+	public GameStateMessage createGameStateMessage() {
+		GameStateMessage message = new GameStateMessage();
+		message.playerInfo = createPlayerInfoData(getPlayers(), this);
+		message.goodies = createGoodieData(location.getGoodiePoints());
+		message.remainingTime = playtime;
+		return message;
+	}
+
 	private Goodie createGoodie(SpecialAction special, Random rand, String name) {
 		Goodie g = new Goodie();
 		boolean sa = !(special instanceof NoAction);
@@ -141,6 +174,21 @@ public class Game {
 		g.setSpecialAction(special);
 		g.setName(name);
 		return g;
+	}
+
+	private ArrayList<HashMap<String, Object>> createGoodieData(
+			CopyOnWriteArrayList<GoodiePoint> goodies) {
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		for (GoodiePoint gp : goodies) {
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("latitude", gp.getPosition().getLatitude());
+			map.put("longitude", gp.getPosition().getLongitude());
+			map.put("specialAction", gp.getGoodie().getSpecialAction()
+					.getName());
+			map.put("points", gp.getGoodie().getPoints());
+			list.add(map);
+		}
+		return list;
 	}
 
 	private int createGoodiePoints(Random rand) {
@@ -185,6 +233,24 @@ public class Game {
 				MessageHandler.PushMessage(container);
 			}
 		}
+	}
+
+	private ArrayList<HashMap<String, Object>> createPlayerInfoData(
+			ArrayList<Player> players, Game game) {
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		for (Player p : players) {
+			HashMap<String, Object> map = new HashMap<>();
+			HashMap<String, Object> pMap = new HashMap<>();
+			map.put("username", p.getName());
+			map.put("userid", p.getUserid());
+			map.put("points", 0);
+			Position pos = game.getPlayerPosition(p.getName());
+			pMap.put("latitude", pos.getLatitude());
+			pMap.put("longitude", pos.getLongitude());
+			map.put("position", pMap);
+			list.add(map);
+		}
+		return list;
 	}
 
 	private ArrayList<HashMap<String, Object>> createPlayerResults() {
@@ -239,6 +305,13 @@ public class Game {
 		return -1;
 	}
 
+	public ArrayList<String> getBroadcastReceiverIds() {
+		ArrayList<String> list = new ArrayList<>();
+		list.addAll(getPlayerIds());
+		list.addAll(audience);
+		return list;
+	}
+
 	public ArrayList<GoodiePoint> getGoodiePoints() {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
@@ -283,6 +356,14 @@ public class Game {
 		return null;
 	}
 
+	public ArrayList<String> getPlayerIds() {
+		ArrayList<String> list = new ArrayList<>();
+		for (Player p : getPlayers()) {
+			list.add(p.getUserid());
+		}
+		return list;
+	}
+
 	private Player getPlayerInPlayerRange(String uid) {
 		Position playerPos = playerPositions.get(uid);
 		for (Player p : getPlayers()) {
@@ -296,14 +377,6 @@ public class Game {
 			}
 		}
 		return null;
-	}
-
-	public ArrayList<String> getPlayerIds() {
-		ArrayList<String> list = new ArrayList<>();
-		for (Player p : getPlayers()) {
-			list.add(p.getUserid());
-		}
-		return list;
 	}
 
 	public int getPlayerPoints(String userid) {
@@ -577,7 +650,7 @@ public class Game {
 			}
 		}
 	}
-
+	
 	public void setPlaytime(int playtime) {
 		this.playtime = playtime;
 	}
@@ -588,7 +661,7 @@ public class Game {
 		positionProcessingFlag = true;
 		return true;
 	}
-
+	
 	public synchronized void setStartSurveySent(boolean startSurveySent) {
 		this.startSurveySent = startSurveySent;
 	}
@@ -600,78 +673,5 @@ public class Game {
 	public void startGame() {
 		tickCnt = 0;
 		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
-	}
-	
-	private class GameTick extends TimerTask {
-		@Override
-		public void run() {
-			playtime--;
-			if (playtime <= 0) {
-				cancelGameTicker();
-				endGame();
-			} else {
-				sendTimerUpdate();
-			}
-			checkForFullUpdate();
-		}
-
-		private void checkForFullUpdate() {
-			tickCnt++;
-			if (tickCnt >= fullUpdateTicks){
-				tickCnt = 0;
-				/*
-				 * disabled on Stefan's request
-				 * Engine.scheduleFullGameUpdate(Game.this,null);
-				 */				
-			}
-		}
-	}
-
-	public GameStateMessage createGameStateMessage() {
-		GameStateMessage message = new GameStateMessage();
-		message.playerInfo = createPlayerInfoData(getPlayers(), this);
-		message.goodies = createGoodieData(location.getGoodiePoints());
-		message.remainingTime = playtime;
-		return message;
-	}
-	
-	private ArrayList<HashMap<String, Object>> createGoodieData(
-			CopyOnWriteArrayList<GoodiePoint> goodies) {
-		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-		for (GoodiePoint gp : goodies) {
-			HashMap<String, Object> map = new HashMap<>();
-			map.put("latitude", gp.getPosition().getLatitude());
-			map.put("longitude", gp.getPosition().getLongitude());
-			map.put("specialAction", gp.getGoodie().getSpecialAction()
-					.getName());
-			map.put("points", gp.getGoodie().getPoints());
-			list.add(map);
-		}
-		return list;
-	}
-
-	private ArrayList<HashMap<String, Object>> createPlayerInfoData(
-			ArrayList<Player> players, Game game) {
-		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-		for (Player p : players) {
-			HashMap<String, Object> map = new HashMap<>();
-			HashMap<String, Object> pMap = new HashMap<>();
-			map.put("username", p.getName());
-			map.put("userid", p.getUserid());
-			map.put("points", 0);
-			Position pos = game.getPlayerPosition(p.getName());
-			pMap.put("latitude", pos.getLatitude());
-			pMap.put("longitude", pos.getLongitude());
-			map.put("position", pMap);
-			list.add(map);
-		}
-		return list;
-	}
-
-	public ArrayList<String> getBroadcastReceiverIds() {
-		ArrayList<String> list = new ArrayList<>();
-		list.addAll(getPlayerIds());
-		list.addAll(audience);
-		return list;
 	}
 }

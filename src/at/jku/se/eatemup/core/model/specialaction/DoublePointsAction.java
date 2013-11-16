@@ -3,12 +3,12 @@ package at.jku.se.eatemup.core.model.specialaction;
 public class DoublePointsAction implements SpecialAction {
 
 	@Override
-	public String getName() {
-		return "DoublePointsAction";
+	public int getDuration() {
+		return 60;
 	}
 
 	@Override
-	public int getDuration() {
-		return 60;
+	public String getName() {
+		return "DoublePointsAction";
 	}	
 }

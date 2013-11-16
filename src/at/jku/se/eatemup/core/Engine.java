@@ -193,6 +193,53 @@ public class Engine {
 		}
 	}
 
+	private class FullGameUpdateTask implements Runnable {
+
+		private Game game;
+		private String receiverId;
+
+		public FullGameUpdateTask(Game game, String receiverId) {
+			this.game = game;
+			this.receiverId = receiverId;
+		}
+
+		@Override
+		public void run() {
+			GameStateMessage message = this.game.createGameStateMessage();
+			ArrayList<String> recs;
+			if (receiverId == null) {
+				recs = userManager.convertIdListToSessionList(this.game
+						.getBroadcastReceiverIds());
+			} else {
+				recs = new ArrayList<>();
+				recs.add(userManager.getSessionByUserid(receiverId));
+			}
+			MessageContainer container = MessageCreator.createMsgContainer(
+					message, recs);
+			MessageHandler.PushMessage(container);
+		}
+	}
+
+	private class GameStateRequestTask extends
+			GameTask<GameStateRequestMessage> {
+
+		private String receiver;
+
+		public GameStateRequestTask(GameStateRequestMessage message,
+				Sender sender) {
+			super(message, sender);
+			receiver = sender.userid;
+		}
+
+		@Override
+		public void run() {
+			Game g = getPlayerGame(this.receiver);
+			if (g != null) {
+				scheduleFullGameUpdate(g, this.receiver);
+			}
+		}
+	}
+
 	private abstract class GameTask<T> implements Runnable {
 		protected T message;
 		protected Sender sender;
@@ -251,6 +298,30 @@ public class Engine {
 			super(message, sender);
 		}
 
+		private boolean checkLoginCredentials(String username, String password,
+				DataStore2 ds) {
+			/*
+			 * passwordhash for username and check try {
+			 * PasswordHashManager.check(password, "fromdb"); } catch (Exception
+			 * e) { e.printStackTrace(); }
+			 */
+			String storedPw = ds.getUserPassword(username);
+			try {
+				return storedPw.equals(password);
+			} catch (Exception ex) {
+				return false;
+			}
+		}
+
+		private AccountType parseAccountType(String type) {
+			switch (type) {
+			case "facebook":
+				return AccountType.Facebook;
+			default:
+				return AccountType.Standard;
+			}
+		}
+
 		@Override
 		public void run() {
 			AccountType type = parseAccountType(message.type);
@@ -297,30 +368,6 @@ public class Engine {
 							.createMsgContainer(message, sender.session);
 					MessageHandler.PushMessage(container);
 				}
-			}
-		}
-
-		private AccountType parseAccountType(String type) {
-			switch (type) {
-			case "facebook":
-				return AccountType.Facebook;
-			default:
-				return AccountType.Standard;
-			}
-		}
-
-		private boolean checkLoginCredentials(String username, String password,
-				DataStore2 ds) {
-			/*
-			 * passwordhash for username and check try {
-			 * PasswordHashManager.check(password, "fromdb"); } catch (Exception
-			 * e) { e.printStackTrace(); }
-			 */
-			String storedPw = ds.getUserPassword(username);
-			try {
-				return storedPw.equals(password);
-			} catch (Exception ex) {
-				return false;
 			}
 		}
 	}
@@ -470,7 +517,6 @@ public class Engine {
 			}
 		}
 	}
-
 	public static class UserManager {
 		private ConcurrentHashMap<String, String> useridSessionMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> sessionUseridMap = new ConcurrentHashMap<>();
@@ -505,6 +551,14 @@ public class Engine {
 
 		public String getUseridBySession(String sessionid) {
 			return sessionUseridMap.get(sessionid);
+		}
+
+		public String getUsernameByUserid(String userid) {
+			String temp = useridUsernameMap.get(userid);
+			if (temp != null) {
+				return temp;
+			}
+			return "";
 		}
 
 		public void removeAllInvolvedUsers(Game game) {
@@ -543,16 +597,7 @@ public class Engine {
 		public boolean userExistsBySession(String session) {
 			return sessionUseridMap.containsKey(session);
 		}
-
-		public String getUsernameByUserid(String userid) {
-			String temp = useridUsernameMap.get(userid);
-			if (temp != null) {
-				return temp;
-			}
-			return "";
-		}
 	}
-
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 	public static UserManager userManager = new UserManager();
@@ -562,7 +607,9 @@ public class Engine {
 	private static ExecutorService service = Executors.newCachedThreadPool();
 	private static Engine instance = new Engine();
 	private static final double jkuCenterLat = 48.337050;
+
 	private static final double jkuCenterLong = 14.319600;
+
 	private static final int defaultGameTimeSeconds = 600;
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
@@ -591,6 +638,15 @@ public class Engine {
 		return false;
 	}
 
+	public static boolean acceptGameStateRequest(
+			GameStateRequestMessage message, Sender sender) {
+		if (sessionExists(sender)) {
+			service.execute(instance.new GameStateRequestTask(message, sender));
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean acceptHighscoreRequest(
 			HighscoreRequestMessage message, Sender sender) {
 		service.execute(instance.new HighscoreRequestTask(message, sender));
@@ -610,6 +666,11 @@ public class Engine {
 			service.execute(instance.new PlayTask(message, sender));
 			return true;
 		}
+		return false;
+	}
+
+	public static boolean acceptPong(PongMessage message, Sender sender) {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -759,41 +820,14 @@ public class Engine {
 		game.removePlayer(userid);
 	}
 
-	public static void scheduleSpecialActionDeactivation(String userid,
-			SpecialAction specialAction, ArrayList<String> receivers) {
-		service.execute(instance.new SpecialActionDeactivationTask(userid,
-				specialAction, receivers));
-	}
-
 	public static void scheduleFullGameUpdate(Game game, String userid) {
 		service.execute(instance.new FullGameUpdateTask(game, userid));
 	}
 
-	private class FullGameUpdateTask implements Runnable {
-
-		private Game game;
-		private String receiverId;
-
-		public FullGameUpdateTask(Game game, String receiverId) {
-			this.game = game;
-			this.receiverId = receiverId;
-		}
-
-		@Override
-		public void run() {
-			GameStateMessage message = this.game.createGameStateMessage();
-			ArrayList<String> recs;
-			if (receiverId == null) {
-				recs = userManager.convertIdListToSessionList(this.game
-						.getBroadcastReceiverIds());
-			} else {
-				recs = new ArrayList<>();
-				recs.add(userManager.getSessionByUserid(receiverId));
-			}
-			MessageContainer container = MessageCreator.createMsgContainer(
-					message, recs);
-			MessageHandler.PushMessage(container);
-		}
+	public static void scheduleSpecialActionDeactivation(String userid,
+			SpecialAction specialAction, ArrayList<String> receivers) {
+		service.execute(instance.new SpecialActionDeactivationTask(userid,
+				specialAction, receivers));
 	}
 
 	public static void sendLogoutMessage(String session, String reason,
@@ -842,39 +876,5 @@ public class Engine {
 		UpdatePointsTask task = instance.new UpdatePointsTask(players,
 				DbManager.getDataStore());
 		service.execute(task);
-	}
-
-	public static boolean acceptGameStateRequest(
-			GameStateRequestMessage message, Sender sender) {
-		if (sessionExists(sender)) {
-			service.execute(instance.new GameStateRequestTask(message, sender));
-			return true;
-		}
-		return false;
-	}
-
-	private class GameStateRequestTask extends
-			GameTask<GameStateRequestMessage> {
-
-		private String receiver;
-
-		public GameStateRequestTask(GameStateRequestMessage message,
-				Sender sender) {
-			super(message, sender);
-			receiver = sender.userid;
-		}
-
-		@Override
-		public void run() {
-			Game g = getPlayerGame(this.receiver);
-			if (g != null) {
-				scheduleFullGameUpdate(g, this.receiver);
-			}
-		}
-	}
-
-	public static boolean acceptPong(PongMessage message, Sender sender) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

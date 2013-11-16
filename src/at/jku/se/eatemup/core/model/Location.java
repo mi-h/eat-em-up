@@ -9,43 +9,43 @@ public class Location {
 	private Position centerPosition;
 	private CopyOnWriteArrayList<GoodiePoint> goodiePoints;
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Position getTopLeftPos() {
-		return topLeftPos;
-	}
-
-	public void setTopLeftPos(Position topLeftPos) {
-		this.topLeftPos = topLeftPos;
-	}
-
 	public Position getBottomRightPos() {
 		return bottomRightPos;
-	}
-
-	public void setBottomRightPos(Position bottomRightPos) {
-		this.bottomRightPos = bottomRightPos;
-	}
-
-	public CopyOnWriteArrayList<GoodiePoint> getGoodiePoints() {
-		return goodiePoints;
-	}
-
-	public void setGoodiePoints(CopyOnWriteArrayList<GoodiePoint> goodiePoints) {
-		this.goodiePoints = goodiePoints;
 	}
 
 	public Position getCenterPosition() {
 		return centerPosition;
 	}
 
+	public CopyOnWriteArrayList<GoodiePoint> getGoodiePoints() {
+		return goodiePoints;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Position getTopLeftPos() {
+		return topLeftPos;
+	}
+
+	public void setBottomRightPos(Position bottomRightPos) {
+		this.bottomRightPos = bottomRightPos;
+	}
+
 	public void setCenterPosition(Position centerPosition) {
 		this.centerPosition = centerPosition;
+	}
+
+	public void setGoodiePoints(CopyOnWriteArrayList<GoodiePoint> goodiePoints) {
+		this.goodiePoints = goodiePoints;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setTopLeftPos(Position topLeftPos) {
+		this.topLeftPos = topLeftPos;
 	}
 }

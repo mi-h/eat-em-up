@@ -9,9 +9,11 @@ import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Position;
 
 public interface IDatabaseAPI {
-	public void saveLogEntry(LogEntry e);
+	public void addAccount(Account acc);
 	
-	public ArrayList<LogEntry> getLogEntries(Date start, Date end);
+	public void addGoodiePosition(Position position);
+	
+	public void addUserPoints(String userid, int points);
 	
 	public Account getAccountByUserid(String userid);
 	
@@ -19,17 +21,15 @@ public interface IDatabaseAPI {
 	
 	public ArrayList<Account> getAccountsByUserids(ArrayList<String> userids);
 	
-	public ArrayList<Account> getHighscore(int topX);
+	public Account getFacebookAccount(String facebookId);
 	
-	public void addUserPoints(String userid, int points);
+	public ArrayList<GoodiePoint> getGoodiePoints();
+	
+	public ArrayList<Account> getHighscore(int topX);
+
+	public ArrayList<LogEntry> getLogEntries(Date start, Date end);
 	
 	public String getUserPassword(String username);
 	
-	public ArrayList<GoodiePoint> getGoodiePoints();
-
-	public void addAccount(Account acc);
-	
-	public void addGoodiePosition(Position position);
-	
-	public Account getFacebookAccount(String facebookId);
+	public void saveLogEntry(LogEntry e);
 }

@@ -16,6 +16,17 @@ import at.jku.se.eatemup.core.logging.Logger;
 
 @ServerEndpoint("/websocket")
 public class MessageSocket {
+	private static void setSession(Session session) {
+		if (!SessionStore.sessionExists(session.getId())) {
+			SessionStore.saveSession(session);
+		}
+	}
+
+	@OnClose
+	public void onClose() {
+		Logger.log("Connection closed");
+	}
+
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException,
 			InterruptedException {
@@ -45,16 +56,5 @@ public class MessageSocket {
 	@OnOpen
 	public void onOpen() {
 		Logger.log("Client connected");
-	}
-
-	@OnClose
-	public void onClose() {
-		Logger.log("Connection closed");
-	}
-
-	private static void setSession(Session session) {
-		if (!SessionStore.sessionExists(session.getId())) {
-			SessionStore.saveSession(session);
-		}
 	}
 }

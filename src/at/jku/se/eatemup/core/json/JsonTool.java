@@ -13,65 +13,13 @@ import com.google.gson.Gson;
 
 public class JsonTool {
 
-	public static TempMessageContainer CreateTempMessageContainer(String message)
-			throws JsonParseException {
+	public static String convertMessage(String message) {
 		Gson gson = new Gson();
-		try {
-			TempMessageContainer temp = gson.fromJson(message,
-					TempMessageContainer.class);
-			return temp;
-		} catch (Exception ex) {
-			JsonParseException jpe = new JsonParseException();
-			jpe.setStackTrace(ex.getStackTrace());
-			throw jpe;
-		}
-	}
-
-	public static MessageContainer CreateMessageContainer(
-			TempMessageContainer tempContainer, DirectionType direction,
-			ArrayList<String> connIds) throws JsonParseException {
-		MessageContainer container = new MessageContainer();
-		try {
-			container.direction = direction;
-			container.type = tempContainer.type;
-			container.message = createMessage(tempContainer.message,
-					container.type);
-			if (direction == DirectionType.Incoming) {
-				IncomingMessage tempMsg = (IncomingMessage) container.message;
-				container.sender = new Sender(tempMsg.username,connIds.get(0),tempMsg.userid);
-			} else {
-				container.receivers = connIds;
-			}
-			return container;
-		} catch (Exception ex) {
-			JsonParseException jpe = new JsonParseException();
-			jpe.setStackTrace(ex.getStackTrace());
-			throw jpe;
-		}
-	}
-
-	public static String SerializeMessage(Message message)
-			throws JsonCreateException {
-		try {
-			Gson gson = new Gson();
-			return gson.toJson(message);
-		} catch (Exception ex) {
-			JsonCreateException jce = new JsonCreateException();
-			jce.setStackTrace(ex.getStackTrace());
-			throw jce;
-		}
-	}
-
-	public static String SerializeTempMessageContainer(
-			TempMessageContainer container) throws JsonCreateException {
-		try {
-			Gson gson = new Gson();
-			return gson.toJson(container);
-		} catch (Exception ex) {
-			JsonCreateException jce = new JsonCreateException();
-			jce.setStackTrace(ex.getStackTrace());
-			throw jce;
-		}
+		ReceivedMessageContainer temp = gson.fromJson(message, ReceivedMessageContainer.class);
+		TempMessageContainer temp2 = new TempMessageContainer();
+		temp2.message = gson.toJson(temp.message);
+		temp2.type = temp.type;
+		return gson.toJson(temp2);
 	}
 
 	private static Message createMessage(String message, MessageType type) {
@@ -132,23 +80,75 @@ public class JsonTool {
 			return null;
 		}
 	}
+
+	public static MessageContainer CreateMessageContainer(
+			TempMessageContainer tempContainer, DirectionType direction,
+			ArrayList<String> connIds) throws JsonParseException {
+		MessageContainer container = new MessageContainer();
+		try {
+			container.direction = direction;
+			container.type = tempContainer.type;
+			container.message = createMessage(tempContainer.message,
+					container.type);
+			if (direction == DirectionType.Incoming) {
+				IncomingMessage tempMsg = (IncomingMessage) container.message;
+				container.sender = new Sender(tempMsg.username,connIds.get(0),tempMsg.userid);
+			} else {
+				container.receivers = connIds;
+			}
+			return container;
+		} catch (Exception ex) {
+			JsonParseException jpe = new JsonParseException();
+			jpe.setStackTrace(ex.getStackTrace());
+			throw jpe;
+		}
+	}
+
+	public static TempMessageContainer CreateTempMessageContainer(String message)
+			throws JsonParseException {
+		Gson gson = new Gson();
+		try {
+			TempMessageContainer temp = gson.fromJson(message,
+					TempMessageContainer.class);
+			return temp;
+		} catch (Exception ex) {
+			JsonParseException jpe = new JsonParseException();
+			jpe.setStackTrace(ex.getStackTrace());
+			throw jpe;
+		}
+	}
+
+	public static Avatar DeSerializeAvatar(String avatar){
+		Gson gson = new Gson();
+		return gson.fromJson(avatar, Avatar.class);
+	}
 	
 	public static String SerializeAvatar(Avatar avatar){
 		Gson gson = new Gson();
 		return gson.toJson(avatar);
 	}
 	
-	public static Avatar DeSerializeAvatar(String avatar){
-		Gson gson = new Gson();
-		return gson.fromJson(avatar, Avatar.class);
+	public static String SerializeMessage(Message message)
+			throws JsonCreateException {
+		try {
+			Gson gson = new Gson();
+			return gson.toJson(message);
+		} catch (Exception ex) {
+			JsonCreateException jce = new JsonCreateException();
+			jce.setStackTrace(ex.getStackTrace());
+			throw jce;
+		}
 	}
 
-	public static String convertMessage(String message) {
-		Gson gson = new Gson();
-		ReceivedMessageContainer temp = gson.fromJson(message, ReceivedMessageContainer.class);
-		TempMessageContainer temp2 = new TempMessageContainer();
-		temp2.message = gson.toJson(temp.message);
-		temp2.type = temp.type;
-		return gson.toJson(temp2);
+	public static String SerializeTempMessageContainer(
+			TempMessageContainer container) throws JsonCreateException {
+		try {
+			Gson gson = new Gson();
+			return gson.toJson(container);
+		} catch (Exception ex) {
+			JsonCreateException jce = new JsonCreateException();
+			jce.setStackTrace(ex.getStackTrace());
+			throw jce;
+		}
 	}
 }

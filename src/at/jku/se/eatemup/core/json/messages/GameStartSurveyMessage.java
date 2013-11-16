@@ -9,12 +9,12 @@ public class GameStartSurveyMessage extends OutgoingMessage {
 	public String requestingUserId;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.GameStartSurvey;
+	public CastType getCastType() {
+		return CastType.Multicast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Multicast;
+	public MessageType getType() {
+		return MessageType.GameStartSurvey;
 	}
 }

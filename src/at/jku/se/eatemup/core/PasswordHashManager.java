@@ -15,17 +15,6 @@ public class PasswordHashManager {
 	private static final int desiredKeyLen = 256;
 
 	/**
-	 * Computes a salted PBKDF2 hash of given plaintext password suitable for
-	 * storing in a database. Empty passwords are not supported.
-	 */
-	public static String getSaltedHash(String password) throws Exception {
-		byte[] salt = SecureRandom.getInstance("SHA1PRNG")
-				.generateSeed(saltLen);
-		// store the salt with the password
-		return Base64.encodeBase64String(salt) + "$" + hash(password, salt);
-	}
-
-	/**
 	 * Checks whether given plaintext password corresponds to a stored salted
 	 * hash of the password.
 	 */
@@ -36,6 +25,17 @@ public class PasswordHashManager {
 			return false;
 		String hashOfInput = hash(password, Base64.decodeBase64(saltAndPass[0]));
 		return hashOfInput.equals(saltAndPass[1]);
+	}
+
+	/**
+	 * Computes a salted PBKDF2 hash of given plaintext password suitable for
+	 * storing in a database. Empty passwords are not supported.
+	 */
+	public static String getSaltedHash(String password) throws Exception {
+		byte[] salt = SecureRandom.getInstance("SHA1PRNG")
+				.generateSeed(saltLen);
+		// store the salt with the password
+		return Base64.encodeBase64String(salt) + "$" + hash(password, salt);
 	}
 
 	// using PBKDF2 from Sun, an alternative is https://github.com/wg/scrypt

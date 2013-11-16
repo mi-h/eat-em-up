@@ -9,6 +9,45 @@ import at.jku.se.eatemup.sockets.SessionStore;
 
 public class MessageHandler {
 
+	private static void _sendMsgAsync(String session, String message) {
+		Session ses = SessionStore.getSession(session);
+		try{
+			message = message.replace("\\\"", "\"");
+			message = message.replace("\"{", "{").replace("}\"", "}");
+		} catch (Exception ex){
+			//fail silently
+		}
+		if (ses != null) {
+			ses.getAsyncRemote().sendText(message);
+			Logger.log("message sent to " + session);
+		} else {
+			Logger.log("failed sending message to " + session);
+		}
+	}
+
+	public static void PushMessage(final MessageContainer container) {
+		if (container.direction == DirectionType.Outgoing) {
+			new Thread() {
+				public void run() {
+					try {
+						String msg = JsonTool
+								.SerializeMessage(container.message);
+						TempMessageContainer temp = new TempMessageContainer();
+						temp.message = msg;
+						temp.type = container.type;
+						for (String id : container.receivers) {
+							_sendMsgAsync(
+									id,
+									JsonTool.SerializeTempMessageContainer(temp));
+						}
+					} catch (JsonCreateException jce) {
+						Logger.log(jce.getLogText());
+					}
+				}
+			}.start();
+		}
+	}
+
 	public static boolean ReceiveMessage(MessageContainer container) {
 		try {
 			switch (container.type) {
@@ -45,45 +84,6 @@ public class MessageHandler {
 			}
 		} catch (Exception ex) {
 			return false;
-		}
-	}
-
-	public static void PushMessage(final MessageContainer container) {
-		if (container.direction == DirectionType.Outgoing) {
-			new Thread() {
-				public void run() {
-					try {
-						String msg = JsonTool
-								.SerializeMessage(container.message);
-						TempMessageContainer temp = new TempMessageContainer();
-						temp.message = msg;
-						temp.type = container.type;
-						for (String id : container.receivers) {
-							_sendMsgAsync(
-									id,
-									JsonTool.SerializeTempMessageContainer(temp));
-						}
-					} catch (JsonCreateException jce) {
-						Logger.log(jce.getLogText());
-					}
-				}
-			}.start();
-		}
-	}
-
-	private static void _sendMsgAsync(String session, String message) {
-		Session ses = SessionStore.getSession(session);
-		try{
-			message = message.replace("\\\"", "\"");
-			message = message.replace("\"{", "{").replace("}\"", "}");
-		} catch (Exception ex){
-			//fail silently
-		}
-		if (ses != null) {
-			ses.getAsyncRemote().sendText(message);
-			Logger.log("message sent to " + session);
-		} else {
-			Logger.log("failed sending message to " + session);
 		}
 	}
 }

@@ -13,12 +13,12 @@ public class GameStandbyUpdateMessage extends OutgoingMessage {
 	public boolean readyForStart;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.GameStandbyUpdate;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.GameStandbyUpdate;
 	}
 }

@@ -10,12 +10,12 @@ public class SpecialActionActivatedMessage extends OutgoingMessage {
 	public String userid;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.SpecialActionActivated;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.SpecialActionActivated;
 	}
 }

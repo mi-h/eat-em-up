@@ -13,28 +13,24 @@ public class Team {
 		this.type = type;
 	}
 
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
-	}
-
-	public TeamType getType() {
-		return type;
-	}
-
-	public void setType(TeamType type) {
-		this.type = type;
+	public int calcTotalPoints() {
+		int sum = 0;
+		for (Player p : players){
+			sum += p.getPoints();
+		}
+		return sum;
 	}
 
 	public List<Player> getPlayers() {
 		return players;
 	}
 
-	public void setPlayers(List<Player> players) {
-		this.players = players;
+	public int getPoints() {
+		return points;
+	}
+
+	public TeamType getType() {
+		return type;
 	}
 
 	public boolean hasPlayer(Player player) {
@@ -68,11 +64,15 @@ public class Team {
 		}
 	}
 
-	public int calcTotalPoints() {
-		int sum = 0;
-		for (Player p : players){
-			sum += p.getPoints();
-		}
-		return sum;
+	public void setPlayers(List<Player> players) {
+		this.players = players;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public void setType(TeamType type) {
+		this.type = type;
 	}
 }

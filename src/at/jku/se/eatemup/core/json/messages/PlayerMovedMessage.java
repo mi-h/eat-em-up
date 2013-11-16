@@ -12,12 +12,12 @@ public class PlayerMovedMessage extends OutgoingMessage {
 	public HashMap<String, Double> position;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.PlayerMoved;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.PlayerMoved;
 	}
 }

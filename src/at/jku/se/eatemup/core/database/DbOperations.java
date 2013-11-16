@@ -21,23 +21,11 @@ public class DbOperations {
 		this.ds = new DataStore();
 	}
 	
-	public void saveLogEntry(LogEntry _e){
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "INSERT INTO [sepruser].[LogEntry]([ID],[Date],[text]) values('"
-					+ _e.id + "," + _e.created + "," + _e.text + "'";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				this.stmt.executeUpdate(this.sqlQuery);
-				this.stmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public ArrayList<LogEntry> getLogEntries(Date start, Date end){
-		//TODO
-		return null;
+	public void addUserPoints(String username, int _points){
+		int points = 0;
+		Account a = getAccountByUsername(username);
+		points = a.getPoints() + _points;
+		updateUserPoints(username,points);
 	}
 	
 	public Account getAccountByUsername(String username){
@@ -74,57 +62,6 @@ public class DbOperations {
 		return alAccount;
 	}
 	
-	public ArrayList<Account> getHighscore(int topX){
-		ArrayList<Account> alAccount = new ArrayList<Account>();
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "SELECT TOP " + topX + " [nickname],[points],[password] " +
-					"FROM [sepr].[sepruser].[user]'";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
-				while (rs.next()) {
-					Account a = new Account();
-					a.setUsername(rs.getString("nickname"));
-					a.setPoints(rs.getInt("points"));
-					a.setPassword(rs.getString("passwort"));
-					alAccount.add(a);
-				}
-				this.stmt.close();
-				this.ds.closeDbConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return alAccount;
-	}
-	
-	public void addUserPoints(String username, int _points){
-		int points = 0;
-		Account a = getAccountByUsername(username);
-		points = a.getPoints() + _points;
-		updateUserPoints(username,points);
-	}
-	
-	public String getUserPassword(String username){
-		String password = null;
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "SELECT password FROM [sepr].[sepruser].[user] WHERE nickname LIKE'"
-					+ username + "'";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
-				while (rs.next()) {
-					password =  rs.getString(password);
-				}
-				this.stmt.close();
-				this.ds.closeDbConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return password;
-	}
-	
 	public ArrayList<GoodiePoint> getGoodiePoints(){
 		ArrayList<GoodiePoint> alGoodiePoint = new ArrayList<GoodiePoint>();
 		if (this.ds.connectToDB()) {
@@ -150,6 +87,69 @@ public class DbOperations {
 			}
 		}
 		return alGoodiePoint;
+	}
+	
+	public ArrayList<Account> getHighscore(int topX){
+		ArrayList<Account> alAccount = new ArrayList<Account>();
+		if (this.ds.connectToDB()) {
+			this.sqlQuery = "SELECT TOP " + topX + " [nickname],[points],[password] " +
+					"FROM [sepr].[sepruser].[user]'";
+			try {
+				this.stmt = this.ds.con.createStatement();
+				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
+				while (rs.next()) {
+					Account a = new Account();
+					a.setUsername(rs.getString("nickname"));
+					a.setPoints(rs.getInt("points"));
+					a.setPassword(rs.getString("passwort"));
+					alAccount.add(a);
+				}
+				this.stmt.close();
+				this.ds.closeDbConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return alAccount;
+	}
+	
+	public ArrayList<LogEntry> getLogEntries(Date start, Date end){
+		//TODO
+		return null;
+	}
+	
+	public String getUserPassword(String username){
+		String password = null;
+		if (this.ds.connectToDB()) {
+			this.sqlQuery = "SELECT password FROM [sepr].[sepruser].[user] WHERE nickname LIKE'"
+					+ username + "'";
+			try {
+				this.stmt = this.ds.con.createStatement();
+				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
+				while (rs.next()) {
+					password =  rs.getString(password);
+				}
+				this.stmt.close();
+				this.ds.closeDbConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return password;
+	}
+	
+	public void saveLogEntry(LogEntry _e){
+		if (this.ds.connectToDB()) {
+			this.sqlQuery = "INSERT INTO [sepruser].[LogEntry]([ID],[Date],[text]) values('"
+					+ _e.id + "," + _e.created + "," + _e.text + "'";
+			try {
+				this.stmt = this.ds.con.createStatement();
+				this.stmt.executeUpdate(this.sqlQuery);
+				this.stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	/*
 	public int selectUserPoints(String _user) {

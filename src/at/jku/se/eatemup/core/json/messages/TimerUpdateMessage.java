@@ -9,12 +9,12 @@ public class TimerUpdateMessage extends OutgoingMessage {
 	public long currentTimestamp;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.TimerUpdate;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.TimerUpdate;
 	}
 }

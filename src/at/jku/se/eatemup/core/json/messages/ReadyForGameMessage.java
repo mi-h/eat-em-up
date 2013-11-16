@@ -12,12 +12,12 @@ public class ReadyForGameMessage extends OutgoingMessage {
 	public String userid;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.ReadyForGame;
+	public CastType getCastType() {
+		return CastType.Unicast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Unicast;
+	public MessageType getType() {
+		return MessageType.ReadyForGame;
 	}
 }

@@ -9,6 +9,16 @@ public class Logger {
 	
 	private static DataStore2 ds;
 
+	public static void closeConnection(){
+		if (ds != null){
+			ds.closeConnection();
+		}
+	}
+	
+	private static void consoleOut(String message, Date d) {
+		System.out.println(d.toString() + ": " + message);
+	}
+	
 	public static synchronized void log(String message) {
 		Date d = new Date();
 		LogEntry le = new LogEntry();
@@ -18,23 +28,13 @@ public class Logger {
 		consoleOut(message, d);
 		saveLogEntry(le);		
 	}
-	
-	public static void closeConnection(){
-		if (ds != null){
-			ds.closeConnection();
-		}
-	}
-	
+
 	private static void saveLogEntry(LogEntry logEntry){
 		if (ds == null){
 			ds = new DataStore2();
 			ds.createTables();
 		}
 		ds.saveLogEntry(logEntry);
-	}
-
-	private static void consoleOut(String message, Date d) {
-		System.out.println(d.toString() + ": " + message);
 	}
 	
 	public static String stringifyException(Exception exception){

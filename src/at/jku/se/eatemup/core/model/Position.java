@@ -18,41 +18,41 @@ public class Position {
 		
 	}
 
-	public double getLongitude() {
-		return longitude;
+	public double calcDistance(Position position2){
+		return GPSTool.calcDistance(latitude, longitude, position2.latitude, position2.longitude);
 	}
 
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
+	public boolean differentFrom(Position p) {
+		return p.latitude!=this.latitude || p.longitude!=this.longitude;
 	}
 
-	public double getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-	}
-	
 	public boolean distanceLessThan(Position position2, int meters){
 		double dist = calcDistance(position2);
 		if ((int)dist < meters) return true;
 		return false;
 	}
-	
-	public double calcDistance(Position position2){
-		return GPSTool.calcDistance(latitude, longitude, position2.latitude, position2.longitude);
-	}
-	
+
 	public int getId() {
 		return id;
 	}
-
+	
+	public double getLatitude() {
+		return latitude;
+	}
+	
+	public double getLongitude() {
+		return longitude;
+	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public boolean differentFrom(Position p) {
-		return p.latitude!=this.latitude || p.longitude!=this.longitude;
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
 	}
 }

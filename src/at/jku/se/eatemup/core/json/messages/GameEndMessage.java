@@ -12,12 +12,12 @@ public class GameEndMessage extends OutgoingMessage {
 	public ArrayList<HashMap<String, Object>> playerResults;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.GameEnd;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.GameEnd;
 	}
 }

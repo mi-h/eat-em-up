@@ -63,6 +63,46 @@ public class DataStore2 implements IDatabaseAPI{
 		}		
 	}
 	
+	public void addAccount(Account acc) {
+		try {
+			Account temp;
+			if (acc.getType()==AccountType.Standard){
+				temp = getAccountByUsername(acc.getUsername());
+			} else {
+				temp = getFacebookAccount(acc.getFacebookId());
+			}
+			if (temp == null){
+				accountDao.createIfNotExists(acc);
+			}			
+		} catch (SQLException e) {
+			Logger.log("adding account failed. "+Logger.stringifyException(e));
+		}
+	}
+	
+	public void addGoodiePosition(Position position){
+		try {
+			positionDao.createIfNotExists(position);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addUserPoints(String userid, int points){
+		Account tmp = getAccountByUserid(userid);
+		if (tmp != null){
+			tmp.addPoints(points);
+			try {
+				accountDao.createOrUpdate(tmp);
+			} catch (SQLException e) {
+				Logger.log("account point update failed for "+userid+"."+Logger.stringifyException(e));
+			}
+		}
+	}
+	
+	public void closeConnection(){
+		connectionSource.closeQuietly();
+	}
+	
 	public void createTables(){
 		try {
 			TableUtils.createTableIfNotExists(connectionSource, Account.class);
@@ -82,44 +122,6 @@ public class DataStore2 implements IDatabaseAPI{
 		} catch (SQLException e) {
 			Logger.log("goodieLocation table creation failed."+Logger.stringifyException(e));
 		}
-	}
-	
-	public void closeConnection(){
-		connectionSource.closeQuietly();
-	}
-	
-	public void saveLogEntry(LogEntry e){
-		try {
-			logDao.create(e);
-		} catch (SQLException e1) {
-			System.out.println("saving logentry failed");
-		}
-	}
-	
-	public ArrayList<LogEntry> getLogEntries(Date start, Date end){
-		QueryBuilder<LogEntry, String> queryBuilder = logDao.queryBuilder();
-		try {
-			queryBuilder.where().le("created", end);
-		} catch (SQLException e1) {
-			Logger.log("adding lowerthanequal to logentry query failed."+Logger.stringifyException(e1));
-		}
-		try {
-			queryBuilder.where().ge("created", start);
-		} catch (SQLException e1) {
-			Logger.log("adding greaterthanequal to logentry query failed."+Logger.stringifyException(e1));
-		}
-		PreparedQuery<LogEntry> preparedQuery = null;
-		try {
-			preparedQuery = queryBuilder.prepare();
-		} catch (SQLException e) {
-			Logger.log("preparing logentry query failed."+Logger.stringifyException(e));
-		}
-		try {
-			return new ArrayList<LogEntry>(logDao.query(preparedQuery));
-		} catch (SQLException e) {
-			Logger.log("logentry query failed."+Logger.stringifyException(e));
-		}
-		return new ArrayList<LogEntry>();
 	}
 	
 	public Account getAccountByUserid(String userid){
@@ -155,42 +157,16 @@ public class DataStore2 implements IDatabaseAPI{
 		return list;
 	}
 	
-	public ArrayList<Account> getHighscore(int topX){
-		QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
-		queryBuilder.orderBy("points", false);
-		queryBuilder.limit(new Long(topX));
-		PreparedQuery<Account> preparedQuery = null;
+	public Account getFacebookAccount(String facebookId) {
 		try {
-			preparedQuery = queryBuilder.prepare();
+			QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
+			queryBuilder.where().eq("facebookId", facebookId).and().eq("type", AccountType.Facebook);
+			Account temp = queryBuilder.queryForFirst();
+			return temp;
 		} catch (SQLException e) {
-			Logger.log("preparing highscore query failed."+Logger.stringifyException(e));
+			Logger.log("account retrieval failed for (facebook) "+facebookId+"."+Logger.stringifyException(e));
+			return null;
 		}
-		try {
-			return new ArrayList<Account>(accountDao.query(preparedQuery));
-		} catch (SQLException e) {
-			Logger.log("highscore query failed."+Logger.stringifyException(e));
-		}
-		return new ArrayList<Account>();
-	}
-	
-	public void addUserPoints(String userid, int points){
-		Account tmp = getAccountByUserid(userid);
-		if (tmp != null){
-			tmp.addPoints(points);
-			try {
-				accountDao.createOrUpdate(tmp);
-			} catch (SQLException e) {
-				Logger.log("account point update failed for "+userid+"."+Logger.stringifyException(e));
-			}
-		}
-	}
-	
-	public String getUserPassword(String username){
-		Account tmp = getAccountByUsername(username);
-		if (tmp != null){
-			return tmp.getPassword();
-		}
-		return null;
 	}
 	
 	public ArrayList<GoodiePoint> getGoodiePoints(){
@@ -208,40 +184,64 @@ public class DataStore2 implements IDatabaseAPI{
 			return ret;
 		}
 	}
-
-	public void addAccount(Account acc) {
+	
+	public ArrayList<Account> getHighscore(int topX){
+		QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
+		queryBuilder.orderBy("points", false);
+		queryBuilder.limit(new Long(topX));
+		PreparedQuery<Account> preparedQuery = null;
 		try {
-			Account temp;
-			if (acc.getType()==AccountType.Standard){
-				temp = getAccountByUsername(acc.getUsername());
-			} else {
-				temp = getFacebookAccount(acc.getFacebookId());
-			}
-			if (temp == null){
-				accountDao.createIfNotExists(acc);
-			}			
+			preparedQuery = queryBuilder.prepare();
 		} catch (SQLException e) {
-			Logger.log("adding account failed. "+Logger.stringifyException(e));
+			Logger.log("preparing highscore query failed."+Logger.stringifyException(e));
 		}
+		try {
+			return new ArrayList<Account>(accountDao.query(preparedQuery));
+		} catch (SQLException e) {
+			Logger.log("highscore query failed."+Logger.stringifyException(e));
+		}
+		return new ArrayList<Account>();
+	}
+
+	public ArrayList<LogEntry> getLogEntries(Date start, Date end){
+		QueryBuilder<LogEntry, String> queryBuilder = logDao.queryBuilder();
+		try {
+			queryBuilder.where().le("created", end);
+		} catch (SQLException e1) {
+			Logger.log("adding lowerthanequal to logentry query failed."+Logger.stringifyException(e1));
+		}
+		try {
+			queryBuilder.where().ge("created", start);
+		} catch (SQLException e1) {
+			Logger.log("adding greaterthanequal to logentry query failed."+Logger.stringifyException(e1));
+		}
+		PreparedQuery<LogEntry> preparedQuery = null;
+		try {
+			preparedQuery = queryBuilder.prepare();
+		} catch (SQLException e) {
+			Logger.log("preparing logentry query failed."+Logger.stringifyException(e));
+		}
+		try {
+			return new ArrayList<LogEntry>(logDao.query(preparedQuery));
+		} catch (SQLException e) {
+			Logger.log("logentry query failed."+Logger.stringifyException(e));
+		}
+		return new ArrayList<LogEntry>();
 	}
 	
-	public void addGoodiePosition(Position position){
-		try {
-			positionDao.createIfNotExists(position);
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public String getUserPassword(String username){
+		Account tmp = getAccountByUsername(username);
+		if (tmp != null){
+			return tmp.getPassword();
 		}
+		return null;
 	}
 
-	public Account getFacebookAccount(String facebookId) {
+	public void saveLogEntry(LogEntry e){
 		try {
-			QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
-			queryBuilder.where().eq("facebookId", facebookId).and().eq("type", AccountType.Facebook);
-			Account temp = queryBuilder.queryForFirst();
-			return temp;
-		} catch (SQLException e) {
-			Logger.log("account retrieval failed for (facebook) "+facebookId+"."+Logger.stringifyException(e));
-			return null;
+			logDao.create(e);
+		} catch (SQLException e1) {
+			System.out.println("saving logentry failed");
 		}
 	}
 }

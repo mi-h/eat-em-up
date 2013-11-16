@@ -20,28 +20,28 @@ public class Player {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public int getPoints() {
 		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
 	}
 
 	public SpecialAction getSpecialAction() {
 		return specialAction;
 	}
 
-	public void setSpecialAction(SpecialAction specialAction) {
-		this.specialAction = specialAction;
-	}
-
 	public String getUserid() {
 		return userid;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public void setSpecialAction(SpecialAction specialAction) {
+		this.specialAction = specialAction;
 	}
 
 	public void setUserid(String userid) {

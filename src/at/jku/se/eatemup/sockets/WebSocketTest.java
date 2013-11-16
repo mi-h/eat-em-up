@@ -25,6 +25,11 @@ import at.jku.se.eatemup.core.model.Battle;
 @ServerEndpoint("/websocketTest")
 public class WebSocketTest {
 
+	@OnClose
+	public void onClose() {
+		System.out.println("Connection closed");
+	}
+
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException,
 			InterruptedException {
@@ -82,10 +87,5 @@ public class WebSocketTest {
 	@OnOpen
 	public void onOpen() {
 		System.out.println("Client connected");
-	}
-
-	@OnClose
-	public void onClose() {
-		System.out.println("Connection closed");
 	}
 }

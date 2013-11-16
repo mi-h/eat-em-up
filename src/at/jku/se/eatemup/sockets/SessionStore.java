@@ -13,6 +13,32 @@ public class SessionStore {
 	private static Timer cleanupTimer = new Timer();
 	private static final int cleanupInterval = 60000;
 
+	public static synchronized ArrayList<String> getKeyList() {
+		ArrayList<String> list = new ArrayList<>();
+		for (String s : sessions.keySet()) {
+			list.add(s);
+		}
+		return list;
+	}
+
+	public static synchronized Session getSession(String id) {
+		if (sessionExists(id))
+			return sessions.get(id);
+		return null;
+	}
+
+	public static synchronized void removeSession(String id) {
+		sessions.remove(id);
+	}
+
+	public static synchronized void saveSession(Session session) {
+		sessions.put(session.getId(), session);
+	}
+
+	public static synchronized boolean sessionExists(String id) {
+		return sessions.containsKey(id);
+	}
+
 	public SessionStore() {
 		TimerTask task = new TimerTask() {
 			@Override
@@ -29,31 +55,5 @@ public class SessionStore {
 			}
 		};
 		cleanupTimer.schedule(task, cleanupInterval, cleanupInterval);
-	}
-
-	public static synchronized boolean sessionExists(String id) {
-		return sessions.containsKey(id);
-	}
-
-	public static synchronized void saveSession(Session session) {
-		sessions.put(session.getId(), session);
-	}
-
-	public static synchronized void removeSession(String id) {
-		sessions.remove(id);
-	}
-
-	public static synchronized Session getSession(String id) {
-		if (sessionExists(id))
-			return sessions.get(id);
-		return null;
-	}
-
-	public static synchronized ArrayList<String> getKeyList() {
-		ArrayList<String> list = new ArrayList<>();
-		for (String s : sessions.keySet()) {
-			list.add(s);
-		}
-		return list;
 	}
 }

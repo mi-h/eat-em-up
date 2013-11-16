@@ -6,13 +6,13 @@ public abstract class IncomingMessage extends Message {
 	public String userid;
 
 	@Override
-	public DirectionType getDirection() {
-		return DirectionType.Incoming;
+	public CastType getCastType() {
+		return CastType.None;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.None;
+	public DirectionType getDirection() {
+		return DirectionType.Incoming;
 	}
 
 }

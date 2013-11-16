@@ -27,71 +27,71 @@ public class Account {
 		
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String name) {
-		this.username = name;
-	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
 	public void addPoints(int points){
 		this.points += points;
 	}
-	
+
 	public String getAvatar() {
 		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		this.avatar = avatar;
 	}
 
 	public byte[] getAvatarImage() {
 		return avatarImage;
 	}
 
-	public void setAvatarImage(byte[] avatarImage) {
-		this.avatarImage = avatarImage;
+	public String getFacebookId() {
+		return facebookId;
 	}
 
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public String getPassword() {
+		return password;
+	}
+	
+	public int getPoints() {
+		return points;
+	}
+	
+	public AccountType getType() {
+		return type;
 	}
 
-	public String getFacebookId() {
-		return facebookId;
+	public String getUsername() {
+		return username;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public void setAvatarImage(byte[] avatarImage) {
+		this.avatarImage = avatarImage;
 	}
 
 	public void setFacebookId(String facebookId) {
 		this.facebookId = facebookId;
 	}
 
-	public AccountType getType() {
-		return type;
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
 	}
 
 	public void setType(AccountType type) {
 		this.type = type;
+	}
+
+	public void setUsername(String name) {
+		this.username = name;
 	}
 }

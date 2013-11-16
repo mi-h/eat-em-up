@@ -8,23 +8,23 @@ public class GoodiePoint {
 		return goodie;
 	}
 
-	public void setGoodie(Goodie goodie) {
-		this.goodie = goodie;
-	}
-
 	public Position getPosition() {
 		return position;
 	}
 
-	public void setPosition(Position position) {
-		this.position = position;
-	}
-	
 	public boolean hasGoodie(){
 		return goodie!=null;
 	}
-	
+
 	public void removeGoodie(){
 		goodie = null;
+	}
+	
+	public void setGoodie(Goodie goodie) {
+		this.goodie = goodie;
+	}
+	
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 }

@@ -21,10 +21,6 @@ import at.jku.se.eatemup.core.model.Position;
 
 public class KmlXmlImporter {
 
-	public static void main(String[] args) {
-		Import(new DataStore2());
-	}
-
 	public static void Import(DataStore2 datastore) {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory
 				.newInstance();
@@ -75,5 +71,9 @@ public class KmlXmlImporter {
 		} finally {
 			datastore.closeConnection();
 		}
+	}
+
+	public static void main(String[] args) {
+		Import(new DataStore2());
 	}
 }

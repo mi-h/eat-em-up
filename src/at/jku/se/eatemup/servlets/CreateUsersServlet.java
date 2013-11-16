@@ -28,6 +28,18 @@ public class CreateUsersServlet extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+	private void addAccountIfNotExists(String username, String password, DataStore2 dataStore){
+		if(dataStore.getAccountByUsername(username)==null){
+			Account temp = new Account();
+			temp.setUsername(username);
+			temp.setPassword(password);
+			temp.setPoints(0);
+			temp.setType(AccountType.Standard);
+			temp.setId(UUID.randomUUID().toString());
+			dataStore.addAccount(temp);
+		}		
+	}
+	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -43,18 +55,6 @@ public class CreateUsersServlet extends HttpServlet {
 		addAccountIfNotExists("markus","hatkeinelustmehr",ds);
 		addAccountIfNotExists("michael","tutfastnix",ds);
 		ds.closeConnection();
-	}
-	
-	private void addAccountIfNotExists(String username, String password, DataStore2 dataStore){
-		if(dataStore.getAccountByUsername(username)==null){
-			Account temp = new Account();
-			temp.setUsername(username);
-			temp.setPassword(password);
-			temp.setPoints(0);
-			temp.setType(AccountType.Standard);
-			temp.setId(UUID.randomUUID().toString());
-			dataStore.addAccount(temp);
-		}		
 	}
 
 	/**

@@ -20,6 +20,17 @@ public class DataStore {
                 this.dbPassword = "seprpass";
         }
 
+        public boolean closeDbConnection() {
+                try {
+                        this.con.commit();
+                        this.con.close();
+                } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                }
+                return true;
+        }
+
         public boolean connectToDB() {
                 try {
                         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -36,17 +47,6 @@ public class DataStore {
                         e.printStackTrace();
                 }
 
-                return true;
-        }
-
-        public boolean closeDbConnection() {
-                try {
-                        this.con.commit();
-                        this.con.close();
-                } catch (SQLException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                }
                 return true;
         }
 }

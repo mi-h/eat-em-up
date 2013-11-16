@@ -11,13 +11,13 @@ public class PingMessage extends OutgoingMessage {
 	public boolean secondAttempt;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.Ping;
+	public CastType getCastType() {
+		return CastType.Unicast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Unicast;
+	public MessageType getType() {
+		return MessageType.Ping;
 	}
 
 }

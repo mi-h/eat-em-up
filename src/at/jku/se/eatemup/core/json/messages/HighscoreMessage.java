@@ -13,13 +13,13 @@ public class HighscoreMessage extends OutgoingMessage {
 	public int topx;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.Highscore;
+	public CastType getCastType() {
+		return CastType.Unicast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Unicast;
+	public MessageType getType() {
+		return MessageType.Highscore;
 	}
 
 }

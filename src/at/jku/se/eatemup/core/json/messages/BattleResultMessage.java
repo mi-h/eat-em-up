@@ -11,12 +11,12 @@ public class BattleResultMessage extends OutgoingMessage {
 	public int points;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.BattleResult;
+	public CastType getCastType() {
+		return CastType.Multicast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Multicast;
+	public MessageType getType() {
+		return MessageType.BattleResult;
 	}
 }

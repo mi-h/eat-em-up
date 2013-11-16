@@ -13,12 +13,12 @@ public class GameStateMessage extends OutgoingMessage {
 	public ArrayList<HashMap<String, Object>> goodies;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.GameState;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.GameState;
 	}
 }

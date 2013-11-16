@@ -17,6 +17,17 @@ public class BattleCreator {
 	private static final int divMaxValue = 100;
 	private static final int maxDiff = 35;
 
+	private static Object[] createAddQuestion(Random rand) {
+		Object[] ret = new Object[2];
+		int n1 = rand.nextInt(addMaxValue) + 1;
+		int n2 = rand.nextInt(addMaxValue) + 1;
+		int res = n1 + n2;
+		String q = n1 + " + " + n2;
+		ret[0] = q;
+		ret[1] = res;
+		return ret;
+	}
+
 	public static Battle CreateBattle(String user1, String user2) {
 		Battle battle = new Battle();
 		battle.setUserid1(user1);
@@ -29,6 +40,94 @@ public class BattleCreator {
 		battle.setResult(results);
 		battle.setTime(getTime(results[0], dec));
 		return battle;
+	}
+
+	private static Object[] createDivQuestion(Random rand) {
+		Object[] ret = new Object[2];
+		int n1;
+		do {
+			n1 = rand.nextInt(divMaxValue) + 1;
+		} while (n1 % 2 != 0);
+		int n2;
+		do {
+			n2 = rand.nextInt(divMaxValue) + 1;
+		} while (n1 % n2 != 0);
+		int res = n1 - n2;
+		String q = n1 + " / " + n2;
+		ret[0] = q;
+		ret[1] = res;
+		return ret;
+	}
+
+	private static Object[] createMultQuestion(Random rand) {
+		Object[] ret = new Object[2];
+		int n1 = rand.nextInt(multMaxValue) + 1;
+		int n2 = rand.nextInt(multMaxValue) + 1;
+		int res = n1 * n2;
+		String q = n1 + " * " + n2;
+		ret[0] = q;
+		ret[1] = res;
+		return ret;
+	}
+
+	private static Object[] createQuestion(int decision, Random rand) {
+		switch (decision) {
+		case 1:
+			return createAddQuestion(rand);
+		case 2:
+			return createSubQuestion(rand);
+		case 3:
+			return createMultQuestion(rand);
+		default:
+			return createDivQuestion(rand);
+		}
+	}
+
+	private static int[] createResults(int correctResult, boolean even) {
+		Random rand = new Random();
+		HashSet<Integer> existingVals = new HashSet<>(3);
+		int[] arr = new int[4];
+		arr[0] = correctResult;
+		existingVals.add(arr[0]);
+		arr[1] = getNextGauss(correctResult, rand, 1, existingVals, even);
+		existingVals.add(arr[1]);
+		arr[2] = getNextGauss(correctResult, rand, 2, existingVals, even);
+		existingVals.add(arr[2]);
+		arr[3] = getNextGauss(correctResult, rand, 1, existingVals, even);
+		return arr;
+	}
+
+	private static Object[] createSubQuestion(Random rand) {
+		Object[] ret = new Object[2];
+		int n1 = rand.nextInt(subMaxValue) + 1;
+		int n2;
+		do {
+			n2 = rand.nextInt(subMaxValue) + 1;
+		} while (n2 > n1);
+		int res = n1 - n2;
+		String q = n1 + " - " + n2;
+		ret[0] = q;
+		ret[1] = res;
+		return ret;
+	}
+
+	private static int getNextGauss(int correct, Random rand, int interval,
+			HashSet<Integer> existing, boolean even) {
+		int val;
+		if (correct <= 5) {
+			do {
+				val = rand.nextInt(10) + 1;
+			} while (val < 0 || existing.contains(val)
+					|| (even && val % 2 != 0));
+		} else {
+			do {
+				val = (int) Math.round(correct + (correct / (double) interval)
+						* rand.nextGaussian());
+			} while (val < 0 || existing.contains(val)
+					|| Math.abs(correct - val) > maxDiff
+					|| (even && val % 2 != 0));
+		}
+		return val;
 	}
 
 	private static int getTime(int correct, int dec) {
@@ -66,105 +165,6 @@ public class BattleCreator {
 		if (correct % 2 != 0) {
 			ret++;
 		}
-		return ret;
-	}
-
-	private static int[] createResults(int correctResult, boolean even) {
-		Random rand = new Random();
-		HashSet<Integer> existingVals = new HashSet<>(3);
-		int[] arr = new int[4];
-		arr[0] = correctResult;
-		existingVals.add(arr[0]);
-		arr[1] = getNextGauss(correctResult, rand, 1, existingVals, even);
-		existingVals.add(arr[1]);
-		arr[2] = getNextGauss(correctResult, rand, 2, existingVals, even);
-		existingVals.add(arr[2]);
-		arr[3] = getNextGauss(correctResult, rand, 1, existingVals, even);
-		return arr;
-	}
-
-	private static int getNextGauss(int correct, Random rand, int interval,
-			HashSet<Integer> existing, boolean even) {
-		int val;
-		if (correct <= 5) {
-			do {
-				val = rand.nextInt(10) + 1;
-			} while (val < 0 || existing.contains(val)
-					|| (even && val % 2 != 0));
-		} else {
-			do {
-				val = (int) Math.round(correct + (correct / (double) interval)
-						* rand.nextGaussian());
-			} while (val < 0 || existing.contains(val)
-					|| Math.abs(correct - val) > maxDiff
-					|| (even && val % 2 != 0));
-		}
-		return val;
-	}
-
-	private static Object[] createQuestion(int decision, Random rand) {
-		switch (decision) {
-		case 1:
-			return createAddQuestion(rand);
-		case 2:
-			return createSubQuestion(rand);
-		case 3:
-			return createMultQuestion(rand);
-		default:
-			return createDivQuestion(rand);
-		}
-	}
-
-	private static Object[] createDivQuestion(Random rand) {
-		Object[] ret = new Object[2];
-		int n1;
-		do {
-			n1 = rand.nextInt(divMaxValue) + 1;
-		} while (n1 % 2 != 0);
-		int n2;
-		do {
-			n2 = rand.nextInt(divMaxValue) + 1;
-		} while (n1 % n2 != 0);
-		int res = n1 - n2;
-		String q = n1 + " / " + n2;
-		ret[0] = q;
-		ret[1] = res;
-		return ret;
-	}
-
-	private static Object[] createMultQuestion(Random rand) {
-		Object[] ret = new Object[2];
-		int n1 = rand.nextInt(multMaxValue) + 1;
-		int n2 = rand.nextInt(multMaxValue) + 1;
-		int res = n1 * n2;
-		String q = n1 + " * " + n2;
-		ret[0] = q;
-		ret[1] = res;
-		return ret;
-	}
-
-	private static Object[] createSubQuestion(Random rand) {
-		Object[] ret = new Object[2];
-		int n1 = rand.nextInt(subMaxValue) + 1;
-		int n2;
-		do {
-			n2 = rand.nextInt(subMaxValue) + 1;
-		} while (n2 > n1);
-		int res = n1 - n2;
-		String q = n1 + " - " + n2;
-		ret[0] = q;
-		ret[1] = res;
-		return ret;
-	}
-
-	private static Object[] createAddQuestion(Random rand) {
-		Object[] ret = new Object[2];
-		int n1 = rand.nextInt(addMaxValue) + 1;
-		int n2 = rand.nextInt(addMaxValue) + 1;
-		int res = n1 + n2;
-		String q = n1 + " + " + n2;
-		ret[0] = q;
-		ret[1] = res;
 		return ret;
 	}
 }

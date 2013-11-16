@@ -3,13 +3,13 @@ package at.jku.se.eatemup.core.model.specialaction;
 public class InvincibleAction implements SpecialAction {
 
 	@Override
-	public String getName() {
-		return "InvincibleAction";
+	public int getDuration() {
+		return 30;
 	}
 
 	@Override
-	public int getDuration() {
-		return 30;
+	public String getName() {
+		return "InvincibleAction";
 	}
 
 }

@@ -14,12 +14,12 @@ public class PlayerHasEatenMessage extends OutgoingMessage {
 	public HashMap<String, Object> team;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.PlayerHasEaten;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.PlayerHasEaten;
 	}
 }

@@ -12,13 +12,13 @@ public class GoodieCreatedMessage extends OutgoingMessage {
 	public int points;
 
 	@Override
-	public MessageType getType() {
-		return MessageType.GoodieCreated;
+	public CastType getCastType() {
+		return CastType.Broadcast;
 	}
 
 	@Override
-	public CastType getCastType() {
-		return CastType.Broadcast;
+	public MessageType getType() {
+		return MessageType.GoodieCreated;
 	}
 
 }
