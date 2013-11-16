@@ -5,7 +5,7 @@ import at.jku.se.eatemup.core.json.MessageType;
 
 public class BattleAnswerMessage extends IncomingMessage {
 	public String answer;
-	public long timestamp;
+	public int duration;
 
 	@Override
 	public MessageType getType() {

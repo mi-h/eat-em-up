@@ -29,10 +29,10 @@ public class Engine {
 
 		@Override
 		public void run() {
-			Game g = getPlayerGame(sender.username);
+			Game g = getPlayerGame(sender.userid);
 			if (g != null) {
-				Battle b = g.addBattleAnswer(message.username,
-						Integer.parseInt(message.answer), message.timestamp);
+				Battle b = g.addBattleAnswer(message.userid,
+						Integer.parseInt(message.answer), message.duration);
 				if (b == null)
 					return;
 				BattleResultMessage message = new BattleResultMessage();
@@ -41,19 +41,21 @@ public class Engine {
 				int points = -1;
 				switch (bw) {
 				case User1: {
-					message.winner = b.getUsername1();
-					points = g.getBattleWinPoints(b.getUsername1(),
-							b.getUsername2());
-					g.addPlayerPoints(b.getUsername1(), points);
-					g.addPlayerPoints(b.getUsername2(), -points);
+					message.winnerUserid = b.getUserid1();
+					message.winner = userManager.getUsernameByUserid(b.getUserid1());
+					points = g.getBattleWinPoints(b.getUserid1(),
+							b.getUserid2());
+					g.addPlayerPoints(b.getUserid1(), points);
+					g.addPlayerPoints(b.getUserid2(), -points);
 				}
 					break;
 				case User2: {
-					message.winner = b.getUsername2();
-					points = g.getBattleWinPoints(b.getUsername2(),
-							b.getUsername1());
-					g.addPlayerPoints(b.getUsername2(), points);
-					g.addPlayerPoints(b.getUsername1(), -points);
+					message.winnerUserid = b.getUserid2();
+					message.winner = userManager.getUsernameByUserid(b.getUserid2());
+					points = g.getBattleWinPoints(b.getUserid2(),
+							b.getUserid1());
+					g.addPlayerPoints(b.getUserid2(), points);
+					g.addPlayerPoints(b.getUserid1(), -points);
 				}
 					break;
 				case Draw: {
@@ -64,11 +66,11 @@ public class Engine {
 					return;
 				}
 				ArrayList<String> recs = new ArrayList<>();
-				recs.add(b.getUsername1());
-				recs.add(b.getUsername2());
+				recs.add(b.getUserid1());
+				recs.add(b.getUserid2());
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message,
-						userSessionMap.convertNameListToSessionList(recs));
+						userManager.convertIdListToSessionList(recs));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -366,14 +368,16 @@ public class Engine {
 		private String actionName;
 		private long delay;
 		private String username;
+		private String userid;
 		private ArrayList<String> receivers;
 
-		public SpecialActionDeactivationTask(String username,
+		public SpecialActionDeactivationTask(String userid,
 				SpecialAction specialAction, ArrayList<String> receivers) {
 			this.actionName = specialAction.getName();
 			this.delay = specialAction.getDuration() * 1000l;
-			this.username = username;
+			this.username = userManager.getUsernameByUserid(userid);
 			this.receivers = receivers;
+			this.userid = userid;
 		}
 
 		@Override
@@ -384,13 +388,14 @@ public class Engine {
 				Logger.log("special action deactivation task delay has been interrupted."
 						+ Logger.stringifyException(e));
 			} finally {
-				Game g = getPlayerGame(username);
+				Game g = getPlayerGame(userid);
 				if (g != null) {
-					g.disableSpecialAction(username);
+					g.disableSpecialAction(userid);
 				}
 				SpecialActionDeactivatedMessage message = new SpecialActionDeactivatedMessage();
 				message.specialAction = this.actionName;
 				message.username = this.username;
+				message.userid = this.userid;
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message, this.receivers);
 				MessageHandler.PushMessage(container);
@@ -423,7 +428,7 @@ public class Engine {
 		}
 	}
 
-	static class UserManager {
+	public static class UserManager {
 		private ConcurrentHashMap<String, String> useridSessionMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> sessionUseridMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> useridUsernameMap = new ConcurrentHashMap<>();
@@ -493,6 +498,14 @@ public class Engine {
 
 		public boolean userExistsBySession(String session) {
 			return sessionUseridMap.containsKey(session);
+		}
+
+		public String getUsernameByUserid(String userid) {
+			String temp = useridUsernameMap.get(userid);
+			if (temp != null){
+				return temp;
+			}
+			return "";
 		}
 	}
 
@@ -655,9 +668,9 @@ public class Engine {
 		return g;
 	}
 
-	private synchronized static Game getPlayerGame(String username) {
+	private synchronized static Game getPlayerGame(String userid) {
 		try {
-			return runningGames.get(userGameMap.get(username));
+			return runningGames.get(userGameMap.get(userid));
 		} catch (Exception ex) {
 			Logger.log("trying to get player-game which is not playing a running game."
 					+ Logger.stringifyException(ex));
@@ -665,9 +678,9 @@ public class Engine {
 		}
 	}
 
-	private synchronized static Game getPlayerStandbyGame(String username) {
+	private synchronized static Game getPlayerStandbyGame(String userid) {
 		try {
-			return standbyGames.get(userStandbyGameMap.get(username));
+			return standbyGames.get(userStandbyGameMap.get(userid));
 		} catch (Exception ex) {
 			Logger.log("trying to get player-game which is not playing a running game."
 					+ Logger.stringifyException(ex));
