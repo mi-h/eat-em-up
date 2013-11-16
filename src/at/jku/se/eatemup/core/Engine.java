@@ -423,28 +423,27 @@ public class Engine {
 		}
 	}
 
-	static class UserSession {
-		private ConcurrentHashMap<String, String> usernameSessionMap = new ConcurrentHashMap<>();
+	static class UserManager {
+		private ConcurrentHashMap<String, String> useridSessionMap = new ConcurrentHashMap<>();
+		private ConcurrentHashMap<String, String> sessionUseridMap = new ConcurrentHashMap<>();
+		private ConcurrentHashMap<String, String> useridUsernameMap = new ConcurrentHashMap<>();
 		private ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
 
 		public void addUser(Sender sender) {
+			String userid = sender.userid;
 			String username = sender.username;
 			String sessionid = sender.session;
-			usernameSessionMap.put(username, sessionid);
+			useridSessionMap.put(userid, sessionid);
+			sessionUseridMap.put(sessionid, userid);
+			useridUsernameMap.put(userid, username);
 			sessionUsernameMap.put(sessionid, username);
 		}
 
-		@Deprecated
-		public void addUser(String sessionid, String username) {
-			usernameSessionMap.put(username, sessionid);
-			sessionUsernameMap.put(sessionid, username);
-		}
-
-		public ArrayList<String> convertNameListToSessionList(
-				ArrayList<String> nameList) {
+		public ArrayList<String> convertIdListToSessionList(
+				ArrayList<String> idList) {
 			ArrayList<String> list = new ArrayList<>();
-			for (String name : nameList) {
-				String ses = getSessionByUsername(name);
+			for (String id : idList) {
+				String ses = getSessionByUserid(id);
 				if (ses != null && !ses.equals("")) {
 					list.add(ses);
 				}
@@ -452,18 +451,18 @@ public class Engine {
 			return list;
 		}
 
-		public String getSessionByUsername(String username) {
-			return usernameSessionMap.get(username);
+		public String getSessionByUserid(String userid) {
+			return useridSessionMap.get(userid);
 		}
 
-		public String getUsernameBySession(String sessionid) {
-			return sessionUsernameMap.get(sessionid);
+		public String getUseridBySession(String sessionid) {
+			return sessionUseridMap.get(sessionid);
 		}
 
 		public void removeAllInvolvedUsers(Game game) {
-			for (String name : game.getBroadcastReceiverNames()) {
+			for (String id : game.getBroadcastReceiverIds()) {
 				try {
-					removeUser(getSessionByUsername(name));
+					removeUser(getSessionByUserid(id));
 				} catch (Exception ex) {
 					Logger.log("trying to remove non-existing session."
 							+ Logger.stringifyException(ex));
@@ -472,37 +471,36 @@ public class Engine {
 		}
 
 		public void removeUser(String sessionid) {
-			String u = getUsernameBySession(sessionid);
-			usernameSessionMap.remove(u);
+			String uid = getUseridBySession(sessionid);
+			useridSessionMap.remove(uid);
+			sessionUseridMap.remove(sessionid);
+			useridUsernameMap.remove(uid);
 			sessionUsernameMap.remove(sessionid);
 		}
 
-		public void updateUserSession(String username, String newSessionId,
+		public void updateUserSession(String userid, String newSessionId,
 				String oldSessionId) {
-			usernameSessionMap.put(username, newSessionId);
-			sessionUsernameMap.remove(oldSessionId);
-			sessionUsernameMap.put(newSessionId, username);
+			useridSessionMap.put(userid, newSessionId);
+			sessionUseridMap.remove(oldSessionId);
+			sessionUseridMap.put(newSessionId,userid);
+			sessionUsernameMap.put(newSessionId, sessionUsernameMap.get(oldSessionId));
+			sessionUsernameMap.remove(oldSessionId);			
 		}
 
-		public boolean userExists(String username) {
-			return usernameSessionMap.containsKey(username);
+		public boolean userExists(String userid) {
+			return useridSessionMap.containsKey(userid);
 		}
 
 		public boolean userExistsBySession(String session) {
-			return sessionUsernameMap.containsKey(session);
+			return sessionUseridMap.containsKey(session);
 		}
 	}
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
-
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
-
-	public static UserSession userSessionMap = new UserSession();
-
+	public static UserManager userManager = new UserManager();
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
-
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
-
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 	private static ExecutorService service = Executors.newCachedThreadPool();
 	private static Engine instance = new Engine();
