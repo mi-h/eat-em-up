@@ -10,6 +10,8 @@ import at.jku.se.eatemup.core.model.Battle;
 public class BattleStartMessage extends OutgoingMessage {
 	public String username1;
 	public String username2;
+	public String userid1;
+	public String userid2;
 	public String question;
 	public int timelimit;
 	public int[] answers;

@@ -8,6 +8,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class PlayerMovedMessage extends OutgoingMessage {
 	public String username;
+	public String userid;
 	public HashMap<String, Double> position;
 
 	@Override

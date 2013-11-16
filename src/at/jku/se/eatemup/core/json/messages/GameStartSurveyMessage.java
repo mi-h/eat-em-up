@@ -6,6 +6,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class GameStartSurveyMessage extends OutgoingMessage {
 	public String requestingUser;
+	public String requestingUserId;
 
 	@Override
 	public MessageType getType() {

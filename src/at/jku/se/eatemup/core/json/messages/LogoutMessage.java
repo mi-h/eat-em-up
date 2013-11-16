@@ -8,6 +8,7 @@ public class LogoutMessage extends OutgoingMessage {
 
 	public String username;
 	public String reason;
+	public String userid;
 
 	@Override
 	public MessageType getType() {

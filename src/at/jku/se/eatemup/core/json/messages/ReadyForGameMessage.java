@@ -9,6 +9,7 @@ public class ReadyForGameMessage extends OutgoingMessage {
 	public boolean loginSuccess;
 	public Integer points;
 	public String adCode;
+	public String userid;
 
 	@Override
 	public MessageType getType() {

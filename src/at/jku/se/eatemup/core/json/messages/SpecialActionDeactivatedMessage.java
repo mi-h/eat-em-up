@@ -7,6 +7,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 public class SpecialActionDeactivatedMessage extends OutgoingMessage {
 	public String specialAction;
 	public String username;
+	public String userid;
 
 	@Override
 	public MessageType getType() {

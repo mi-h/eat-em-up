@@ -6,6 +6,7 @@ import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class BattleResultMessage extends OutgoingMessage {
 	public String winner;
+	public String winnerUserid;
 	public String correctResult;
 	public int points;
 

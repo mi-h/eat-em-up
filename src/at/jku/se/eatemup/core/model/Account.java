@@ -7,11 +7,17 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "accounts")
 public class Account {
 	@DatabaseField(id=true)
+	private String id;
+	@DatabaseField
+	private AccountType type;
+	@DatabaseField(index=true)
 	private String name;
 	@DatabaseField
 	private String password;
 	@DatabaseField(index=true)
 	private int points;
+	@DatabaseField(index=true)
+	private String facebookId;
 	@DatabaseField(canBeNull=true)
 	private String avatar;
 	@DatabaseField(canBeNull=true,dataType=DataType.BYTE_ARRAY)
@@ -63,5 +69,29 @@ public class Account {
 
 	public void setAvatarImage(byte[] avatarImage) {
 		this.avatarImage = avatarImage;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getFacebookId() {
+		return facebookId;
+	}
+
+	public void setFacebookId(String facebookId) {
+		this.facebookId = facebookId;
+	}
+
+	public AccountType getType() {
+		return type;
+	}
+
+	public void setType(AccountType type) {
+		this.type = type;
 	}
 }
