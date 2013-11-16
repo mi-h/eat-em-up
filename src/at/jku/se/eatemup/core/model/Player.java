@@ -9,10 +9,11 @@ public class Player {
 	private int points;
 	private SpecialAction specialAction;
 
-	public Player(String name) {
+	public Player(String name, String userid) {
 		this.name = name;
-		points = 0;
-		specialAction = new NoAction();
+		this.points = 0;
+		this.specialAction = new NoAction();
+		this.userid = userid;
 	}
 
 	public String getName() {
