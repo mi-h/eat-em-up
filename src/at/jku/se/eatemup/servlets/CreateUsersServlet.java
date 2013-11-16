@@ -43,10 +43,10 @@ public class CreateUsersServlet extends HttpServlet {
 		ds.closeConnection();
 	}
 	
-	private void addAccountIfNotExists(String username, String password, DataStore2 dataStore){
-		if(dataStore.getAccountByUsername(username)==null){
+	private void addAccountIfNotExists(String userid, String password, DataStore2 dataStore){
+		if(dataStore.getAccountByUserid(userid)==null){
 			Account temp = new Account();
-			temp.setName(username);
+			//temp.setName(username);
 			temp.setPassword(password);
 			temp.setPoints(0);
 			dataStore.addAccount(temp);

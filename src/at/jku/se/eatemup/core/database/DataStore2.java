@@ -8,6 +8,7 @@ import java.util.List;
 import at.jku.se.eatemup.core.logging.LogEntry;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.AccountType;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Position;
 
@@ -131,6 +132,18 @@ public class DataStore2 implements IDatabaseAPI{
 		}
 	}
 	
+	public Account getAccountByUsername(String username){
+		try {
+			QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
+			queryBuilder.where().eq("username", username).and().eq("type", AccountType.Standard);
+			Account temp = queryBuilder.queryForFirst();
+			return temp;
+		} catch (SQLException e) {
+			Logger.log("account retrieval failed for "+username+"."+Logger.stringifyException(e));
+			return null;
+		}
+	}
+	
 	public ArrayList<Account> getAccountsByUserids(ArrayList<String> userids){
 		ArrayList<Account> list = new ArrayList<>();
 		for (String u : userids){
@@ -172,8 +185,8 @@ public class DataStore2 implements IDatabaseAPI{
 		}
 	}
 	
-	public String getUserPassword(String userid){
-		Account tmp = getAccountByUserid(userid);
+	public String getUserPassword(String username){
+		Account tmp = getAccountByUsername(username);
 		if (tmp != null){
 			return tmp.getPassword();
 		}
@@ -198,9 +211,17 @@ public class DataStore2 implements IDatabaseAPI{
 
 	public void addAccount(Account acc) {
 		try {
-			accountDao.createIfNotExists(acc);
+			Account temp;
+			if (acc.getType()==AccountType.Standard){
+				temp = getAccountByUsername(acc.getName());
+			} else {
+				temp = getFacebookAccount(acc.getFacebookId());
+			}
+			if (temp == null){
+				accountDao.createIfNotExists(acc);
+			}			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log("adding account failed. "+Logger.stringifyException(e));
 		}
 	}
 	
@@ -209,6 +230,18 @@ public class DataStore2 implements IDatabaseAPI{
 			positionDao.createIfNotExists(position);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public Account getFacebookAccount(String facebookId) {
+		try {
+			QueryBuilder<Account, String> queryBuilder = accountDao.queryBuilder();
+			queryBuilder.where().eq("facebookId", facebookId).and().eq("type", AccountType.Facebook);
+			Account temp = queryBuilder.queryForFirst();
+			return temp;
+		} catch (SQLException e) {
+			Logger.log("account retrieval failed for (facebook) "+facebookId+"."+Logger.stringifyException(e));
+			return null;
 		}
 	}
 }

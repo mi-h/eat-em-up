@@ -12,6 +12,7 @@ import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.AccountType;
 import at.jku.se.eatemup.core.model.Battle;
 import at.jku.se.eatemup.core.model.GoodiePoint;
 import at.jku.se.eatemup.core.model.Location;
@@ -42,7 +43,8 @@ public class Engine {
 				switch (bw) {
 				case User1: {
 					message.winnerUserid = b.getUserid1();
-					message.winner = userManager.getUsernameByUserid(b.getUserid1());
+					message.winner = userManager.getUsernameByUserid(b
+							.getUserid1());
 					points = g.getBattleWinPoints(b.getUserid1(),
 							b.getUserid2());
 					g.addPlayerPoints(b.getUserid1(), points);
@@ -51,7 +53,8 @@ public class Engine {
 					break;
 				case User2: {
 					message.winnerUserid = b.getUserid2();
-					message.winner = userManager.getUsernameByUserid(b.getUserid2());
+					message.winner = userManager.getUsernameByUserid(b
+							.getUserid2());
 					points = g.getBattleWinPoints(b.getUserid2(),
 							b.getUserid1());
 					g.addPlayerPoints(b.getUserid2(), points);
@@ -69,8 +72,7 @@ public class Engine {
 				recs.add(b.getUserid1());
 				recs.add(b.getUserid2());
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message,
-						userManager.convertIdListToSessionList(recs));
+						message, userManager.convertIdListToSessionList(recs));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -103,8 +105,7 @@ public class Engine {
 		private void removeUserFromAllAudiences(String userid) {
 			if (userGameAudienceMap.containsKey(userid)) {
 				try {
-					Game g = runningGames
-							.get(userGameAudienceMap.get(userid));
+					Game g = runningGames.get(userGameAudienceMap.get(userid));
 					g.removeAudienceUser(userid);
 				} catch (Exception ex) {
 					Logger.log("failed to remove player from standby game."
@@ -246,43 +247,80 @@ public class Engine {
 
 	private class LoginTask extends GameTask<LoginMessage> {
 
-		private boolean credentialResult;
-
 		public LoginTask(LoginMessage message, Sender sender) {
 			super(message, sender);
 		}
 
-		public LoginTask(LoginMessage message, Sender sender, boolean credResult) {
-			super(message, sender);
-			credentialResult = credResult;
-		}
-
 		@Override
 		public void run() {
-			if (!credentialResult) {
-				ReadyForGameMessage message = new ReadyForGameMessage();
-				message.adCode = "";
-				message.loginSuccess = credentialResult;
-				message.points = -1;
-				message.userid = sender.userid;
-				MessageContainer container = MessageCreator.createMsgContainer(
-						message, sender.session);
-				MessageHandler.PushMessage(container);
+			AccountType type = parseAccountType(message.type);
+			DataStore2 ds = DbManager.getDataStore();
+			Account acc;
+			boolean loginResult;
+			if (type == AccountType.Facebook) {
+				acc = ds.getFacebookAccount(message.facebookId);
+				if (acc == null) {
+					Account temp = new Account();
+					temp.setFacebookId(message.facebookId);
+					temp.setName(message.username);
+					temp.setType(AccountType.Facebook);
+					temp.setId(UUID.randomUUID().toString());
+					ds.addAccount(temp);
+					acc = temp;
+				}
+				loginResult = true;
 			} else {
+				loginResult = checkLoginCredentials(message.username,
+						message.password, ds);
+				acc = loginResult ? ds.getAccountByUsername(message.username)
+						: null;
+			}
+			if (loginResult) {
 				userManager.addUser(sender);
-				DataStore2 ds = DbManager.getDataStore();
-				Account acc = ds.getAccountByUserid(message.userid);
 				if (acc != null) {
 					ReadyForGameMessage message = new ReadyForGameMessage();
 					message.adCode = UUID.randomUUID().toString()
 							.substring(0, 8);
-					message.loginSuccess = credentialResult;
+					message.loginSuccess = loginResult;
 					message.points = acc.getPoints();
-					message.userid = sender.userid;
+					message.userid = acc.getId();
+					MessageContainer container = MessageCreator
+							.createMsgContainer(message, sender.session);
+					MessageHandler.PushMessage(container);
+				} else {
+					ReadyForGameMessage message = new ReadyForGameMessage();
+					message.adCode = "";
+					message.loginSuccess = loginResult;
+					message.points = -1;
+					message.userid = null;
 					MessageContainer container = MessageCreator
 							.createMsgContainer(message, sender.session);
 					MessageHandler.PushMessage(container);
 				}
+			}
+		}
+
+		private AccountType parseAccountType(String type) {
+			switch (type) {
+			case "facebook":
+				return AccountType.Facebook;
+			default:
+				return AccountType.Standard;
+			}
+		}
+
+		private boolean checkLoginCredentials(String username, String password,
+				DataStore2 ds) {
+			/*
+			 * passwordhash for username and check try {
+			 * PasswordHashManager.check(password, "fromdb"); } catch (Exception
+			 * e) { e.printStackTrace(); }
+			 */
+			String storedPw = ds.getUserPassword(username);
+			try {
+				return storedPw.equals(password);
+			} catch (Exception ex) {
+				return false;
 			}
 		}
 	}
@@ -492,9 +530,10 @@ public class Engine {
 				String oldSessionId) {
 			useridSessionMap.put(userid, newSessionId);
 			sessionUseridMap.remove(oldSessionId);
-			sessionUseridMap.put(newSessionId,userid);
-			sessionUsernameMap.put(newSessionId, sessionUsernameMap.get(oldSessionId));
-			sessionUsernameMap.remove(oldSessionId);			
+			sessionUseridMap.put(newSessionId, userid);
+			sessionUsernameMap.put(newSessionId,
+					sessionUsernameMap.get(oldSessionId));
+			sessionUsernameMap.remove(oldSessionId);
 		}
 
 		public boolean userExists(String userid) {
@@ -507,7 +546,7 @@ public class Engine {
 
 		public String getUsernameByUserid(String userid) {
 			String temp = useridUsernameMap.get(userid);
-			if (temp != null){
+			if (temp != null) {
 				return temp;
 			}
 			return "";
@@ -559,12 +598,11 @@ public class Engine {
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
-		boolean check = checkLoginCredentials(message.username,
-				message.password);
-		LoginTask task = instance.new LoginTask(message, sender, check);
+		// boolean check = checkLoginCredentials(message.username,
+		// message.password);
+		LoginTask task = instance.new LoginTask(message, sender);
 		service.execute(task);
-
-		return check;
+		return true;
 	}
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {
@@ -594,27 +632,11 @@ public class Engine {
 	}
 
 	private synchronized static boolean addPlayerToStandbyGame(String userid) {
-		Player player = new Player(userManager.getUsernameByUserid(userid),userid);
+		Player player = new Player(userManager.getUsernameByUserid(userid),
+				userid);
 		Game g = getEmptyStandbyGame();
 		userStandbyGameMap.put(userid, g.getId());
 		return g.AddPlayer(player);
-	}
-
-	private static boolean checkLoginCredentials(String userid,
-			String password) {
-		DataStore2 ds = DbManager.getDataStore();
-		/*
-		 * passwordhash for username and check try {
-		 * PasswordHashManager.check(password, "fromdb"); } catch (Exception e)
-		 * { e.printStackTrace(); }
-		 */
-		String storedPw = ds.getUserPassword(userid);
-		ds.closeConnection();
-		try {
-			return storedPw.equals(password);
-		} catch (Exception ex) {
-			return false;
-		}
 	}
 
 	private static Location createNewLocation(DataStore2 db) {
@@ -742,32 +764,34 @@ public class Engine {
 		service.execute(instance.new SpecialActionDeactivationTask(userid,
 				specialAction, receivers));
 	}
-	
-	public static void scheduleFullGameUpdate(Game game, String userid){
+
+	public static void scheduleFullGameUpdate(Game game, String userid) {
 		service.execute(instance.new FullGameUpdateTask(game, userid));
 	}
-	
-	private class FullGameUpdateTask implements Runnable{
+
+	private class FullGameUpdateTask implements Runnable {
 
 		private Game game;
 		private String receiverId;
-		
-		public FullGameUpdateTask(Game game, String receiverId){
+
+		public FullGameUpdateTask(Game game, String receiverId) {
 			this.game = game;
 			this.receiverId = receiverId;
 		}
-		
+
 		@Override
 		public void run() {
 			GameStateMessage message = this.game.createGameStateMessage();
 			ArrayList<String> recs;
-			if (receiverId == null){
-				recs = userManager.convertIdListToSessionList(this.game.getBroadcastReceiverIds());
+			if (receiverId == null) {
+				recs = userManager.convertIdListToSessionList(this.game
+						.getBroadcastReceiverIds());
 			} else {
 				recs = new ArrayList<>();
 				recs.add(userManager.getSessionByUserid(receiverId));
 			}
-			MessageContainer container = MessageCreator.createMsgContainer(message, recs);
+			MessageContainer container = MessageCreator.createMsgContainer(
+					message, recs);
 			MessageHandler.PushMessage(container);
 		}
 	}
@@ -796,9 +820,9 @@ public class Engine {
 
 	private static void setupGame(Game g) {
 		DataStore2 db = DbManager.getDataStore();
-		try{
-		g.setLocation(createNewLocation(db));		
-		g.createGoodies(true);
+		try {
+			g.setLocation(createNewLocation(db));
+			g.createGoodies(true);
 		} finally {
 			db.closeConnection();
 		}
@@ -807,8 +831,7 @@ public class Engine {
 	private static boolean tryRecoverUserSession(Sender sender) {
 		String ses = userManager.getSessionByUserid(sender.userid);
 		if (ses != null && ses != "") {
-			userManager.updateUserSession(sender.userid, sender.session,
-					ses);
+			userManager.updateUserSession(sender.userid, sender.session, ses);
 			SessionStore.removeSession(ses);
 			return true;
 		}
@@ -824,15 +847,15 @@ public class Engine {
 	public static boolean acceptGameStateRequest(
 			GameStateRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new GameStateRequestTask(message,
-					sender));
+			service.execute(instance.new GameStateRequestTask(message, sender));
 			return true;
 		}
 		return false;
 	}
-	
-	private class GameStateRequestTask extends GameTask<GameStateRequestMessage>{
-		
+
+	private class GameStateRequestTask extends
+			GameTask<GameStateRequestMessage> {
+
 		private String receiver;
 
 		public GameStateRequestTask(GameStateRequestMessage message,
@@ -844,10 +867,10 @@ public class Engine {
 		@Override
 		public void run() {
 			Game g = getPlayerGame(this.receiver);
-			if (g != null){
-				scheduleFullGameUpdate(g,this.receiver);
+			if (g != null) {
+				scheduleFullGameUpdate(g, this.receiver);
 			}
-		}		
+		}
 	}
 
 	public static boolean acceptPong(PongMessage message, Sender sender) {

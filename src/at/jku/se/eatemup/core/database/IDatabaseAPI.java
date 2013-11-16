@@ -15,17 +15,21 @@ public interface IDatabaseAPI {
 	
 	public Account getAccountByUserid(String userid);
 	
+	public Account getAccountByUsername(String username);
+	
 	public ArrayList<Account> getAccountsByUserids(ArrayList<String> userids);
 	
 	public ArrayList<Account> getHighscore(int topX);
 	
 	public void addUserPoints(String userid, int points);
 	
-	public String getUserPassword(String userid);
+	public String getUserPassword(String username);
 	
 	public ArrayList<GoodiePoint> getGoodiePoints();
 
 	public void addAccount(Account acc);
 	
 	public void addGoodiePosition(Position position);
+	
+	public Account getFacebookAccount(String facebookId);
 }
