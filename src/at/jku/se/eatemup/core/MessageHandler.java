@@ -38,6 +38,8 @@ public class MessageHandler {
 				return Engine.acceptHighscoreRequest((HighscoreRequestMessage)container.message,container.sender);
 			case GameStateRequest:
 				return Engine.acceptGameStateRequest((GameStateRequestMessage)container.message,container.sender);
+			case Pong:
+				return Engine.acceptPong((PongMessage)container.message,container.sender);
 			default:
 				return false;
 			}
