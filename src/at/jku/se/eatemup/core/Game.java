@@ -66,28 +66,29 @@ public class Game {
 	private void activateSpecialAction(String uid, SpecialAction specialAction) {
 		SpecialActionActivatedMessage message = new SpecialActionActivatedMessage();
 		message.specialAction = specialAction.getName();
+		message.userid = uid;
+		message.username = Engine.userManager.getUsernameByUserid(uid);
 		MessageContainer container = MessageCreator
 				.createMsgContainer(
 						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
+						Engine.userManager.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 		playerActionMap.put(uid, specialAction);
 		Engine.scheduleSpecialActionDeactivation(
 				uid,
 				specialAction,
-				Engine.userSessionMap
-						.convertNameListToSessionList(getBroadcastReceiverNames()));
+				Engine.userManager
+						.convertIdListToSessionList(getBroadcastReceiverIds()));
 	}
 
 	public void addBattle(Battle battle) {
 		battles.add(battle);
 	}
 
-	public Battle addBattleAnswer(String username, int answer, long timestamp) {
-		Battle b = getUserBattle(username);
+	public Battle addBattleAnswer(String userid, int answer, int duration) {
+		Battle b = getUserBattle(userid);
 		if (b != null) {
-			if (b.setAnswer(username, answer, timestamp)) {
+			if (b.setAnswer(userid, answer, duration)) {
 				battles.remove(b);
 				return b;
 			}
@@ -108,8 +109,8 @@ public class Game {
 		return false;
 	}
 
-	public void addPlayerPoints(String username, int points) {
-		Player p = getPlayerByUsername(username);
+	public void addPlayerPoints(String userid, int points) {
+		Player p = getPlayerByUserid(userid);
 		if (p != null) {
 			if (points < 0) {
 				if (Math.abs(points) > p.getPoints()) {
@@ -121,8 +122,8 @@ public class Game {
 		}
 	}
 
-	public void addUserToAudience(String username) {
-		audience.add(username);
+	public void addUserToAudience(String userid) {
+		audience.add(userid);
 	}
 
 	public boolean allPlayersReady() {
@@ -179,8 +180,8 @@ public class Game {
 				MessageContainer container = MessageCreator
 						.createMsgContainer(
 								message,
-								Engine.userSessionMap
-										.convertNameListToSessionList(getBroadcastReceiverNames()));
+								Engine.userManager
+										.convertIdListToSessionList(getBroadcastReceiverIds()));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -192,6 +193,7 @@ public class Game {
 			HashMap<String, Object> map = new HashMap<>();
 			map.put("username", p.getName());
 			map.put("points", p.getPoints());
+			map.put("userid", p.getUserid());
 			results.add(map);
 		}
 		return results;
@@ -209,9 +211,9 @@ public class Game {
 		return new InvincibleAction();
 	}
 
-	public void disableSpecialAction(String username) {
+	public void disableSpecialAction(String userid) {
 		try {
-			playerActionMap.remove(username);
+			playerActionMap.remove(userid);
 		} catch (NullPointerException ex) {
 			// fail silently
 		}
@@ -223,13 +225,13 @@ public class Game {
 		Engine.endGame(this);
 	}
 
-	public List<String> getAudienceNames() {
+	public List<String> getAudienceIds() {
 		return audience;
 	}
 
-	public int getBattleWinPoints(String winnerName, String loserName) {
-		int p1 = getPlayerPoints(winnerName);
-		int p2 = getPlayerPoints(loserName);
+	public int getBattleWinPoints(String winnerId, String loserId) {
+		int p1 = getPlayerPoints(winnerId);
+		int p2 = getPlayerPoints(loserId);
 		if (p1 != -1 && p2 != -1) {
 			int changePoints = (int) Math.floor(p2 * battleWinQuota);
 			return changePoints;
@@ -241,9 +243,9 @@ public class Game {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
 
-	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String username) {
+	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String userid) {
 		ArrayList<GoodiePoint> points = new ArrayList<>();
-		Position playerPos = getPlayerPosition(username);
+		Position playerPos = getPlayerPosition(userid);
 		if (playerPos != null) {
 			for (GoodiePoint gp : location.getGoodiePoints()) {
 				if (gp.hasGoodie()
@@ -266,16 +268,16 @@ public class Game {
 	public ArrayList<String> getNotReadyPlayers() {
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : getPlayers()) {
-			if (!readyToGoPlayers.contains(p.getName())) {
-				list.add(p.getName());
+			if (!readyToGoPlayers.contains(p.getUserid())) {
+				list.add(p.getUserid());
 			}
 		}
 		return list;
 	}
 
-	public Player getPlayerByUsername(String username) {
+	public Player getPlayerByUserid(String userid) {
 		for (Player p : getPlayers()) {
-			if (p.getName().equals(username))
+			if (p.getUserid().equals(userid))
 				return p;
 		}
 		return null;
@@ -284,8 +286,8 @@ public class Game {
 	private Player getPlayerInPlayerRange(String uid) {
 		Position playerPos = playerPositions.get(uid);
 		for (Player p : getPlayers()) {
-			if (!p.getName().equals(uid)) {
-				Position tempPos = playerPositions.get(p.getName());
+			if (!p.getUserid().equals(uid)) {
+				Position tempPos = playerPositions.get(p.getUserid());
 				if (tempPos != null) {
 					if (playerPos.calcDistance(tempPos) < radius) {
 						return p;
@@ -304,16 +306,16 @@ public class Game {
 		return list;
 	}
 
-	public int getPlayerPoints(String username) {
-		Player p = getPlayerByUsername(username);
+	public int getPlayerPoints(String userid) {
+		Player p = getPlayerByUserid(userid);
 		if (p != null) {
 			return p.getPoints();
 		}
 		return -1;
 	}
 
-	public Position getPlayerPosition(String username) {
-		return playerPositions.get(username);
+	public Position getPlayerPosition(String userid) {
+		return playerPositions.get(userid);
 	}
 
 	public ArrayList<Player> getPlayers() {
@@ -323,13 +325,13 @@ public class Game {
 		return list;
 	}
 
-	public ArrayList<String> getPlayersInPlayerRange(String username) {
+	public ArrayList<String> getPlayersInPlayerRange(String userid) {
 		ArrayList<String> players = new ArrayList<>();
-		Position playerPos = getPlayerPosition(username);
+		Position playerPos = getPlayerPosition(userid);
 		for (Player p : getPlayers()) {
-			Position temp = getPlayerPosition(p.getName());
+			Position temp = getPlayerPosition(p.getUserid());
 			if (temp != null && playerPos.distanceLessThan(temp, radius)) {
-				players.add(p.getName());
+				players.add(p.getUserid());
 			}
 		}
 		return players;
@@ -343,9 +345,9 @@ public class Game {
 		return teams;
 	}
 
-	private Battle getUserBattle(String username) {
+	private Battle getUserBattle(String userid) {
 		for (Battle b : battles) {
-			if (b.isParticipant(username))
+			if (b.isParticipant(userid))
 				return b;
 		}
 		return null;
@@ -379,22 +381,22 @@ public class Game {
 		return teams[0].hasPlayer(player);
 	}
 
-	public boolean isInRedTeam(String username) {
-		return teams[0].hasPlayer(username);
+	public boolean isInRedTeam(String userid) {
+		return teams[0].hasPlayer(userid);
 	}
 
 	public boolean isStartSurveySent() {
 		return startSurveySent;
 	}
 
-	private boolean playerEatsGoodie(String uid, Goodie goodie,
+	private boolean playerEatsGoodie(String userid, Goodie goodie,
 			Position position) {
-		SpecialAction temp = playerActionMap.get(uid);
+		SpecialAction temp = playerActionMap.get(userid);
 		if (!goodie.getSpecialAction().getName().equals("NoAction")) {
 			if (temp != null) {
 				return false;
 			} else {
-				activateSpecialAction(uid, goodie.getSpecialAction());
+				activateSpecialAction(userid, goodie.getSpecialAction());
 				return true;
 			}
 		}
@@ -404,15 +406,16 @@ public class Game {
 		} else {
 			points = goodie.getPoints();
 		}
-		addPlayerPoints(uid, points);
+		addPlayerPoints(userid, points);
 		PlayerHasEatenMessage message = new PlayerHasEatenMessage();
-		message.points = getPlayerPoints(uid);
-		message.username = uid;
+		message.points = getPlayerPoints(userid);
+		message.userid = userid;
+		message.username = Engine.userManager.getUsernameByUserid(userid);
 		HashMap<String, Double> posMap = new HashMap<>();
 		HashMap<String, Object> teamMap = new HashMap<>();
 		posMap.put("latitude", position.getLatitude());
 		posMap.put("longitude", position.getLongitude());
-		if (isInRedTeam(uid)) {
+		if (isInRedTeam(userid)) {
 			teamMap.put("teamRed", true);
 			teamMap.put("newTeamPoints", teams[0].getPoints());
 		} else {
@@ -424,18 +427,18 @@ public class Game {
 		MessageContainer container = MessageCreator
 				.createMsgContainer(
 						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
+						Engine.userManager
+								.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 		return true;
 	}
 
-	private boolean playerIsInGame(String username) {
-		return teams[0].hasPlayer(username) || teams[1].hasPlayer(username);
+	private boolean playerIsInGame(String userid) {
+		return teams[0].hasPlayer(userid) || teams[1].hasPlayer(userid);
 	}
 
-	private boolean playerIsInvincible(String uid) {
-		SpecialAction action = playerActionMap.get(uid);
+	private boolean playerIsInvincible(String userid) {
+		SpecialAction action = playerActionMap.get(userid);
 		if (action != null) {
 			if (action instanceof InvincibleAction) {
 				return true;
@@ -448,12 +451,13 @@ public class Game {
 		Engine.updateAccountPoints(getPlayers());
 	}
 
-	public void processPlayerPositionChange(String uid, Position p,
+	public void processPlayerPositionChange(String userid, Position p,
 			long timestamp) {
-		Position oldPos = playerPositions.get(uid);
+		Position oldPos = playerPositions.get(userid);
 		if (oldPos.differentFrom(p)) {
 			PlayerMovedMessage message = new PlayerMovedMessage();
-			message.username = uid;
+			message.username = Engine.userManager.getUsernameByUserid(userid);
+			message.userid = userid;
 			HashMap<String, Double> pos = new HashMap<>();
 			pos.put("latitude", p.getLatitude());
 			pos.put("longitude", p.getLongitude());
@@ -461,17 +465,17 @@ public class Game {
 			MessageContainer container = MessageCreator
 					.createMsgContainer(
 							message,
-							Engine.userSessionMap
-									.convertNameListToSessionList(getBroadcastReceiverNames()));
+							Engine.userManager
+									.convertIdListToSessionList(getBroadcastReceiverIds()));
 			MessageHandler.PushMessage(container);
 		}
-		setPlayerPosition(uid, p, timestamp);
-		ArrayList<GoodiePoint> goodiePoints = getGoodiePointsInPlayerRange(uid);
+		setPlayerPosition(userid, p, timestamp);
+		ArrayList<GoodiePoint> goodiePoints = getGoodiePointsInPlayerRange(userid);
 		boolean hasEaten = false;
 		for (GoodiePoint gp : goodiePoints) {
 			Goodie temp = gp.getGoodie();
 			if (temp != null) {
-				if (playerEatsGoodie(uid, temp, gp.getPosition())) {
+				if (playerEatsGoodie(userid, temp, gp.getPosition())) {
 					gp.setGoodie(null);
 					hasEaten = true;
 				}
@@ -480,23 +484,25 @@ public class Game {
 		if (hasEaten) {
 			createGoodies(false);
 		}
-		if (!playerIsInvincible(uid)) {
-			Player battleOp = getPlayerInPlayerRange(uid);
+		if (!playerIsInvincible(userid)) {
+			Player battleOp = getPlayerInPlayerRange(userid);
 			if (battleOp != null) {
-				Battle b = BattleCreator.CreateBattle(uid, battleOp.getName());
+				Battle b = BattleCreator.CreateBattle(userid, battleOp.getUserid());
 				battles.add(b);
 				BattleStartMessage message = new BattleStartMessage();
 				message.answers = b.getResult();
 				message.question = b.getQuestion();
 				message.timelimit = b.getTime();
-				message.username1 = b.getUsername1();
-				message.username2 = b.getUsername2();
+				message.userid1 = userid;
+				message.userid2 = b.getUserid2();
+				message.username1 = Engine.userManager.getUsernameByUserid(userid);
+				message.username2 = Engine.userManager.getUsernameByUserid(b.getUserid2());
 				ArrayList<String> receivers = new ArrayList<>();
-				receivers.add(b.getUsername1());
-				receivers.add(b.getUsername2());
+				receivers.add(userid);
+				receivers.add(b.getUserid2());
 				MessageContainer container = MessageCreator.createMsgContainer(
-						message, Engine.userSessionMap
-								.convertNameListToSessionList(receivers));
+						message, Engine.userManager
+								.convertIdListToSessionList(receivers));
 				MessageHandler.PushMessage(container);
 			}
 		}
@@ -509,16 +515,16 @@ public class Game {
 		return true;
 	}
 
-	public void removeAudienceUser(String username) {
-		audience.remove(username);
+	public void removeAudienceUser(String userid) {
+		audience.remove(userid);
 	}
 
-	public void removePlayer(String username) {
-		playerPositions.remove(username);
-		if (isInRedTeam(username)) {
-			teams[0].removePlayer(username);
+	public void removePlayer(String userid) {
+		playerPositions.remove(userid);
+		if (isInRedTeam(userid)) {
+			teams[0].removePlayer(userid);
 		} else {
-			teams[1].removePlayer(username);
+			teams[1].removePlayer(userid);
 		}
 	}
 
@@ -529,8 +535,8 @@ public class Game {
 		MessageContainer container = MessageCreator
 				.createMsgContainer(
 						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
+						Engine.userManager
+								.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 	}
 
@@ -542,8 +548,8 @@ public class Game {
 		MessageContainer container = MessageCreator
 				.createMsgContainer(
 						message,
-						Engine.userSessionMap
-								.convertNameListToSessionList(getBroadcastReceiverNames()));
+						Engine.userManager
+								.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 	}
 
@@ -555,19 +561,19 @@ public class Game {
 		this.location = location;
 	}
 
-	public void setPlayerPosition(String username, Position position) {
-		playerPositions.put(username, position);
+	public void setPlayerPosition(String userid, Position position) {
+		playerPositions.put(userid, position);
 	}
 
-	public void setPlayerPosition(String uid, Position p, long timestamp) {
-		setPlayerPosition(uid, p);
-		playerPositionLastMessage.put(uid, timestamp);
+	public void setPlayerPosition(String userid, Position p, long timestamp) {
+		setPlayerPosition(userid, p);
+		playerPositionLastMessage.put(userid, timestamp);
 	}
 
-	public synchronized void setPlayerReady(String username) {
-		if (playerIsInGame(username)) {
-			if (!readyToGoPlayers.contains(username)) {
-				readyToGoPlayers.add(username);
+	public synchronized void setPlayerReady(String userid) {
+		if (playerIsInGame(userid)) {
+			if (!readyToGoPlayers.contains(userid)) {
+				readyToGoPlayers.add(userid);
 			}
 		}
 	}
@@ -651,6 +657,7 @@ public class Game {
 			HashMap<String, Object> map = new HashMap<>();
 			HashMap<String, Object> pMap = new HashMap<>();
 			map.put("username", p.getName());
+			map.put("userid", p.getUserid());
 			map.put("points", 0);
 			Position pos = game.getPlayerPosition(p.getName());
 			pMap.put("latitude", pos.getLatitude());
