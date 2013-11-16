@@ -181,8 +181,8 @@ public class Engine {
 				Game g = getARunningGame();
 				if (g != null) {
 					try {
-						g.addUserToAudience(sender.username);
-						userGameAudienceMap.put(sender.username, g.getId());
+						g.addUserToAudience(sender.userid);
+						userGameAudienceMap.put(sender.userid, g.getId());
 					} catch (Exception ex) {
 						Logger.log("failed adding a viewer to a running game.</br>"
 								+ Logger.stringifyException(ex));
@@ -216,6 +216,7 @@ public class Engine {
 			for (Account a : list) {
 				HashMap<String, Object> map = new HashMap<>();
 				map.put("username", a.getName());
+				map.put("userid", a.getId());
 				map.put("points", a.getPoints());
 				ret.add(map);
 			}
@@ -263,19 +264,21 @@ public class Engine {
 				message.adCode = "";
 				message.loginSuccess = credentialResult;
 				message.points = -1;
+				message.userid = sender.userid;
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message, sender.session);
 				MessageHandler.PushMessage(container);
 			} else {
 				userManager.addUser(sender);
 				DataStore2 ds = DbManager.getDataStore();
-				Account acc = ds.getAccountByUsername(message.username);
+				Account acc = ds.getAccountByUserid(message.userid);
 				if (acc != null) {
 					ReadyForGameMessage message = new ReadyForGameMessage();
 					message.adCode = UUID.randomUUID().toString()
 							.substring(0, 8);
 					message.loginSuccess = credentialResult;
 					message.points = acc.getPoints();
+					message.userid = sender.userid;
 					MessageContainer container = MessageCreator
 							.createMsgContainer(message, sender.session);
 					MessageHandler.PushMessage(container);
@@ -293,12 +296,13 @@ public class Engine {
 		@Override
 		public void run() {
 			GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
-			msg.readyForStart = addPlayerToStandbyGame(message.username);
+			msg.readyForStart = addPlayerToStandbyGame(message.userid);
 			msg.players = new ArrayList<>();
-			Game game = getPlayerStandbyGame(message.username);
+			Game game = getPlayerStandbyGame(message.userid);
 			for (Player p : game.getPlayers()) {
 				HashMap<String, Object> map = new HashMap<>();
 				map.put("username", p.getName());
+				map.put("userid", p.getUserid());
 				map.put("teamRed", game.isInRedTeam(p));
 				msg.players.add(map);
 			}
@@ -314,13 +318,13 @@ public class Engine {
 			super(message, sender);
 		}
 
-		private boolean forStandbyGame(String uid) {
-			return userStandbyGameMap.containsKey(uid);
+		private boolean forStandbyGame(String userid) {
+			return userStandbyGameMap.containsKey(userid);
 		}
 
 		@Override
 		public void run() {
-			String uid = message.username;
+			String uid = message.userid;
 			Position p = new Position();
 			p.setLatitude(message.latitude);
 			p.setLongitude(message.longitude);
@@ -345,14 +349,15 @@ public class Engine {
 
 		@Override
 		public void run() {
-			Game game = getPlayerStandbyGame(message.username);
-			game.setPlayerReady(message.username);
+			Game game = getPlayerStandbyGame(message.userid);
+			game.setPlayerReady(message.userid);
 			if (game.allPlayersReady()) {
 				scheduleFullGameUpdate(game, null);
 			} else {
 				if (!game.isStartSurveySent()) {
 					GameStartSurveyMessage msg = new GameStartSurveyMessage();
 					msg.requestingUser = message.username;
+					msg.requestingUserId = message.userid;
 					MessageContainer container = MessageCreator
 							.createMsgContainer(msg, getReceiverListById(game
 									.getNotReadyPlayers()));
@@ -417,7 +422,7 @@ public class Engine {
 		public void run() {
 			try {
 				for (Player p : this.players) {
-					this.datastore.addUserPoints(p.getName(), p.getPoints());
+					this.datastore.addUserPoints(p.getUserid(), p.getPoints());
 				}
 			} catch (Exception ex) {
 				Logger.log("updating player points failed."
@@ -517,11 +522,8 @@ public class Engine {
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
 	private static ExecutorService service = Executors.newCachedThreadPool();
 	private static Engine instance = new Engine();
-
 	private static final double jkuCenterLat = 48.337050;
-
 	private static final double jkuCenterLong = 14.319600;
-
 	private static final int defaultGameTimeSeconds = 600;
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
@@ -591,14 +593,14 @@ public class Engine {
 		return false;
 	}
 
-	private synchronized static boolean addPlayerToStandbyGame(String username) {
-		Player player = new Player(username);
+	private synchronized static boolean addPlayerToStandbyGame(String userid) {
+		Player player = new Player(userManager.getUsernameByUserid(userid),userid);
 		Game g = getEmptyStandbyGame();
-		userStandbyGameMap.put(username, g.getId());
+		userStandbyGameMap.put(userid, g.getId());
 		return g.AddPlayer(player);
 	}
 
-	private static boolean checkLoginCredentials(String username,
+	private static boolean checkLoginCredentials(String userid,
 			String password) {
 		DataStore2 ds = DbManager.getDataStore();
 		/*
@@ -606,7 +608,7 @@ public class Engine {
 		 * PasswordHashManager.check(password, "fromdb"); } catch (Exception e)
 		 * { e.printStackTrace(); }
 		 */
-		String storedPw = ds.getUserPassword(username);
+		String storedPw = ds.getUserPassword(userid);
 		ds.closeConnection();
 		try {
 			return storedPw.equals(password);
@@ -635,7 +637,7 @@ public class Engine {
 			Logger.log("failed to end standby game, may have been running already");
 		}
 		try {
-			userSessionMap.removeAllInvolvedUsers(game);
+			userManager.removeAllInvolvedUsers(game);
 		} catch (Exception ex) {
 			Logger.log("failed to remove user session");
 		}
@@ -691,8 +693,8 @@ public class Engine {
 	private static ArrayList<String> getReceiverList(ArrayList<Player> players) {
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : players) {
-			if (userSessionMap.userExists(p.getName())) {
-				list.add(userSessionMap.getSessionByUsername(p.getName()));
+			if (userManager.userExists(p.getUserid())) {
+				list.add(userManager.getSessionByUserid(p.getUserid()));
 			}
 		}
 		return list;
@@ -702,8 +704,8 @@ public class Engine {
 			ArrayList<String> players) {
 		ArrayList<String> list = new ArrayList<>();
 		for (String p : players) {
-			if (userSessionMap.userExists(p)) {
-				list.add(userSessionMap.getSessionByUsername(p));
+			if (userManager.userExists(p)) {
+				list.add(userManager.getSessionByUserid(p));
 			}
 		}
 		return list;
@@ -723,46 +725,47 @@ public class Engine {
 
 	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
 		for (String id : invalidSessionIds) {
-			String username = userSessionMap.getUsernameBySession(id);
-			String gameId = userGameMap.get(username);
+			String userid = userManager.getUseridBySession(id);
+			String gameId = userGameMap.get(userid);
 			Game g = runningGames.get(gameId);
-			removePlayerFromGame(username, g);
-			userSessionMap.removeUser(id);
+			removePlayerFromGame(userid, g);
+			userManager.removeUser(id);
 		}
 	}
 
-	private static void removePlayerFromGame(String name, Game game) {
-		game.removePlayer(name);
+	private static void removePlayerFromGame(String userid, Game game) {
+		game.removePlayer(userid);
 	}
 
-	public static void scheduleSpecialActionDeactivation(String uid,
+	public static void scheduleSpecialActionDeactivation(String userid,
 			SpecialAction specialAction, ArrayList<String> receivers) {
-		service.execute(instance.new SpecialActionDeactivationTask(uid,
+		service.execute(instance.new SpecialActionDeactivationTask(userid,
 				specialAction, receivers));
 	}
 	
-	public static void scheduleFullGameUpdate(Game game, String receiverName){
-		service.execute(instance.new FullGameUpdateTask(game, receiverName));
+	public static void scheduleFullGameUpdate(Game game, String userid){
+		service.execute(instance.new FullGameUpdateTask(game, userid));
 	}
 	
 	private class FullGameUpdateTask implements Runnable{
 
 		private Game game;
-		private String receiverName;
+		private String receiverId;
 		
-		public FullGameUpdateTask(Game game, String receiverName){
+		public FullGameUpdateTask(Game game, String receiverId){
 			this.game = game;
+			this.receiverId = receiverId;
 		}
 		
 		@Override
 		public void run() {
 			GameStateMessage message = this.game.createGameStateMessage();
 			ArrayList<String> recs;
-			if (receiverName == null){
-				recs = userSessionMap.convertNameListToSessionList(this.game.getBroadcastReceiverNames());
+			if (receiverId == null){
+				recs = userManager.convertIdListToSessionList(this.game.getBroadcastReceiverIds());
 			} else {
 				recs = new ArrayList<>();
-				recs.add(userSessionMap.getSessionByUsername(receiverName));
+				recs.add(userManager.getSessionByUserid(receiverId));
 			}
 			MessageContainer container = MessageCreator.createMsgContainer(message, recs);
 			MessageHandler.PushMessage(container);
