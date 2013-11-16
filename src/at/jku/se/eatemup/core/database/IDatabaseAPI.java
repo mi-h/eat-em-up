@@ -13,15 +13,15 @@ public interface IDatabaseAPI {
 	
 	public ArrayList<LogEntry> getLogEntries(Date start, Date end);
 	
-	public Account getAccountByUsername(String username);
+	public Account getAccountByUserid(String userid);
 	
-	public ArrayList<Account> getAccountsByUsernames(ArrayList<String> usernames);
+	public ArrayList<Account> getAccountsByUserids(ArrayList<String> userids);
 	
 	public ArrayList<Account> getHighscore(int topX);
 	
-	public void addUserPoints(String username, int points);
+	public void addUserPoints(String userid, int points);
 	
-	public String getUserPassword(String username);
+	public String getUserPassword(String userid);
 	
 	public ArrayList<GoodiePoint> getGoodiePoints();
 

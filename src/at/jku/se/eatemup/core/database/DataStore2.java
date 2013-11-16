@@ -121,20 +121,20 @@ public class DataStore2 implements IDatabaseAPI{
 		return new ArrayList<LogEntry>();
 	}
 	
-	public Account getAccountByUsername(String username){
+	public Account getAccountByUserid(String userid){
 		try {
-			Account temp = accountDao.queryForId(username);
+			Account temp = accountDao.queryForId(userid);
 			return temp;
 		} catch (SQLException e) {
-			Logger.log("account retrieval failed for "+username+"."+Logger.stringifyException(e));
+			Logger.log("account retrieval failed for "+userid+"."+Logger.stringifyException(e));
 			return null;
 		}
 	}
 	
-	public ArrayList<Account> getAccountsByUsernames(ArrayList<String> usernames){
+	public ArrayList<Account> getAccountsByUserids(ArrayList<String> userids){
 		ArrayList<Account> list = new ArrayList<>();
-		for (String u : usernames){
-			Account tmp = getAccountByUsername(u);
+		for (String u : userids){
+			Account tmp = getAccountByUserid(u);
 			if (tmp != null){
 				list.add(tmp);
 			}
@@ -160,20 +160,20 @@ public class DataStore2 implements IDatabaseAPI{
 		return new ArrayList<Account>();
 	}
 	
-	public void addUserPoints(String username, int points){
-		Account tmp = getAccountByUsername(username);
+	public void addUserPoints(String userid, int points){
+		Account tmp = getAccountByUserid(userid);
 		if (tmp != null){
 			tmp.addPoints(points);
 			try {
 				accountDao.createOrUpdate(tmp);
 			} catch (SQLException e) {
-				Logger.log("account point update failed for "+username+"."+Logger.stringifyException(e));
+				Logger.log("account point update failed for "+userid+"."+Logger.stringifyException(e));
 			}
 		}
 	}
 	
-	public String getUserPassword(String username){
-		Account tmp = getAccountByUsername(username);
+	public String getUserPassword(String userid){
+		Account tmp = getAccountByUserid(userid);
 		if (tmp != null){
 			return tmp.getPassword();
 		}
