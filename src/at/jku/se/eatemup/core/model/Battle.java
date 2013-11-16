@@ -4,8 +4,8 @@ import at.jku.se.eatemup.core.BattleAnswer;
 import at.jku.se.eatemup.core.BattleWinner;
 
 public class Battle {
-	private String username1;
-	private String username2;
+	private String userid1;
+	private String userid2;
 	private String question;
 	private int time;
 	/**
@@ -14,20 +14,20 @@ public class Battle {
 	private int[] results;
 	private BattleAnswer[] answers = new BattleAnswer[2];
 
-	public String getUsername1() {
-		return username1;
+	public String getUserid1() {
+		return userid1;
 	}
 
-	public void setUsername1(String username1) {
-		this.username1 = username1;
+	public void setUserid1(String userid1) {
+		this.userid1 = userid1;
 	}
 
-	public String getUsername2() {
-		return username2;
+	public String getUserid2() {
+		return userid2;
 	}
 
-	public void setUsername2(String username2) {
-		this.username2 = username2;
+	public void setUserid2(String userid2) {
+		this.userid2 = userid2;
 	}
 
 	public String getQuestion() {
@@ -54,12 +54,11 @@ public class Battle {
 		this.time = time;
 	}
 	
-	public boolean setAnswer(String username, int answer, long timestamp){
-		BattleAnswer ba = new BattleAnswer(username,answer,timestamp);
-		if (username1.equals(username)){
+	public boolean setAnswer(String userid, int answer, long timestamp){
+		BattleAnswer ba = new BattleAnswer(userid,answer,timestamp);
+		if (userid1.equals(userid)){
 			answers[0] = ba;
-		}
-		if (username2.equals(username)){
+		} else if (userid2.equals(userid)){
 			answers[1] = ba;
 		}
 		return allAnswersReady();
@@ -92,7 +91,7 @@ public class Battle {
 		return ba.answer == results[0];
 	}
 	
-	public boolean isParticipant(String username){
-		return username.equals(username1) || username.equals(username2);
+	public boolean isParticipant(String userid){
+		return userid.equals(userid1) || userid.equals(userid2);
 	}
 }

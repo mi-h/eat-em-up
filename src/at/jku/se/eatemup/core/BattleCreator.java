@@ -19,8 +19,8 @@ public class BattleCreator {
 
 	public static Battle CreateBattle(String user1, String user2) {
 		Battle battle = new Battle();
-		battle.setUsername1(user1);
-		battle.setUsername2(user2);
+		battle.setUserid1(user1);
+		battle.setUserid2(user2);
 		Random rand = new Random();
 		int dec = rand.nextInt(4) + 1;
 		Object[] q = createQuestion(dec, rand);
