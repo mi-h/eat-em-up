@@ -213,7 +213,7 @@ public class DataStore2 implements IDatabaseAPI{
 		try {
 			Account temp;
 			if (acc.getType()==AccountType.Standard){
-				temp = getAccountByUsername(acc.getName());
+				temp = getAccountByUsername(acc.getUsername());
 			} else {
 				temp = getFacebookAccount(acc.getFacebookId());
 			}

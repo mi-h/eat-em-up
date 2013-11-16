@@ -1,6 +1,7 @@
 package at.jku.se.eatemup.servlets;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.AccountType;
 
 /**
  * Servlet implementation class CreateUsersServlet
@@ -39,19 +41,20 @@ public class CreateUsersServlet extends HttpServlet {
 		addAccountIfNotExists("seppforcher","istalt",ds);
 		addAccountIfNotExists("karlmoik","ausbraunau",ds);
 		addAccountIfNotExists("markus","hatkeinelustmehr",ds);
-		addAccountIfNotExists("michael","tutauchnix",ds);
+		addAccountIfNotExists("michael","tutfastnix",ds);
 		ds.closeConnection();
 	}
 	
-	private void addAccountIfNotExists(String userid, String password, DataStore2 dataStore){
-		if(dataStore.getAccountByUserid(userid)==null){
+	private void addAccountIfNotExists(String username, String password, DataStore2 dataStore){
+		if(dataStore.getAccountByUsername(username)==null){
 			Account temp = new Account();
-			//temp.setName(username);
+			temp.setUsername(username);
 			temp.setPassword(password);
 			temp.setPoints(0);
+			temp.setType(AccountType.Standard);
+			temp.setId(UUID.randomUUID().toString());
 			dataStore.addAccount(temp);
-		}
-		
+		}		
 	}
 
 	/**

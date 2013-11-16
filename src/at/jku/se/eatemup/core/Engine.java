@@ -216,7 +216,7 @@ public class Engine {
 			ArrayList<HashMap<String, Object>> ret = new ArrayList<>();
 			for (Account a : list) {
 				HashMap<String, Object> map = new HashMap<>();
-				map.put("username", a.getName());
+				map.put("username", a.getUsername());
 				map.put("userid", a.getId());
 				map.put("points", a.getPoints());
 				ret.add(map);
@@ -262,7 +262,7 @@ public class Engine {
 				if (acc == null) {
 					Account temp = new Account();
 					temp.setFacebookId(message.facebookId);
-					temp.setName(message.username);
+					temp.setUsername(message.username);
 					temp.setType(AccountType.Facebook);
 					temp.setId(UUID.randomUUID().toString());
 					ds.addAccount(temp);

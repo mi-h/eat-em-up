@@ -11,7 +11,7 @@ public class Account {
 	@DatabaseField
 	private AccountType type;
 	@DatabaseField(index=true)
-	private String name;
+	private String username;
 	@DatabaseField
 	private String password;
 	@DatabaseField(index=true)
@@ -27,12 +27,12 @@ public class Account {
 		
 	}
 
-	public String getName() {
-		return name;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setUsername(String name) {
+		this.username = name;
 	}
 
 	public int getPoints() {

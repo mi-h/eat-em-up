@@ -42,7 +42,7 @@ public class DbOperations {
 	
 	public Account getAccountByUsername(String username){
 		Account a = new Account();
-		a.setName(username);
+		a.setUsername(username);
 		int userPoints = 0;
 		String passwort = null;
 		if (this.ds.connectToDB()) {
@@ -84,7 +84,7 @@ public class DbOperations {
 				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
 				while (rs.next()) {
 					Account a = new Account();
-					a.setName(rs.getString("nickname"));
+					a.setUsername(rs.getString("nickname"));
 					a.setPoints(rs.getInt("points"));
 					a.setPassword(rs.getString("passwort"));
 					alAccount.add(a);
