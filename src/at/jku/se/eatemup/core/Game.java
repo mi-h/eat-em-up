@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
 import at.jku.se.eatemup.core.json.messages.GameStateMessage;
@@ -30,12 +31,12 @@ public class Game {
 	private class GameTick extends TimerTask {
 		private void checkForFullUpdate() {
 			tickCnt++;
-			if (tickCnt >= fullUpdateTicks){
+			if (tickCnt >= fullUpdateTicks) {
 				tickCnt = 0;
 				/*
 				 * disabled on Stefan's request
 				 * Engine.scheduleFullGameUpdate(Game.this,null);
-				 */				
+				 */
 			}
 		}
 
@@ -51,6 +52,7 @@ public class Game {
 			checkForFullUpdate();
 		}
 	}
+
 	private String id;
 	private int playtime;
 	private Location location;
@@ -92,15 +94,12 @@ public class Game {
 		message.specialAction = specialAction.getName();
 		message.userid = uid;
 		message.username = Engine.userManager.getUsernameByUserid(uid);
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userManager.convertIdListToSessionList(getBroadcastReceiverIds()));
+		MessageContainer container = MessageCreator.createMsgContainer(message,
+				Engine.userManager
+						.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 		playerActionMap.put(uid, specialAction);
-		Engine.scheduleSpecialActionDeactivation(
-				uid,
-				specialAction,
+		Engine.scheduleSpecialActionDeactivation(uid, specialAction,
 				Engine.userManager
 						.convertIdListToSessionList(getBroadcastReceiverIds()));
 	}
@@ -237,17 +236,25 @@ public class Game {
 	private ArrayList<HashMap<String, Object>> createPlayerInfoData(
 			ArrayList<Player> players, Game game) {
 		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-		for (Player p : players) {
-			HashMap<String, Object> map = new HashMap<>();
-			HashMap<String, Object> pMap = new HashMap<>();
-			map.put("username", p.getName());
-			map.put("userid", p.getUserid());
-			map.put("points", 0);
-			Position pos = game.getPlayerPosition(p.getName());
-			pMap.put("latitude", pos.getLatitude());
-			pMap.put("longitude", pos.getLongitude());
-			map.put("position", pMap);
-			list.add(map);
+		DataStore2 ds = new DataStore2();
+		try {
+			for (Player p : players) {
+				Account acc = ds.getAccountByUserid(p.getUserid());
+				HashMap<String, Object> map = new HashMap<>();
+				HashMap<String, Object> pMap = new HashMap<>();
+				map.put("username", p.getName());
+				map.put("userid", p.getUserid());
+				map.put("points", 0);
+				map.put("facebookuser", acc.getFacebookId() != null ? true
+						: false);
+				Position pos = game.getPlayerPosition(p.getName());
+				pMap.put("latitude", pos.getLatitude());
+				pMap.put("longitude", pos.getLongitude());
+				map.put("position", pMap);
+				list.add(map);
+			}
+		} finally {
+			ds.closeConnection();
 		}
 		return list;
 	}
@@ -496,11 +503,9 @@ public class Game {
 		}
 		message.goodie = posMap;
 		message.team = teamMap;
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userManager
-								.convertIdListToSessionList(getBroadcastReceiverIds()));
+		MessageContainer container = MessageCreator.createMsgContainer(message,
+				Engine.userManager
+						.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 		return true;
 	}
@@ -559,7 +564,8 @@ public class Game {
 		if (!playerIsInvincible(userid)) {
 			Player battleOp = getPlayerInPlayerRange(userid);
 			if (battleOp != null) {
-				Battle b = BattleCreator.CreateBattle(userid, battleOp.getUserid());
+				Battle b = BattleCreator.CreateBattle(userid,
+						battleOp.getUserid());
 				battles.add(b);
 				BattleStartMessage message = new BattleStartMessage();
 				message.answers = b.getResult();
@@ -567,8 +573,10 @@ public class Game {
 				message.timelimit = b.getTime();
 				message.userid1 = userid;
 				message.userid2 = b.getUserid2();
-				message.username1 = Engine.userManager.getUsernameByUserid(userid);
-				message.username2 = Engine.userManager.getUsernameByUserid(b.getUserid2());
+				message.username1 = Engine.userManager
+						.getUsernameByUserid(userid);
+				message.username2 = Engine.userManager.getUsernameByUserid(b
+						.getUserid2());
 				ArrayList<String> receivers = new ArrayList<>();
 				receivers.add(userid);
 				receivers.add(b.getUserid2());
@@ -604,11 +612,9 @@ public class Game {
 		GameEndMessage message = new GameEndMessage();
 		message.teamRedWin = hasTeamRedWon();
 		message.playerResults = createPlayerResults();
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userManager
-								.convertIdListToSessionList(getBroadcastReceiverIds()));
+		MessageContainer container = MessageCreator.createMsgContainer(message,
+				Engine.userManager
+						.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 	}
 
@@ -617,11 +623,9 @@ public class Game {
 		TimerUpdateMessage message = new TimerUpdateMessage();
 		message.remainingTime = playtime;
 		message.currentTimestamp = d.getTime();
-		MessageContainer container = MessageCreator
-				.createMsgContainer(
-						message,
-						Engine.userManager
-								.convertIdListToSessionList(getBroadcastReceiverIds()));
+		MessageContainer container = MessageCreator.createMsgContainer(message,
+				Engine.userManager
+						.convertIdListToSessionList(getBroadcastReceiverIds()));
 		MessageHandler.PushMessage(container);
 	}
 
@@ -649,7 +653,7 @@ public class Game {
 			}
 		}
 	}
-	
+
 	public void setPlaytime(int playtime) {
 		this.playtime = playtime;
 	}
@@ -660,7 +664,7 @@ public class Game {
 		positionProcessingFlag = true;
 		return true;
 	}
-	
+
 	public synchronized void setStartSurveySent(boolean startSurveySent) {
 		this.startSurveySent = startSurveySent;
 	}
