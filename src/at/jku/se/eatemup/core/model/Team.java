@@ -1,15 +1,15 @@
 package at.jku.se.eatemup.core.model;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Team {
 	private int points;
 	private TeamType type;
-	private List<Player> players;
+	private CopyOnWriteArrayList<Player> players;
 
 	public Team(TeamType type) {
-		players = new ArrayList<Player>();
+		players = new CopyOnWriteArrayList<Player>();
 		this.type = type;
 	}
 
@@ -64,7 +64,7 @@ public class Team {
 		}
 	}
 
-	public void setPlayers(List<Player> players) {
+	public void setPlayers(CopyOnWriteArrayList<Player> players) {
 		this.players = players;
 	}
 
