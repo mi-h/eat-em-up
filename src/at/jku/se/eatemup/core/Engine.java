@@ -499,10 +499,7 @@ public class Engine {
 			firstAttemptPings = new ConcurrentHashMap<>();
 			secondAttemptPings = new ConcurrentHashMap<>();
 			userWithActivePing = new CopyOnWriteArrayList<>();
-			/*
-			 * disabled ticker.scheduleAtFixedRate(new PingTask(), 30000,
-			 * pingInterval);
-			 */
+			ticker.scheduleAtFixedRate(new PingTask(), 30000, pingInterval);
 		}
 
 		public void acceptPong(PongMessage pong) {
