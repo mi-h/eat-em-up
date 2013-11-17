@@ -366,8 +366,9 @@ public class Engine {
 						: null;
 			}
 			if (loginResult) {
-				userManager.addUser(sender);
 				if (acc != null) {
+					sender.userid = acc.getId();
+					userManager.addUser(sender);
 					ReadyForGameMessage message = new ReadyForGameMessage();
 					message.adCode = UUID.randomUUID().toString()
 							.substring(0, 8);
