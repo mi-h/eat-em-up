@@ -348,10 +348,13 @@ public class Engine {
 			Account acc;
 			boolean loginResult;
 			if (type == AccountType.Facebook) {
-				acc = ds.getFacebookAccount(message.facebookId);
+				if (message.facebookid == null || message.facebookid.equals("")) {
+					return;
+				}
+				acc = ds.getFacebookAccount(message.facebookid);
 				if (acc == null) {
 					Account temp = new Account();
-					temp.setFacebookId(message.facebookId);
+					temp.setFacebookId(message.facebookid);
 					temp.setUsername(message.username);
 					temp.setType(AccountType.Facebook);
 					temp.setId(UUID.randomUUID().toString());
@@ -399,6 +402,7 @@ public class Engine {
 			public String pingId;
 			public String gameid;
 		}
+
 		private class PingTask extends TimerTask {
 
 			private void cleanupUsers() {
@@ -434,6 +438,7 @@ public class Engine {
 				}
 			}
 		}
+
 		private class ProcessGamePingTask implements Runnable {
 			private Game game;
 
@@ -466,6 +471,7 @@ public class Engine {
 				sendPingMessages(messages);
 			}
 		}
+
 		private static ConcurrentHashMap<String, Game> observerMap;
 		private static ConcurrentHashMap<String, Ping> firstAttemptPings;
 		private static ConcurrentHashMap<String, Ping> secondAttemptPings;
@@ -494,9 +500,9 @@ public class Engine {
 			secondAttemptPings = new ConcurrentHashMap<>();
 			userWithActivePing = new CopyOnWriteArrayList<>();
 			/*
-			 * disabled
-			 * ticker.scheduleAtFixedRate(new PingTask(), 30000, pingInterval);
-			 */			
+			 * disabled ticker.scheduleAtFixedRate(new PingTask(), 30000,
+			 * pingInterval);
+			 */
 		}
 
 		public void acceptPong(PongMessage pong) {
@@ -769,6 +775,7 @@ public class Engine {
 			return sessionUseridMap.containsKey(session);
 		}
 	}
+
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
 	public static UserManager userManager = new UserManager();
@@ -826,8 +833,15 @@ public class Engine {
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
-		// boolean check = checkLoginCredentials(message.username,
-		// message.password);
+		if (message.type.equals("facebook")) {
+			if (message.facebookid == null || message.facebookid.equals(""))
+				return false;
+		} else {
+			if (message.username == null || message.password == null
+					|| message.username.equals("")
+					|| message.password.equals(""))
+				return false;
+		}
 		LoginTask task = instance.new LoginTask(message, sender);
 		service.execute(task);
 		return true;

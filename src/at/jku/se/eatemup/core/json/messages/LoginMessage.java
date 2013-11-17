@@ -7,7 +7,7 @@ public class LoginMessage extends IncomingMessage {
 
 	public String password;
 	public String type;
-	public String facebookId;
+	public String facebookid;
 
 	@Override
 	public MessageType getType() {
