@@ -771,6 +771,25 @@ public class Engine {
 		public boolean userExistsBySession(String session) {
 			return sessionUseridMap.containsKey(session);
 		}
+
+		public boolean isUserActive(LoginMessage message, Sender sender) {
+			DataStore2 ds = DbManager.getDataStore();
+			Account acc;
+			try {
+				if (message.facebookid != null) {
+					acc = ds.getFacebookAccount(message.facebookid);
+				} else {
+					acc = ds.getAccountByUsername(message.username);
+				}
+				if (acc != null) {
+					String uid = acc.getId();
+					return useridSessionMap.containsKey(uid);
+				}
+				return false;
+			} finally {
+				ds.closeConnection();
+			}
+		}
 	}
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
@@ -830,6 +849,8 @@ public class Engine {
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
+		if (userManager.isUserActive(message, sender))
+			return false;
 		if (message.type.equals("facebook")) {
 			if (message.facebookid == null || message.facebookid.equals(""))
 				return false;
