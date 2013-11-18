@@ -76,6 +76,8 @@ public class JsonTool {
 			return gson.fromJson(message, PingMessage.class);
 		case Pong:
 			return gson.fromJson(message, PongMessage.class);
+		case AlreadyLoggedIn:
+			return gson.fromJson(message, AlreadyLoggedInMessage.class);
 		default:
 			return null;
 		}

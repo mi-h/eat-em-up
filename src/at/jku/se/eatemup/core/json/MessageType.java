@@ -6,5 +6,5 @@ public enum MessageType {
 	TimerUpdate, SpecialActionActivated, SpecialActionDeactivated, BattleStart, 
 	BattleAnswer, BattleResult, GameEnd, Exit, Logout, Play, FollowGameRequest, 
 	GoodieCreated, HighscoreRequest, Highscore, GameStateRequest,
-	Ping, Pong
+	Ping, Pong, AlreadyLoggedIn
 }

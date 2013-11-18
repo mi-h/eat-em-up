@@ -369,29 +369,28 @@ public class Engine {
 						: null;
 			}
 			if (loginResult && acc != null) {
-					sender.userid = acc.getId();
-					userManager.addUser(sender);
-					ReadyForGameMessage message = new ReadyForGameMessage();
-					message.adCode = UUID.randomUUID().toString()
-							.substring(0, 8);
-					message.loginSuccess = loginResult;
-					message.points = acc.getPoints();
-					message.userid = acc.getId();
-					MessageContainer container = MessageCreator
-							.createMsgContainer(message, sender.session);
-					MessageHandler.PushMessage(container);
-				} else {
-					ReadyForGameMessage message = new ReadyForGameMessage();
-					message.adCode = "";
-					message.loginSuccess = loginResult;
-					message.points = -1;
-					message.userid = null;
-					MessageContainer container = MessageCreator
-							.createMsgContainer(message, sender.session);
-					MessageHandler.PushMessage(container);
-				}
+				sender.userid = acc.getId();
+				userManager.addUser(sender);
+				ReadyForGameMessage message = new ReadyForGameMessage();
+				message.adCode = UUID.randomUUID().toString().substring(0, 8);
+				message.loginSuccess = loginResult;
+				message.points = acc.getPoints();
+				message.userid = acc.getId();
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, sender.session);
+				MessageHandler.PushMessage(container);
+			} else {
+				ReadyForGameMessage message = new ReadyForGameMessage();
+				message.adCode = "";
+				message.loginSuccess = loginResult;
+				message.points = -1;
+				message.userid = null;
+				MessageContainer container = MessageCreator.createMsgContainer(
+						message, sender.session);
+				MessageHandler.PushMessage(container);
 			}
-		
+		}
+
 	}
 
 	private static class PingManager {
@@ -771,7 +770,8 @@ public class Engine {
 			DataStore2 ds = DbManager.getDataStore();
 			Account acc;
 			try {
-				if (message.facebookid != null && !message.facebookid.equals("")) {
+				if (message.facebookid != null
+						&& !message.facebookid.equals("")) {
 					acc = ds.getFacebookAccount(message.facebookid);
 				} else {
 					acc = ds.getAccountByUsername(message.username);
@@ -781,7 +781,7 @@ public class Engine {
 					return useridSessionMap.containsKey(uid);
 				}
 				return false;
-			} catch (Exception ex){
+			} catch (Exception ex) {
 				return false;
 			} finally {
 				ds.closeConnection();
@@ -846,8 +846,13 @@ public class Engine {
 	}
 
 	public static boolean acceptLogin(LoginMessage message, Sender sender) {
-		if (userManager.isUserActive(message, sender))
+		if (userManager.isUserActive(message, sender)) {
+			AlreadyLoggedInMessage msg = new AlreadyLoggedInMessage();
+			MessageContainer container = MessageCreator.createMsgContainer(msg,
+					sender.session);
+			MessageHandler.PushMessage(container);
 			return false;
+		}
 		if (message.type.equals("facebook")) {
 			if (message.facebookid == null || message.facebookid.equals(""))
 				return false;
