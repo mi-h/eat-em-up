@@ -111,14 +111,16 @@ $(document).ready(function(){
 	facebookHandler.init();
 });
 
+
 window.onbeforeunload = function() {
-	return "Eine Bestätigung kann zu einem inkonsistenten Spielzustand führen!";
+	return "Ein Verlassen bzw. eine Aktualisierung kann zu einem inkonsistenten Spielzustand führen!";
 };
 
 window.onunload = function() {
 	amplify.publish('Logout', {username: accountData.getUsername(), userid: accountData.getUserID()});
 	accountData.reset();
 };
+
 
 //socket closed
 function bindSocketMessages() {
