@@ -368,8 +368,7 @@ public class Engine {
 				acc = loginResult ? ds.getAccountByUsername(message.username)
 						: null;
 			}
-			if (loginResult) {
-				if (acc != null) {
+			if (loginResult && acc != null) {
 					sender.userid = acc.getId();
 					userManager.addUser(sender);
 					ReadyForGameMessage message = new ReadyForGameMessage();
