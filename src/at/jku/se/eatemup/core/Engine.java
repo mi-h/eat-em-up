@@ -776,7 +776,7 @@ public class Engine {
 			DataStore2 ds = DbManager.getDataStore();
 			Account acc;
 			try {
-				if (message.facebookid != null) {
+				if (message.facebookid != null && !message.facebookid.equals("")) {
 					acc = ds.getFacebookAccount(message.facebookid);
 				} else {
 					acc = ds.getAccountByUsername(message.username);
@@ -785,6 +785,8 @@ public class Engine {
 					String uid = acc.getId();
 					return useridSessionMap.containsKey(uid);
 				}
+				return false;
+			} catch (Exception ex){
 				return false;
 			} finally {
 				ds.closeConnection();
