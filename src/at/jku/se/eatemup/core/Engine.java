@@ -472,11 +472,11 @@ public class Engine {
 			}
 		}
 
-		private static ConcurrentHashMap<String, Game> observerMap;
-		private static ConcurrentHashMap<String, Ping> firstAttemptPings;
-		private static ConcurrentHashMap<String, Ping> secondAttemptPings;
-		private static CopyOnWriteArrayList<String> userWithActivePing;
-		private static Timer ticker;
+		private static ConcurrentHashMap<String, Game> observerMap = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, Ping> firstAttemptPings = new ConcurrentHashMap<>();
+		private static ConcurrentHashMap<String, Ping> secondAttemptPings = new ConcurrentHashMap<>();
+		private static CopyOnWriteArrayList<String> userWithActivePing = new CopyOnWriteArrayList<>();
+		private static Timer ticker = new Timer();
 
 		private static PingMessage createPingMessage(Ping ping) {
 			PingMessage temp = new PingMessage();
@@ -495,10 +495,6 @@ public class Engine {
 		}
 
 		public PingManager() {
-			observerMap = new ConcurrentHashMap<>();
-			firstAttemptPings = new ConcurrentHashMap<>();
-			secondAttemptPings = new ConcurrentHashMap<>();
-			userWithActivePing = new CopyOnWriteArrayList<>();
 			ticker.scheduleAtFixedRate(new PingTask(), 30000, pingInterval);
 		}
 
@@ -796,8 +792,6 @@ public class Engine {
 
 	private static ConcurrentHashMap<String, Game> runningGames = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, Game> standbyGames = new ConcurrentHashMap<>();
-	public static UserManager userManager = new UserManager();
-	private static PingManager pingManager = new PingManager();
 	private static ConcurrentHashMap<String, String> userGameMap = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, String> userGameAudienceMap = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String, String> userStandbyGameMap = new ConcurrentHashMap<>();
@@ -806,6 +800,8 @@ public class Engine {
 	private static final double jkuCenterLat = 48.337050;
 	private static final double jkuCenterLong = 14.319600;
 	private static final int defaultGameTimeSeconds = 600;
+	public static UserManager userManager = new UserManager();
+	private static PingManager pingManager = new PingManager();
 
 	private static final int pingInterval = 30000; // millisecs
 
