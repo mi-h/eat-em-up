@@ -50,16 +50,16 @@ var selectController = (function() {
 	function listRowTap() {
 		$("#selectList").on("click", "li", function() {
 			var index = $(this).index();
-			if (index == 0) { // play game
+			if (index === 0) { // play game
 
-			} else if (index == 1) { // observe game
+			} else if (index === 1) { // observe game
 
-			} else if (index == 2) { // highscore
+			} else if (index === 2) { // highscore
 				$.mobile.changePage("#highscorePage", {
 					transition : "slide",
 					changeHash : true
 				});
-			} else if (index == 3) {
+			} else if (index === 3) {
 				$.mobile.changePage("#sponsorPage", {
 					transition : "slide",
 					changeHash : true

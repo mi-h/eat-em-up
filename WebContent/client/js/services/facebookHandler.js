@@ -28,12 +28,12 @@ var facebookHandler = (function() {
 		console.log("Login to Facebook!");
 		//check statuså
 		FB.getLoginStatus(function(response) {
-			if (response.status == 'connected') {
+			if (response.status === 'connected') {
 				requestUserName(function(username) {
 					setAccountData(response, username);
 					notifyServerForLogin();
 				});
-			} else if (response.status == 'not_authorized') {
+			} else if (response.status === 'not_authorized') {
 				doLogin();
 			} else {
 				doLogin();

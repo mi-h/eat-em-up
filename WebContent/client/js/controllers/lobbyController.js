@@ -19,7 +19,7 @@ var lobbyController = (function() {
 		
 	checkboxClicked = function(){
 		$("#checkbox-1").on("click", function(event, ui) {
-			if ($("#checkbox-1").prop("checked") == true){
+			if ($("#checkbox-1").prop("checked") === true){
 				$("#checkbox-1").prop("checked",true).checkboxradio("refresh");
 					setTimeout(function(){
 					$("#checkbox-1").prop("checked",false).checkboxradio("refresh");
