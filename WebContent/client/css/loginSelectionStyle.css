@@ -1,0 +1,25 @@
+#loginSelectionContent {
+	text-align: center;
+	padding: 0px;
+}
+
+#loginSection {
+	position: relative;
+	width: 100%;
+	height: auto;
+	text-align: center;
+	
+}
+
+#fbLoginButton {
+	width: 300px;
+	padding: 0px;
+	margin-bottom: 10px;
+	margin-top: 40px;
+}
+
+
+#standardLoginButton {
+	width: 300px;
+	padding: 0px;
+}

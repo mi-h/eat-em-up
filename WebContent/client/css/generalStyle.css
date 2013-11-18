@@ -1,0 +1,38 @@
+html {
+    height: 100%;
+	width: 100%;
+}
+
+body {
+    height: 100%;
+	width: 100%;
+}
+
+.ui-body-c, .ui-overlay-c { background:#fbfbfb; }
+
+
+.ui-header {
+    background: #4c9bf5;
+    border-color: transparent;
+}
+
+h1 {
+	text-shadow: none;
+}
+
+.ui-btn-active 
+{ 
+    background: gray; 
+    background-color: gray; 
+}
+
+.totalPoints {
+	color: #2ebe49;
+}
+
+/* validation */
+label.error { 
+	
+	color: red; 
+}
+

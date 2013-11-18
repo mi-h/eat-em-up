@@ -1,0 +1,385 @@
+<!DOCTYPE html> 
+<html> 
+ <head> 
+  <title>Eat em Up</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  <!-- jQuery mobile -->
+	  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css"></link>
+	  <script src="js/libs/jquery-2.0.3.min.js"></script>
+	  <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+	  	 
+	  <!-- map files -->
+	  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&v=3&libraries=geometry"></script>
+	  <script type="text/javascript" src="js/libs/jquery.ui.map.full.min.js"></script>  
+	  <script type="text/javascript" src="http://jquery-ui-map.googlecode.com/svn/trunk/ui/jquery.ui.map.extensions.js"></script>
+  	  
+  	  <!-- utility libs -->
+  	  <script type="text/javascript" src="js/libs/amplify.min.js"></script> 
+  	  <script type="text/javascript" src="js/libs/jquery.validate.js"></script>
+  	  <script type="text/javascript" src="js/libs/messages_de.js"></script>
+  	  
+  	   <!-- own files -->
+	  <script src="js/globalEvents.js"></script>
+	  <script src="js/controllers/mapController.js"></script>
+	  <script src="js/controllers/loginController.js"></script>
+	  <script src="js/controllers/selectController.js"></script>
+	  <script src="js/controllers/lobbyController.js"></script>
+	  <script src="js/controllers/gameController.js"></script>
+	  <script src="js/controllers/gameSpectatorController.js"></script>
+	  <script src="js/controllers/sponsorController.js"></script>
+	  <script src="js/controllers/highscoreController.js"></script>
+	  <script src="js/controllers/loginSelectionController.js"></script>
+	  <script src="js/services/socketConnection.js"></script>
+	  <script src="js/accountData.js"></script>
+	  <script src="js/services/facebookHandler.js"></script>
+	  <link rel="stylesheet" href="css/gameStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/loginStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/lobbyStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/selectStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/statsStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/generalStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/sponsorStyle.css" type="text/css"></link>
+	  <link rel="stylesheet" href="css/loginSelectionStyle.css" type="text/css"></link>
+ </head>
+ <body>
+ 	<!-- login selection page -->
+ 	<div class="page" data-role="page" id="loginSelectionPage">
+ 	  <div id="loginSelectionHeader" data-role="header"> 
+	 	  <h1>Loginauswahl</h1> 
+	  </div>
+	  <div id="loginSelectionContent" data-role="content"> 
+	  	<h1>EatEmUp</h1>
+	  	<div id="loginSection">
+	  		<input id="fbLoginButton" type="image" src="img/fbLogin.png"></input></br>
+	  		<input id="standardLoginButton" type="image" src="img/standardLogin.png"></input>
+	  	</div>
+	  </div>
+	</div>
+
+ 	<!-- login page -->
+ 	<div class="page" data-role="page" id="loginPage" data-add-back-btn="true" data-back-btn-text="Zurück">
+ 	  <div id="loginHeader" data-role="header"> 
+	 	  <h1>Login</h1> 
+	  </div>
+	  <div data-role="content"> 
+	  	<form id="loginForm">
+	  	  <label for="usernameField">Benutzername:</label>
+	  	  <input type="text" name="name" id="usernameField" value="" class="required" /> 
+	  	  <label for="passwordField">Passwort:</label>
+	  	  <input type="password" name="password" id="passwordField" value="" class="required" /> 
+	  	  </br>
+	      <input type="submit" data-theme="a" name="submit" id="loginButton" value="Login">
+	  	</form>
+	  	
+	  	<!-- login failed popup -->
+	   <div data-role="popup" id="popupMenu" data-theme="a">
+	    <div data-role="popup" id="loginFailedPopup" data-theme="a" class="ui-corner-all">
+	     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	            <div style="padding:10px 20px;">
+	               <h3>Falsche Logindaten!</h3>
+	            </div>   
+	    </div>
+	   </div>
+	  </div>
+	</div>
+	
+	
+	<!-- select page -->
+ 	<div data-role="page" id="selectPage">
+ 	  <div id="selectHeader" data-role="header"> 
+	 	  <h1>Auswahl</h1> 
+	 	  <a href="#loginSelectionPage" id="logoutButton" data-icon="delete">Logout</a>
+	  </div>
+	  <div data-role="content">  
+	  	<h2 id="welcomeInfo">Willkommen, <span id="username">Stefan</span>!</h2>
+	  	<h3 id="userPoints">Punkte: <span class="totalPoints">0</span></h3>
+	  	<h3>
+	  		<table id="codeTable">
+				<tr>
+				<td>Code: <span id="refCode">XE43TZ</span></td>
+				<td><a href="#refCodePopup" id="codeInfoButton" data-rel="popup" data-position-to="window" 
+		  	 data-transition="pop" data-role="button" data-icon="info" data-iconpos="notext"></a></td>
+				</tr>
+			</table>
+	  	</h3>
+	  	</br></br>
+	  	 <ul data-role="listview" id="selectList" data-split-icon="info" data-split-theme="c">
+		  	 <li><a href="#lobbyPage" data-transition="pop">An Spiel teilnehmen</a><a href="#gameInfoPopup" data-rel="popup" data-position-to="window" 
+		  	 data-transition="pop"></a></li>
+		  	 <li><a href="#gameSpectatorPage" data-transition="pop">Spiel mitverfolgen</a><a href="#gameSpectatorInfoPopup" data-rel="popup" data-position-to="window" 
+		  	 data-transition="pop"></a></li>
+		  	 <li><a href="#highscorePage" data-transition="slide">Highscore</a></li>
+		  	 <li><a href="#sponsorPage" data-transition="slide">Punkte einlösen</a></li>
+		 </ul>
+		 
+	<!-- ref code popup -->
+	   <div data-role="popup" id="popupMenu" data-theme="a">
+	    <div data-role="popup" id="refCodePopup" data-theme="a" class="ui-corner-all">
+	     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	            <div style="padding:10px 20px;">
+	            	Gib diesen Code an deine Freunde/Freundinnen weiter, um mehr Punkte zu bekommen
+	            	<ul>
+	            		<li>Dein Freund/Deine Freundin muss diesen Code bei der Registrierung angeben</li>
+	            		<li>Du bekommst 50% der Punkte, die deine Freunde/Freundinnen gewinnen, auf dein eigenes Konto gutgeschrieben</li>
+	            	</ul>
+	            </div>   
+	    </div>
+	   </div>
+	  <!-- game info popup -->
+	   <div data-role="popup" id="popupMenu" data-theme="a">
+	    <div data-role="popup" id="gameInfoPopup" data-theme="a" class="ui-corner-all">
+	     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	            <div style="padding:10px 20px;">
+	               <h3>Spielbeschreibung:</h3>
+	               <p>In einem Spiel kannst du Punktegoodies (schwarze und goldene Kreise) einsammeln, um Punkte zu erhalten. </p>
+	               <p>Manche Goodies verleihen besondere Fähigkeiten. </p>
+	               <p> Kommst du in die Nähe eines anderen Spielers kannst du mit ihm, unter Einsatz eurer
+	               	Punkte, in einem Minigame antreten.
+	               </p>
+	            </div>   
+	    </div>
+	   </div>
+	   <!-- game spectator info popup -->
+	   <div data-role="popup" id="popupMenu" data-theme="a">
+	    <div data-role="popup" id="gameSpectatorInfoPopup" data-theme="a" class="ui-corner-all">
+	     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	            <div style="padding:10px 20px;">
+	               <h3>Spiel mitverfolgen:</h3>
+	               <p>Hier kannst du ein zufällig ausgewähltes Spiel mitverfolgen.</p>
+	               <p>Wenn du möchtest, kannst du auf ein Team wetten. Je nach eingesetzten Punkten und der Wettquote erreichnet sich der
+		              Gewinn bzw. Verlust an Punkten.
+	               </p>
+	            </div>   
+	    </div>
+	   </div>
+
+	  </div>
+	</div>
+	
+	<!-- lobby -->
+	<div data-role="page" id="lobbyPage" data-add-back-btn="true" data-back-btn-text="Zurück">
+ 	  <div id="lobbyHeader" data-role="header"> 
+	 	  <h1>Lobby</h1> 
+	  </div>
+	  <div data-role="content">  
+	  	<h3>Spielort: JKU Campus</h3>
+	  	<h3>Verfügbare Spieler: 4</h3>
+	  	<ul>
+		  <li>Drück auf deinen Namen sobald du für das Spiel bereit bist</li>
+		  <li>Das Spiel wird gestartet wenn alle Spieler bereit sind </li>
+		</ul>	  	
+	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
+		<h3><span class="teamRedColor">Team Rot (Ich)</span></h3>
+	  	 <fieldset data-role="controlgroup">
+		  <input type="checkbox"  id="checkbox-1" class="custom"/>
+		  <label for="checkbox-1">Stefan</label>
+		  <input type="checkbox" name="checkbox-2" id="checkbox-2" class="custom" disabled="true"/>
+		  <label for="checkbox-2">Markus</label>
+		 </fieldset>
+	  	</div>
+	  	
+	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
+	  	 <h3><span class="teamBlueColor">Team Blau</span></h3>
+	  	 <fieldset data-role="controlgroup">
+		  <input type="checkbox" name="checkbox-3" id="checkbox-3" class="custom" disabled="true"/>
+		  <label for="checkbox-3">Christian</label>
+		  <input type="checkbox" name="checkbox-4" id="checkbox-4" class="custom" disabled="true"/>
+		  <label for="checkbox-4">Michael</label>
+		 </fieldset>
+	  	</div>
+	  </div>
+	</div>
+	
+	<!-- game page -->
+ 	<div data-role="page" id="gamePage">
+ 	  <div id="gameHeader" data-role="header"> 
+ 	  	  <a href="#selectPage" id="cancelButtonGame" data-icon="delete">Abbrechen</a>
+ 	  	<!--  <a href="#statsPage" id="statsButton" data-icon="delete">Statistik</a> -->
+	 	  <h1>Eat!</h1> 
+	  </div>
+	  <div id="gameContent" data-role="content">  
+	   <div id="topInfos">
+	  	<div id="timer">
+	  		<p class="topInfoText">14:30</p>
+	  	</div>
+	  	<div class="separator"></div>
+	  	<div id="userStatus">
+	  		<p id="userPoints" class="topInfoText">200 Pkt.</p>
+	  	</div>
+	   </div>
+	   
+	   <div id="map_canvas"></div>
+	     
+	   <div id="bottomInfos">
+	  	<div id="teamRedInfo">
+		  	<p id="teamRedText">Team Rot</p>
+	  		<p id="teamRedPoints">600 Pkt.</p>
+	  	</div>
+	  	<div class="separator"></div>
+	  	<div id="teamBlueInfo">
+	  		<p id="teamBlueText">Team Blau</p>
+	  		<p id="teamBluePoints">700 Pkt.</p>
+	  	</div>
+	   </div>
+	     <!-- battle popup -->
+	   <div data-role="popup" id="popupBattle" data-theme="a">
+	    <div data-role="popup" id="battlePopup" data-dismissible="false" data-theme="a" class="ui-corner-all">
+	            <div style="padding:10px 20px;">
+	               <h4>Berechne schnell das korrekte Ergebnis!<h4>
+	               <div align="center"><h3>14 * 8</h3></div>
+	               	<div id="battleAnswers">
+	               		<fieldset data-role="controlgroup">
+			                <input type="radio" name="radio-choice-2" id="radio-choice-21" value="choice-1" checked="checked" />
+				         	<label for="radio-choice-21">110</label>
+				
+				         	<input type="radio" name="radio-choice-2" id="radio-choice-22" value="choice-2"  />
+				         	<label for="radio-choice-22">112</label>
+				
+				         	<input type="radio" name="radio-choice-2" id="radio-choice-23" value="choice-3"  />
+				         	<label for="radio-choice-23">120</label>
+				
+				         	<input type="radio" name="radio-choice-2" id="radio-choice-24" value="choice-4"  />
+				         	<label for="radio-choice-24">102</label>
+				         </fieldset>	
+	               	</div>
+	               <input type="button" id="battleSubmitButton" value="Abschicken" />
+			       <div class="progress-bar blue stripes">
+			       	<div id="innerProgressBar">
+					   	<span style="height: 100%"></span>
+			       	</div>
+				   </div>   
+				   <div align="center"><p><strong><font color="white">4</font></strong> Sekunden übrig</p></div>
+				 </div>
+	    </div>
+	   </div>
+	   <!-- battle result popup -->
+	   <div data-role="popup" id="popupBattleResult" data-theme="a">
+	    <div data-role="popup" id="battleResultPopup" data-theme="a" class="ui-corner-all">
+	        <form>
+	            <div style="padding:10px 20px;">
+	               <div align="center"><h3>Minispiel gewonnen!</h3></div>
+	               <div align="center"><h3>+ <span class="totalPoints">50</span> Punkte</h3></div>
+	               <button type="submit" data-theme="b" data-icon="check">OK</button>
+	            </div>
+	        </form>
+	    </div>
+	   </div>
+
+	  </div>
+	</div>
+	
+	<!-- game spectator page -->
+ 	<div data-role="page" id="gameSpectatorPage">
+ 	  <div id="gameHeader" data-role="header"> 
+ 	  	  <a href="#selectPage" id="cancelButtonSpectatorGame" data-icon="delete">Abbrechen</a>
+ 	  	  <a href="#betPopup" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-icon="check" data-theme="a" data-transition="pop">Wetten</a>
+	 	  <h1>Eat!</h1> 
+	  </div>
+	  <div id="gameContent" data-role="content">  
+	   <div id="topInfos">
+	  	<div id="timerSpectator">
+	  		<p class="topInfoText">14:30</p>
+	  	</div>
+	   </div>
+	   
+	   <div id="map_canvas_spectator"></div>
+	     
+	   <div id="bottomInfos">
+	  	<div id="teamRedInfo">
+		  	<p id="teamRedText">Team Rot</p>
+	  		<p id="teamRedPointsSpectator">600 Pkt.</p>
+	  	</div>
+	  	<div class="separator"></div>
+	  	<div id="teamBlueInfo">
+	  		<p id="teamBlueText">Team Blau</p>
+	  		<p id="teamBluePointsSpectator">700 Pkt.</p>
+	  	</div>
+	   </div>
+		<!-- bet popup -->
+	   <div data-role="popup" id="popupMenu" data-theme="a">
+	    <div data-role="popup" id="betPopup" data-theme="a" class="ui-corner-all">
+	     <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	        <form>
+	            <div style="padding:10px 20px;">
+	               <h3>Verfügbare Punkte: <span class="totalPoints">0</span></h3>
+	                <input type="radio" name="radio-choice-2" id="betTeamRed" value="choice-1" checked="checked" />
+			        <label for="betTeamRed">Sieg Team Rot</label>
+			        <input type="radio" name="radio-choice-2" id="betTeamBlue" value="choice-1" checked="checked" />
+			        <label for="betTeamBlue">Sieg Team Blau</label>
+				   <label for="slider-1">Einsatz:</label>
+				   <input type="range" name="slider-1" id="slider-1" value="50" min="0" max="500" />
+				   <p>Quote: 1.50 : 1</p>
+	              <button type="submit" data-theme="b" data-icon="check">Wette platzieren</button>
+	            </div>
+	        </form>
+	    </div>
+	   </div>
+	  </div>
+	</div>
+	
+		
+	
+	<!-- statistics page -->
+ 	<div data-role="page" id="statsPage">
+ 	  <div id="statsHeader" data-role="header"> 
+	 	  <h1>Spielende</h1> 
+	 	  <a href="#selectPage" id="gameFinishedButton" data-icon="home">Fertig</a>
+	  </div>
+	  <div data-role="content">  
+	  	<h2>Team Rot hat gewonnen!</h2>
+	  	
+	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
+		<h3><span class="teamRedColor">Team Rot (Ich)</span></h3>
+			<ul data-role="listview">
+				<li>Markus </br></br>Erspielt: 300Pkt.</br> Gewinnanteil: 240Pkt. </br> Gesamt: <span class="totalPoints">540Pkt.</span></li>
+				<li>Stefan </br></br>Erspielt: 200Pkt.</br> Gewinnanteil: 160Pkt. </br> Gesamt: <span class="totalPoints">360Pkt.</span></li>
+			</ul>
+	  	</div>
+	  	</br>
+		
+			  	
+	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
+		<h3><span class="teamBlueColor">Team Blau</span></h3>
+			<ul data-role="listview">
+				<li>Christian | Erspielt: 300Pkt.</li>
+				<li>Michael | Erspielt: 100Pkt.</li>
+			</ul>
+	  	</div>
+	  </div>
+	</div>
+	
+	<!-- sponsor page -->
+ 	<div data-role="page" id="sponsorPage" data-add-back-btn="true" data-back-btn-text="Zurück">
+ 	  <div id="sponsorHeader" data-role="header"> 
+	 	  <h1>Einlösen</h1> 
+	  </div>
+	  <div data-role="content">  
+	  	<h3>Verfügbare Punkte: <span id="totalPointsSponsor" class="totalPoints">0</span></h3>
+	  	</br></br>
+	  	 <ul data-role="listview">
+		  	 <li><img class="sponsorIcon" src="img/amazonIcon.png" alt="Buy"><h2>Amazon Gutschein 5€</h2><h3>Für <span class="totalPoints">5000</span> Punkte</h3></li>
+		  	 <li><img class="sponsorIcon" src="img/raikaIcon.png" alt="Buy"><h2>2x MTV EMA Tickets</h2><h3>Für <span class="totalPoints">50000</span> Punkte</h3></li>
+		 </ul>
+	  </div>
+	</div>
+	
+	<!-- highscore page -->
+ 	<div data-role="page" id="highscorePage" data-add-back-btn="true" data-back-btn-text="Zurück">
+ 	  <div id="highscoreHeader" data-role="header"> 
+	 	  <h1>Highscore</h1> 
+	  </div>
+	  <div data-role="content">  
+	  	<h3>SpielerInnen Highscore</span></h3>
+	  	</br></br>
+	  	 <ul id="highscoreList" data-role="listview">
+		 </ul>
+	  </div>
+	</div>
+	
+	
+ </body>
+</html>
