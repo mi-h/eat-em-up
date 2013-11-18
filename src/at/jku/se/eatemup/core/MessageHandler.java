@@ -11,11 +11,11 @@ public class MessageHandler {
 
 	private static void _sendMsgAsync(String session, String message) {
 		Session ses = SessionStore.getSession(session);
-		try{
+		try {
 			message = message.replace("\\\"", "\"");
 			message = message.replace("\"{", "{").replace("}\"", "}");
-		} catch (Exception ex){
-			//fail silently
+		} catch (Exception ex) {
+			// fail silently
 		}
 		if (ses != null) {
 			ses.getAsyncRemote().sendText(message);
@@ -51,9 +51,10 @@ public class MessageHandler {
 	public static boolean ReceiveMessage(MessageContainer container) {
 		try {
 			switch (container.type) {
-			case Login:
+			case Login: {
 				return Engine.acceptLogin((LoginMessage) container.message,
 						container.sender);
+			}
 			case RequestForGameStart:
 				return Engine.acceptRequestForGameStart(
 						(RequestForGameStartMessage) container.message,
@@ -72,13 +73,20 @@ public class MessageHandler {
 				return Engine.acceptPlay((PlayMessage) container.message,
 						container.sender);
 			case FollowGameRequest:
-				return Engine.acceptFollowGameRequest((FollowGameRequestMessage)container.message,container.sender);
+				return Engine.acceptFollowGameRequest(
+						(FollowGameRequestMessage) container.message,
+						container.sender);
 			case HighscoreRequest:
-				return Engine.acceptHighscoreRequest((HighscoreRequestMessage)container.message,container.sender);
+				return Engine.acceptHighscoreRequest(
+						(HighscoreRequestMessage) container.message,
+						container.sender);
 			case GameStateRequest:
-				return Engine.acceptGameStateRequest((GameStateRequestMessage)container.message,container.sender);
+				return Engine.acceptGameStateRequest(
+						(GameStateRequestMessage) container.message,
+						container.sender);
 			case Pong:
-				return Engine.acceptPong((PongMessage)container.message,container.sender);
+				return Engine.acceptPong((PongMessage) container.message,
+						container.sender);
 			default:
 				return false;
 			}
