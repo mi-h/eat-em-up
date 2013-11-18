@@ -128,10 +128,6 @@ window.onunload = function() {
 //socket closed
 function bindSocketMessages() {
 	amplify.subscribe('SocketClosed', function() {
-		if (accountData.isFacebookAccount()) {
-			facebookHandler.logout();
-		}
-		amplify.publish('Logout', {username : accountData.getUsername(), userid : accountData.getUserID()});
 		accountData.reset();
 		$.mobile.changePage("#loginSelectionPage", {transition : "pop", changeHash : true});
 	});
