@@ -25,6 +25,8 @@ var loginSelectionController = (function() {
 			$.mobile.hidePageLoadingMsg();
 			if (message.loginSuccess) { //fb login success
 				//prepare select view
+				accountData.setPoints(message.points);
+				accountData.setCode(message.adCode);
 				$.mobile.changePage("#selectPage", { transition: "pop", changeHash: true });
 			}else {
 				//display loginFailure

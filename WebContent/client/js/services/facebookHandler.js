@@ -4,8 +4,8 @@ var facebookHandler = (function() {
 		$.getScript('//connect.facebook.net/de_DE/all.js', function(){
 		    FB.init({
 		      appId: '325957930876505',
-		      channelUrl: '//gfoellner.funpic.de/eatemup/channel.html',
-		      //channelUrl: '//localhost:80/eatemup/channel.html',
+		      //channelUrl: '//gfoellner.funpic.de/eatemup/channel.html',
+		      channelUrl: '//localhost:8080/eatemup/channel.html',
 		      status: true,
 		      cookie     : true, // enable cookies to allow the server to access the session
 			  oauth      : true, // enable OAuth 2.0

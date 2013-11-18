@@ -1,69 +1,60 @@
-var accountData = (function() {
-	var facebookAccount = false;
-	var userID = "";
-	var username = "";
-	var facebookID = "";
-	var points = 0;
-	var code = "";
-	
-	
+var accountData = (function() {	
 	//getter/setter
 	function setIsFacebookAccount(loginType) {
-		facebookAccount = loginType;
+		sessionStorage.setItem("facebookAccount", loginType);
 	}
 	
 	function isFacebookAccount() {
-		return facebookAccount;
+		return sessionStorage.getItem("facebookAccount");
 	}
 	
 	function setPoints(inputPoints) {
-		points = inputPoints;
+		sessionStorage.setItem("points", inputPoints);
 	}
 	
 	function getPoints() {
-		return points;
+		return sessionStorage.getItem("points");
 	}
 	
 	function setCode(inputCode) {
-		code = inputCode;
+		sessionStorage.setItem("code", inputCode);
 	}
 	
 	function getCode() {
-		return code;
+		return sessionStorage.getItem("code");
 	}
 	
 	function setUserID(inputUserID) {
-		userID = inputUserID;
+		sessionStorage.setItem("userID", inputUserID);
 	}
 	
 	function getUserID() {
-		return userID;
+		return sessionStorage.getItem("userID");
 	}
 	
 	function setUsername(inputUsername) {
-		username = inputUsername;
+		sessionStorage.setItem("username", inputUsername);
 	}
 	
 	function getUsername() {
-		return username;
+		return sessionStorage.getItem("username");
 	}
 	
 	function setFacebookID(fbID) {
-		facebookID = fbID;
+		sessionStorage.setItem("facebookID", fbID);
 	}
 	
 	function getFacebookID() {
-		return facebookID;
+		return sessionStorage.getItem("facebookID");;
 	}
 	
-	function resetUserData() {
-		console.log("reset");
-		facebookAccount = false;
-		userID = "";
-		username = "";
-		facebookID = "";
-		points = 0;
-		code = "";
+	function reset() {
+		sessionStorage.removeItem("facebookAccount");
+		sessionStorage.removeItem("points");
+		sessionStorage.removeItem("code");
+		sessionStorage.removeItem("userID");
+		sessionStorage.removeItem("username");
+		sessionStorage.removeItem("facebookID");
 	}
 	
 	
@@ -81,6 +72,6 @@ var accountData = (function() {
 		getPoints : getPoints,
 		setCode : setCode,
 		getCode : getCode,
-		resetUserData : resetUserData
+		reset : reset
 	}
 })();

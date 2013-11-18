@@ -39,7 +39,7 @@ var selectController = (function() {
 				facebookHandler.logout();
 			}
 			amplify.publish('Logout', {username: accountData.getUsername(), userid: accountData.getUserID()});
-			accountData.resetUserData();
+			accountData.reset();
 		});
 	}	
 		

@@ -29,7 +29,7 @@ var loginController = (function() {
 	
 	function loginResponseMsg() {
 		amplify.subscribe('ReadyForGame', function (message) {
-		//	$.mobile.hidePageLoadingMsg();
+			$.mobile.hidePageLoadingMsg();
 			if (message.loginSuccess) {
 				//prepare select view
 				accountData.setUserID(message.userid);
