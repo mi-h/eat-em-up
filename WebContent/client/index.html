@@ -46,6 +46,7 @@
 	  <link rel="stylesheet" href="css/loginSelectionStyle.css" type="text/css"></link>
  </head>
  <body>
+ 	<div id="fb-root"></div>
  	<!-- login selection page -->
  	<div class="page" data-role="page" id="loginSelectionPage">
  	  <div id="loginSelectionHeader" data-role="header"> 
@@ -54,7 +55,7 @@
 	  <div id="loginSelectionContent" data-role="content"> 
 	  	<h1>EatEmUp</h1>
 	  	<div id="loginSection">
-	  		<input id="fbLoginButton" type="image" src="img/fbLogin.png"></input></br>
+	  		<input id="fbLoginButton" type="image" src="img/fbLogin.png"></input><br>
 	  		<input id="standardLoginButton" type="image" src="img/standardLogin.png"></input>
 	  	</div>
 	  </div>
@@ -71,7 +72,7 @@
 	  	  <input type="text" name="name" id="usernameField" value="" class="required" /> 
 	  	  <label for="passwordField">Passwort:</label>
 	  	  <input type="password" name="password" id="passwordField" value="" class="required" /> 
-	  	  </br>
+	  	  <br>
 	      <input type="submit" data-theme="a" name="submit" id="loginButton" value="Login">
 	  	</form>
 	  	
@@ -87,7 +88,6 @@
 	  </div>
 	</div>
 	
-	
 	<!-- select page -->
  	<div data-role="page" id="selectPage">
  	  <div id="selectHeader" data-role="header"> 
@@ -97,16 +97,16 @@
 	  <div data-role="content">  
 	  	<h2 id="welcomeInfo">Willkommen, <span id="username">Stefan</span>!</h2>
 	  	<h3 id="userPoints">Punkte: <span class="totalPoints">0</span></h3>
-	  	<h3>
+	  
 	  		<table id="codeTable">
 				<tr>
-				<td>Code: <span id="refCode">XE43TZ</span></td>
+				<td><h3>Code: <span id="refCode">XE43TZ</span></h3></td>
 				<td><a href="#refCodePopup" id="codeInfoButton" data-rel="popup" data-position-to="window" 
 		  	 data-transition="pop" data-role="button" data-icon="info" data-iconpos="notext"></a></td>
 				</tr>
 			</table>
-	  	</h3>
-	  	</br></br>
+	  	
+	  	<br><br>
 	  	 <ul data-role="listview" id="selectList" data-split-icon="info" data-split-theme="c">
 		  	 <li><a href="#lobbyPage" data-transition="pop">An Spiel teilnehmen</a><a href="#gameInfoPopup" data-rel="popup" data-position-to="window" 
 		  	 data-transition="pop"></a></li>
@@ -177,7 +177,7 @@
 	  	 <fieldset data-role="controlgroup">
 		  <input type="checkbox"  id="checkbox-1" class="custom"/>
 		  <label for="checkbox-1">Stefan</label>
-		  <input type="checkbox" name="checkbox-2" id="checkbox-2" class="custom" disabled="true"/>
+		  <input type="checkbox" name="checkbox-2" id="checkbox-2" class="custom" disabled/>
 		  <label for="checkbox-2">Markus</label>
 		 </fieldset>
 	  	</div>
@@ -185,9 +185,9 @@
 	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
 	  	 <h3><span class="teamBlueColor">Team Blau</span></h3>
 	  	 <fieldset data-role="controlgroup">
-		  <input type="checkbox" name="checkbox-3" id="checkbox-3" class="custom" disabled="true"/>
+		  <input type="checkbox" name="checkbox-3" id="checkbox-3" class="custom" disabled/>
 		  <label for="checkbox-3">Christian</label>
-		  <input type="checkbox" name="checkbox-4" id="checkbox-4" class="custom" disabled="true"/>
+		  <input type="checkbox" name="checkbox-4" id="checkbox-4" class="custom" disabled/>
 		  <label for="checkbox-4">Michael</label>
 		 </fieldset>
 	  	</div>
@@ -229,7 +229,7 @@
 	   <div data-role="popup" id="popupBattle" data-theme="a">
 	    <div data-role="popup" id="battlePopup" data-dismissible="false" data-theme="a" class="ui-corner-all">
 	            <div style="padding:10px 20px;">
-	               <h4>Berechne schnell das korrekte Ergebnis!<h4>
+	               <h4>Berechne schnell das korrekte Ergebnis!</h4>
 	               <div align="center"><h3>14 * 8</h3></div>
 	               	<div id="battleAnswers">
 	               		<fieldset data-role="controlgroup">
@@ -334,11 +334,11 @@
 	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
 		<h3><span class="teamRedColor">Team Rot (Ich)</span></h3>
 			<ul data-role="listview">
-				<li>Markus </br></br>Erspielt: 300Pkt.</br> Gewinnanteil: 240Pkt. </br> Gesamt: <span class="totalPoints">540Pkt.</span></li>
-				<li>Stefan </br></br>Erspielt: 200Pkt.</br> Gewinnanteil: 160Pkt. </br> Gesamt: <span class="totalPoints">360Pkt.</span></li>
+				<li>Markus <br><br>Erspielt: 300Pkt.<br> Gewinnanteil: 240Pkt. <br> Gesamt: <span class="totalPoints">540Pkt.</span></li>
+				<li>Stefan <br><br>Erspielt: 200Pkt.<br> Gewinnanteil: 160Pkt. <br> Gesamt: <span class="totalPoints">360Pkt.</span></li>
 			</ul>
 	  	</div>
-	  	</br>
+	  	<br>
 		
 			  	
 	  	<div data-role="collapsible" data-collapsed="false" data-inset="false">
@@ -358,7 +358,7 @@
 	  </div>
 	  <div data-role="content">  
 	  	<h3>Verfügbare Punkte: <span id="totalPointsSponsor" class="totalPoints">0</span></h3>
-	  	</br></br>
+	  	<br><br>
 	  	 <ul data-role="listview">
 		  	 <li><img class="sponsorIcon" src="img/amazonIcon.png" alt="Buy"><h2>Amazon Gutschein 5€</h2><h3>Für <span class="totalPoints">5000</span> Punkte</h3></li>
 		  	 <li><img class="sponsorIcon" src="img/raikaIcon.png" alt="Buy"><h2>2x MTV EMA Tickets</h2><h3>Für <span class="totalPoints">50000</span> Punkte</h3></li>
@@ -372,8 +372,8 @@
 	 	  <h1>Highscore</h1> 
 	  </div>
 	  <div data-role="content">  
-	  	<h3>SpielerInnen Highscore</span></h3>
-	  	</br></br>
+	  	<h3>SpielerInnen Highscore</h3>
+	  	<br><br>
 	  	 <ul id="highscoreList" data-role="listview">
 		 </ul>
 	  </div>

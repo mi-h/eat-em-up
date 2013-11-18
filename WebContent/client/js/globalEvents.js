@@ -117,8 +117,11 @@ window.onbeforeunload = function() {
 };
 
 window.onunload = function() {
-	amplify.publish('Logout', {username: accountData.getUsername(), userid: accountData.getUserID()});
-	accountData.reset();
+	//check if user is logged in
+	if (accountData.getUsername()) {
+		amplify.publish('Logout', {username: accountData.getUsername(), userid: accountData.getUserID()});
+		accountData.reset();
+	}
 };
 
 
