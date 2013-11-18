@@ -18,6 +18,7 @@ var loginSelectionController = (function() {
 
 	function bindServiceMessages() {
 		loginResponseMsg();
+		alreadyLoggedInMsg();
 	}
 
 	function loginResponseMsg() {
@@ -36,6 +37,13 @@ var loginSelectionController = (function() {
 				accountData.reset();
 				$("#loginFailedPopup").popup("open");
 			}
+		});
+	}
+	
+	function alreadyLoggedInMsg() {
+		amplify.subscribe('AlreadyLoggedIn', function (message) {
+			$.mobile.hidePageLoadingMsg();
+			$("#alreadyLoggedInFacebookPopup").popup("open");
 		});
 	}
 
