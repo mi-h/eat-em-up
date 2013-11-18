@@ -17,14 +17,18 @@ var socketConnection = (function() {
 		connection.onmessage = function(event) {
 			console.log("message received " + event.data);
 			var dataObject = JSON.parse(event.data);
-			if (dataObject.type == "ReadyForGame") {
+			if (dataObject.type === "ReadyForGame") {
 				if (accountData.isFacebookAccount()) {
 					amplify.publish('ReadyForGameFacebook', dataObject.message);
 				} else {
 					amplify.publish('ReadyForGame', dataObject.message);
 				}
 			} else if (dataObject.type === "AlreadyLoggedIn") {
-				amplify.publish("AlreadyLoggedIn", dataObject.message);
+				if (accountData.isFacebookAccount()) {
+					amplify.publish('AlreadyLoggedInFacebook', dataObject.message);
+				} else {
+					amplify.publish("AlreadyLoggedIn", dataObject.message);
+				}
 			} else if (dataObject.type === "Highscore") {
 				amplify.publish('Highscore', dataObject.message);
 			} 

@@ -41,7 +41,7 @@ var loginSelectionController = (function() {
 	}
 	
 	function alreadyLoggedInMsg() {
-		amplify.subscribe('AlreadyLoggedIn', function (message) {
+		amplify.subscribe('AlreadyLoggedInFacebook', function (message) {
 			$.mobile.hidePageLoadingMsg();
 			$("#alreadyLoggedInFacebookPopup").popup("open");
 		});
