@@ -25,6 +25,7 @@ var loginController = (function() {
 	
 	function bindServiceMessages() {
 		loginResponseMsg();
+		alreadyLoggedInMsg();
 	}
 	
 	function loginResponseMsg() {
@@ -42,6 +43,13 @@ var loginController = (function() {
 				accountData.reset();
 				$("#loginFailedPopup").popup("open");
 			}
+		});
+	}
+	
+	function alreadyLoggedInMsg() {
+		amplify.subscribe('AlreadyLoggedIn', function (message) {
+			$.mobile.hidePageLoadingMsg();
+			$("#alreadyLoggedInPopup").popup("open");
 		});
 	}
 	
