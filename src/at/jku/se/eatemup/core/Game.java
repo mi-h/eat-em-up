@@ -240,13 +240,16 @@ public class Game {
 		try {
 			for (Player p : players) {
 				Account acc = ds.getAccountByUserid(p.getUserid());
+				String facebookid = acc.getFacebookId();
 				HashMap<String, Object> map = new HashMap<>();
 				HashMap<String, Object> pMap = new HashMap<>();
 				map.put("username", p.getName());
 				map.put("userid", p.getUserid());
 				map.put("points", 0);
-				map.put("facebookuser", acc.getFacebookId() != null ? true
-						: false);
+				map.put("facebookuser", facebookid != null ? true : false);
+				map.put("facebookimage",
+						facebookid != null ? FacebookImageLoader
+								.getImageForId(facebookid) : new byte[0]);
 				Position pos = game.getPlayerPosition(p.getName());
 				pMap.put("latitude", pos.getLatitude());
 				pMap.put("longitude", pos.getLongitude());
