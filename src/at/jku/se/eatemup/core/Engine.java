@@ -692,7 +692,7 @@ public class Engine {
 		private static ConcurrentHashMap<String, String> useridUsernameMap = new ConcurrentHashMap<>();
 		private static ConcurrentHashMap<String, String> sessionUsernameMap = new ConcurrentHashMap<>();
 
-		public void addUser(Sender sender) {
+		public synchronized void addUser(Sender sender) {
 			String userid = sender.userid;
 			String username = sender.username;
 			String sessionid = sender.session;
@@ -730,7 +730,7 @@ public class Engine {
 			return "";
 		}
 
-		public void removeAllInvolvedUsers(Game game) {
+		public synchronized void removeAllInvolvedUsers(Game game) {
 			for (String id : game.getBroadcastReceiverIds()) {
 				try {
 					removeUser(getSessionByUserid(id));
@@ -741,7 +741,7 @@ public class Engine {
 			}
 		}
 
-		public void removeUser(String sessionid) {
+		public synchronized void removeUser(String sessionid) {
 			String uid = getUseridBySession(sessionid);
 			useridSessionMap.remove(uid);
 			sessionUseridMap.remove(sessionid);
@@ -749,7 +749,7 @@ public class Engine {
 			sessionUsernameMap.remove(sessionid);
 		}
 
-		public void updateUserSession(String userid, String newSessionId,
+		public synchronized void updateUserSession(String userid, String newSessionId,
 				String oldSessionId) {
 			useridSessionMap.put(userid, newSessionId);
 			sessionUseridMap.remove(oldSessionId);
@@ -767,7 +767,7 @@ public class Engine {
 			return sessionUseridMap.containsKey(session);
 		}
 
-		public boolean isUserActive(LoginMessage message, Sender sender) {
+		public synchronized boolean isUserActive(LoginMessage message, Sender sender) {
 			DataStore2 ds = DbManager.getDataStore();
 			Account acc;
 			try {

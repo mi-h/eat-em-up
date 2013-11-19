@@ -119,7 +119,7 @@ public class Game {
 		return null;
 	}
 
-	public boolean AddPlayer(Player player) {
+	public synchronized boolean AddPlayer(Player player) {
 		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
 			teams[1].getPlayers().add(player);
 		} else {
@@ -347,7 +347,7 @@ public class Game {
 		return location;
 	}
 
-	public ArrayList<String> getNotReadyPlayers() {
+	public synchronized ArrayList<String> getNotReadyPlayers() {
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : getPlayers()) {
 			if (!readyToGoPlayers.contains(p.getUserid())) {
@@ -400,7 +400,7 @@ public class Game {
 		return playerPositions.get(userid);
 	}
 
-	public ArrayList<Player> getPlayers() {
+	public synchronized ArrayList<Player> getPlayers() {
 		ArrayList<Player> list = new ArrayList<>();
 		list.addAll(teams[0].getPlayers());
 		list.addAll(teams[1].getPlayers());
@@ -602,7 +602,7 @@ public class Game {
 		audience.remove(userid);
 	}
 
-	public void removePlayer(String userid) {
+	public synchronized void removePlayer(String userid) {
 		playerPositions.remove(userid);
 		if (isInRedTeam(userid)) {
 			teams[0].removePlayer(userid);
@@ -611,7 +611,7 @@ public class Game {
 		}
 	}
 
-	private void sendGameEnd() {
+	private synchronized void sendGameEnd() {
 		GameEndMessage message = new GameEndMessage();
 		message.teamRedWin = hasTeamRedWon();
 		message.playerResults = createPlayerResults();
@@ -640,11 +640,11 @@ public class Game {
 		this.location = location;
 	}
 
-	public void setPlayerPosition(String userid, Position position) {
+	public synchronized void setPlayerPosition(String userid, Position position) {
 		playerPositions.put(userid, position);
 	}
 
-	public void setPlayerPosition(String userid, Position p, long timestamp) {
+	public synchronized void setPlayerPosition(String userid, Position p, long timestamp) {
 		setPlayerPosition(userid, p);
 		playerPositionLastMessage.put(userid, timestamp);
 	}
@@ -676,7 +676,7 @@ public class Game {
 		this.teams = teams;
 	}
 
-	public void startGame() {
+	public synchronized void startGame() {
 		tickCnt = 0;
 		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
 	}
