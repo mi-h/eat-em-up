@@ -254,7 +254,7 @@ public class Game {
 				map.put("facebookimage",
 						facebookid != null ? FacebookImageLoader
 								.getImageForId(facebookid) : new byte[0]);
-				Position pos = game.getPlayerPosition(p.getName());
+				Position pos = game.getPlayerPosition(p.getUserid());
 				pMap.put("latitude", pos.getLatitude());
 				pMap.put("longitude", pos.getLongitude());
 				map.put("position", pMap);
