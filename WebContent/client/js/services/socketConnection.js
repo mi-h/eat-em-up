@@ -32,6 +32,18 @@ var socketConnection = (function() {
 			} else if (dataObject.type === "Highscore") {
 				amplify.publish('Highscore', dataObject.message);
 			} 
+			else if (dataObject.type=="GameStandbyUpdate") {
+				amplify.publish("GameStandbyUpdate", dataObject.message);
+		   }
+		   else if (dataObject.type=="GameStartSurvey") {
+				amplify.publish("GameStartSurvey", dataObject.message);
+		   }
+		   else if (dataObject.type=="Ping") {
+				amplify.publish("Ping", dataObject.message);
+		   }
+		   else if (dataObject.type=="GameState") {
+				amplify.publish("GameState", dataObject.message);
+		   }
 		}
 
 		connection.onerror = function(event) {
@@ -69,6 +81,37 @@ var socketConnection = (function() {
 			}
 			sendHighscoreRequest(message);
 		});
+		amplify.subscribe('Play', function (playInfo) {
+			var message = {
+					type:"Play",
+					message: playInfo
+			}
+			sendPlayRequest(message);
+		});
+		amplify.subscribe('Position', function (posInfo) {
+			var message = {
+					type:"Position",
+					message: posInfo
+			}
+			sendPositionRequest(message);
+		});
+		
+		amplify.subscribe('RequestForGameStart', function (reqInfo) {
+			var message = {
+					type:"RequestForGameStart",
+					message: reqInfo
+			}
+			sendRequestForGameStart(message);
+		});
+		
+		//PING-PONG-System
+		amplify.subscribe('Pong', function (reqInfo) {
+			var message = {
+					type:"Pong",
+					message: reqInfo
+			}
+			sendPongRequest(message);
+		});
 	}
 
 	function sendLoginRequest(message) {
@@ -89,7 +132,27 @@ var socketConnection = (function() {
 		console.log(JSON.stringify(message));
 		connection.send(JSON.stringify(message));
 	}
-
+	function sendRequestForGameStart(message) {
+		//send message
+		console.log(JSON.stringify(message));
+		connection.send(JSON.stringify(message));
+	}
+	function sendPlayRequest(message) {
+		//send message
+		console.log(JSON.stringify(message));
+		connection.send(JSON.stringify(message));
+	}
+	function sendPongRequest(message) {
+		//send message
+		console.log(JSON.stringify(message));
+		connection.send(JSON.stringify(message));
+	}
+	
+	function sendPositionRequest(message) {
+		//send message
+		console.log(JSON.stringify(message));
+		connection.send(JSON.stringify(message));
+	}
 	return {
 		establishConnection : establishConnection
 	}

@@ -131,6 +131,9 @@ function bindSocketMessages() {
 		accountData.reset();
 		$.mobile.changePage("#loginSelectionPage", {transition : "pop", changeHash : true});
 	});
+	amplify.subscribe('Ping', function (message) {
+		amplify.publish('Pong', {username:message.username, userid:message.userid,secondAttempt:message.secondAttempt, pingid:message.pingid});
+	});
 }
 
 //browser window events

@@ -1,4 +1,6 @@
 var accountData = (function() {
+	var position;
+
 	// getter/setter
 	function setIsFacebookAccount(loginType) {
 		sessionStorage.setItem("facebookAccount", loginType);
@@ -48,7 +50,12 @@ var accountData = (function() {
 		return sessionStorage.getItem("facebookID");
 		;
 	}
-
+	function setCurrentPosition(currentPosition) {
+		position = currentPosition;
+	}
+	function getCurrentPosition() {
+		return position;
+	}
 	function reset() {
 		sessionStorage.removeItem("facebookAccount");
 		sessionStorage.removeItem("points");
@@ -72,6 +79,8 @@ var accountData = (function() {
 		getPoints : getPoints,
 		setCode : setCode,
 		getCode : getCode,
+		getCurrentPosition : getCurrentPosition,
+		setCurrentPosition : setCurrentPosition,
 		reset : reset
 	}
 })();

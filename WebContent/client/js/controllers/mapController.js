@@ -19,8 +19,8 @@ this.initMap = function(mapElement) {
 	    if(!isInitialized(mapElement)) {
 	    	 map = new google.maps.Map(document.getElementById(mapElement), mapOptions);
 		}
+		getLocation();
 		this.initMarkers();
-		//getLocation();
 }
 
 function getLocation() {
@@ -34,6 +34,7 @@ function getLocation() {
 }
 
 function showPosition(position){
+	accountData.setCurrentPosition(position);
 	playerAvatars[0].marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
 }
 
@@ -54,7 +55,7 @@ this.initMarkers = function(){
 	//load images from server
 	loadImages(function() {
 		//init avatar markers
-		var playerInfo = [{username: "Stefan Gföllner", userid: "1690871472", position: {latitude: 48.337428, longitude: 14.319928}}, {username: "Michael Hartlauer", userid: "1790871472", 								position: {latitude: 48.337328, longitude: 14.321237}}];
+		var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}}, {username: "Stefan Gföllner", userid: "1690871472", position: {latitude: 48.337428, longitude: 14.319928}}, {username: "Michael Hartlauer", userid: "1790871472", 								position: {latitude: 48.337328, longitude: 14.321237}}];
 		initAvatarMarkers(playerInfo);
 		
 		//init goodie markers
