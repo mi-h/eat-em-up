@@ -481,6 +481,7 @@ public class Engine {
 			temp.secondAttempt = ping.secondAttempt;
 			temp.userid = ping.userid;
 			temp.username = ping.userid;
+			temp.pingid = ping.pingId;
 			return temp;
 		}
 
