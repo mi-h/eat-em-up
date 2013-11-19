@@ -104,11 +104,11 @@ public class Game {
 						.convertIdListToSessionList(getBroadcastReceiverIds()));
 	}
 
-	public void addBattle(Battle battle) {
+	public synchronized void addBattle(Battle battle) {
 		battles.add(battle);
 	}
 
-	public Battle addBattleAnswer(String userid, int answer, int duration) {
+	public synchronized Battle addBattleAnswer(String userid, int answer, int duration) {
 		Battle b = getUserBattle(userid);
 		if (b != null) {
 			if (b.setAnswer(userid, answer, duration)) {
@@ -119,12 +119,16 @@ public class Game {
 		return null;
 	}
 
-	public synchronized boolean AddPlayer(Player player) {
+	public synchronized boolean addPlayer(Player player) {
 		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
 			teams[1].getPlayers().add(player);
 		} else {
 			teams[0].getPlayers().add(player);
 		}
+		return isReadyForStart();
+	}
+	
+	public synchronized boolean isReadyForStart(){
 		if (teams[0].getPlayers().size() >= 1
 				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
 			return true;
@@ -132,7 +136,7 @@ public class Game {
 		return false;
 	}
 
-	public void addPlayerPoints(String userid, int points) {
+	public synchronized void addPlayerPoints(String userid, int points) {
 		Player p = getPlayerByUserid(userid);
 		if (p != null) {
 			if (points < 0) {
@@ -145,19 +149,19 @@ public class Game {
 		}
 	}
 
-	public void addUserToAudience(String userid) {
+	public synchronized void addUserToAudience(String userid) {
 		audience.add(userid);
 	}
 
-	public boolean allPlayersReady() {
+	public synchronized boolean allPlayersReady() {
 		return readyToGoPlayers.size() == getPlayers().size();
 	}
 
-	public void cancelGameTicker() {
+	public synchronized void cancelGameTicker() {
 		ticker.cancel();
 	}
 
-	public GameStateMessage createGameStateMessage() {
+	public synchronized GameStateMessage createGameStateMessage() {
 		GameStateMessage message = new GameStateMessage();
 		message.playerInfo = createPlayerInfoData(getPlayers(), this);
 		message.goodies = createGoodieData(location.getGoodiePoints());
@@ -197,7 +201,7 @@ public class Game {
 		return bigGoodiePoints;
 	}
 
-	public void createGoodies(boolean start) {
+	public synchronized void createGoodies(boolean start) {
 		Random rand = new Random();
 		ArrayList<GoodiePoint> points = new ArrayList<GoodiePoint>(
 				location.getGoodiePoints());
@@ -286,7 +290,7 @@ public class Game {
 		return new InvincibleAction();
 	}
 
-	public void disableSpecialAction(String userid) {
+	public synchronized void disableSpecialAction(String userid) {
 		try {
 			playerActionMap.remove(userid);
 		} catch (NullPointerException ex) {
@@ -294,7 +298,7 @@ public class Game {
 		}
 	}
 
-	public void endGame() {
+	public synchronized void endGame() {
 		sendGameEnd();
 		processGameEnd();
 		Engine.endGame(this);
@@ -314,18 +318,18 @@ public class Game {
 		return -1;
 	}
 
-	public ArrayList<String> getBroadcastReceiverIds() {
+	public synchronized ArrayList<String> getBroadcastReceiverIds() {
 		ArrayList<String> list = new ArrayList<>();
 		list.addAll(getPlayerIds());
 		list.addAll(audience);
 		return list;
 	}
 
-	public ArrayList<GoodiePoint> getGoodiePoints() {
+	public synchronized ArrayList<GoodiePoint> getGoodiePoints() {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
 
-	public ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String userid) {
+	public synchronized ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String userid) {
 		ArrayList<GoodiePoint> points = new ArrayList<>();
 		Position playerPos = getPlayerPosition(userid);
 		if (playerPos != null) {
@@ -357,7 +361,7 @@ public class Game {
 		return list;
 	}
 
-	public Player getPlayerByUserid(String userid) {
+	public synchronized Player getPlayerByUserid(String userid) {
 		for (Player p : getPlayers()) {
 			if (p.getUserid().equals(userid))
 				return p;
@@ -365,7 +369,7 @@ public class Game {
 		return null;
 	}
 
-	public ArrayList<String> getPlayerIds() {
+	public synchronized ArrayList<String> getPlayerIds() {
 		ArrayList<String> list = new ArrayList<>();
 		for (Player p : getPlayers()) {
 			list.add(p.getUserid());
@@ -388,7 +392,7 @@ public class Game {
 		return null;
 	}
 
-	public int getPlayerPoints(String userid) {
+	public synchronized int getPlayerPoints(String userid) {
 		Player p = getPlayerByUserid(userid);
 		if (p != null) {
 			return p.getPoints();
@@ -396,7 +400,7 @@ public class Game {
 		return -1;
 	}
 
-	public Position getPlayerPosition(String userid) {
+	public synchronized Position getPlayerPosition(String userid) {
 		return playerPositions.get(userid);
 	}
 
@@ -407,7 +411,7 @@ public class Game {
 		return list;
 	}
 
-	public ArrayList<String> getPlayersInPlayerRange(String userid) {
+	public synchronized ArrayList<String> getPlayersInPlayerRange(String userid) {
 		ArrayList<String> players = new ArrayList<>();
 		Position playerPos = getPlayerPosition(userid);
 		for (Player p : getPlayers()) {
@@ -459,11 +463,11 @@ public class Game {
 		return getPlayers().size() == 6;
 	}
 
-	public boolean isInRedTeam(Player player) {
+	public synchronized boolean isInRedTeam(Player player) {
 		return teams[0].hasPlayer(player);
 	}
 
-	public boolean isInRedTeam(String userid) {
+	public synchronized boolean isInRedTeam(String userid) {
 		return teams[0].hasPlayer(userid);
 	}
 
@@ -471,7 +475,7 @@ public class Game {
 		return startSurveySent;
 	}
 
-	private boolean playerEatsGoodie(String userid, Goodie goodie,
+	private synchronized boolean playerEatsGoodie(String userid, Goodie goodie,
 			Position position) {
 		SpecialAction temp = playerActionMap.get(userid);
 		if (!goodie.getSpecialAction().getName().equals("NoAction")) {
@@ -531,7 +535,7 @@ public class Game {
 		Engine.updateAccountPoints(getPlayers());
 	}
 
-	public void processPlayerPositionChange(String userid, Position p,
+	public synchronized void processPlayerPositionChange(String userid, Position p,
 			long timestamp) {
 		Position oldPos = playerPositions.get(userid);
 		if (oldPos.differentFrom(p)) {
@@ -598,7 +602,7 @@ public class Game {
 		return true;
 	}
 
-	public void removeAudienceUser(String userid) {
+	public synchronized void removeAudienceUser(String userid) {
 		audience.remove(userid);
 	}
 
@@ -679,5 +683,9 @@ public class Game {
 	public synchronized void startGame() {
 		tickCnt = 0;
 		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
+	}
+
+	public void kill() {
+		ticker.cancel();
 	}
 }

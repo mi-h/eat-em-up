@@ -1,15 +1,16 @@
 package at.jku.se.eatemup.core.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Team {
 	private int points;
 	private TeamType type;
-	private CopyOnWriteArrayList<Player> players;
+	private ArrayList<Player> players;
 
 	public Team(TeamType type) {
-		players = new CopyOnWriteArrayList<Player>();
+		players = new ArrayList<Player>();
 		this.type = type;
 	}
 
@@ -33,7 +34,7 @@ public class Team {
 		return type;
 	}
 
-	public boolean hasPlayer(Player player) {
+	public synchronized boolean hasPlayer(Player player) {
 		for (Player p : players) {
 			if (p.getUserid().equals(player.getUserid())) {
 				return true;
@@ -42,7 +43,7 @@ public class Team {
 		return false;
 	}
 
-	public boolean hasPlayer(String userid) {
+	public synchronized boolean hasPlayer(String userid) {
 		for (Player p : players) {
 			if (p.getUserid().equals(userid)) {
 				return true;
@@ -51,7 +52,7 @@ public class Team {
 		return false;
 	}
 
-	public void removePlayer(String userid) {
+	public synchronized void removePlayer(String userid) {
 		Player rem = null;
 		for (Player p : players) {
 			if (p.getUserid().equals(userid)) {
@@ -64,7 +65,7 @@ public class Team {
 		}
 	}
 
-	public void setPlayers(CopyOnWriteArrayList<Player> players) {
+	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
 	}
 

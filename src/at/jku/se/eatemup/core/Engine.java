@@ -137,7 +137,7 @@ public class Engine {
 					Game g = standbyGames.get(userStandbyGameMap.get(userid));
 					g.removePlayer(userid);
 					GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
-					msg.readyForStart = addPlayerToStandbyGame(message.userid);
+					msg.readyForStart = g.isReadyForStart();
 					msg.players = new ArrayList<>();
 					for (Player p : g.getPlayers()) {
 						HashMap<String, Object> map = new HashMap<>();
@@ -484,6 +484,10 @@ public class Engine {
 			temp.pingid = ping.pingId;
 			return temp;
 		}
+		
+		public synchronized static void kill(){
+			ticker.cancel();
+		}
 
 		private static void sendPingMessages(ArrayList<PingMessage> messages) {
 			for (PingMessage msg : messages) {
@@ -802,6 +806,7 @@ public class Engine {
 	private static final int defaultGameTimeSeconds = 600;
 	public static UserManager userManager = new UserManager();
 	private static PingManager pingManager = new PingManager();
+	private static final String flushToken = "supersecret";
 
 	private static final int pingInterval = 30000; // millisecs
 
@@ -904,7 +909,7 @@ public class Engine {
 				userid);
 		Game g = getEmptyStandbyGame();
 		userStandbyGameMap.put(userid, g.getId());
-		return g.AddPlayer(player);
+		return g.addPlayer(player);
 	}
 
 	private static Location createNewLocation(DataStore2 db) {
@@ -1085,5 +1090,23 @@ public class Engine {
 		UpdatePointsTask task = instance.new UpdatePointsTask(players,
 				DbManager.getDataStore());
 		service.execute(task);
+	}
+	
+	public synchronized static void flush(){
+		for (Game g : runningGames.values()){
+			g.kill();
+		}
+		for (Game g : standbyGames.values()){
+			g.kill();
+		}
+		runningGames = new ConcurrentHashMap<>();
+		standbyGames = new ConcurrentHashMap<>();
+		userGameMap = new ConcurrentHashMap<>();
+		userGameAudienceMap = new ConcurrentHashMap<>();
+		userStandbyGameMap = new ConcurrentHashMap<>();
+		service = Executors.newCachedThreadPool();
+		instance = new Engine();
+		userManager = new UserManager();
+		pingManager = new PingManager();
 	}
 }
