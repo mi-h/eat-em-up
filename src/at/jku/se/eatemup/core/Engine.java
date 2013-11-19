@@ -159,12 +159,32 @@ public class Engine {
 
 		@Override
 		public void run() {
-			sendLogoutMessage(sender.session,
-					"accepting exit action, user logout", sender.username);
-			removeUserFromAllRunningGames(sender.username);
-			removeUserFromAllStandbyGames(sender.username);
-			removeUserFromAllAudiences(sender.username);
-			userManager.removeUser(sender.session);
+			try {
+				sendLogoutMessage(sender.session,
+						"accepting exit action, user logout", sender.userid);
+			} catch (Exception ex) {
+				// fail silently for the moment
+			}
+			try {
+				removeUserFromAllRunningGames(sender.userid);
+			} catch (Exception ex) {
+				// fail silently for the moment
+			}
+			try {
+				removeUserFromAllStandbyGames(sender.userid);
+			} catch (Exception ex) {
+				// fail silently for the moment
+			}
+			try {
+				removeUserFromAllAudiences(sender.userid);
+			} catch (Exception ex) {
+				// fail silently for the moment
+			}
+			try {
+				userManager.removeUser(sender.session);
+			} catch (Exception ex) {
+				// fail silently for the moment
+			}
 			SessionStore.removeSession(sender.session);
 		}
 	}
@@ -484,8 +504,8 @@ public class Engine {
 			temp.pingid = ping.pingId;
 			return temp;
 		}
-		
-		public synchronized static void kill(){
+
+		public synchronized static void kill() {
 			ticker.cancel();
 		}
 
@@ -753,8 +773,8 @@ public class Engine {
 			sessionUsernameMap.remove(sessionid);
 		}
 
-		public synchronized void updateUserSession(String userid, String newSessionId,
-				String oldSessionId) {
+		public synchronized void updateUserSession(String userid,
+				String newSessionId, String oldSessionId) {
 			useridSessionMap.put(userid, newSessionId);
 			sessionUseridMap.remove(oldSessionId);
 			sessionUseridMap.put(newSessionId, userid);
@@ -771,7 +791,8 @@ public class Engine {
 			return sessionUseridMap.containsKey(session);
 		}
 
-		public synchronized boolean isUserActive(LoginMessage message, Sender sender) {
+		public synchronized boolean isUserActive(LoginMessage message,
+				Sender sender) {
 			DataStore2 ds = DbManager.getDataStore();
 			Account acc;
 			try {
@@ -1091,14 +1112,17 @@ public class Engine {
 				DbManager.getDataStore());
 		service.execute(task);
 	}
-	
-	public synchronized static void flush(){
-		for (Game g : runningGames.values()){
+
+	public synchronized static void flush() {
+		for (Game g : runningGames.values()) {
 			g.kill();
 		}
-		for (Game g : standbyGames.values()){
+		for (Game g : standbyGames.values()) {
 			g.kill();
 		}
+		pingManager.kill();
+		userManager = new UserManager();
+		pingManager = new PingManager();
 		runningGames = new ConcurrentHashMap<>();
 		standbyGames = new ConcurrentHashMap<>();
 		userGameMap = new ConcurrentHashMap<>();
@@ -1106,7 +1130,5 @@ public class Engine {
 		userStandbyGameMap = new ConcurrentHashMap<>();
 		service = Executors.newCachedThreadPool();
 		instance = new Engine();
-		userManager = new UserManager();
-		pingManager = new PingManager();
 	}
 }
