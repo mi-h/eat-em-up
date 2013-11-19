@@ -1115,12 +1115,24 @@ public class Engine {
 
 	public synchronized static void flush() {
 		for (Game g : runningGames.values()) {
+			try{
 			g.kill();
+			}catch (Exception ex){
+				
+			}
 		}
 		for (Game g : standbyGames.values()) {
+			try{
 			g.kill();
+			}catch (Exception ex){
+				
+			}
 		}
+		try{
 		pingManager.kill();
+		}catch (Exception ex){
+			
+		}
 		userManager = new UserManager();
 		pingManager = new PingManager();
 		runningGames = new ConcurrentHashMap<>();
