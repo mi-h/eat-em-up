@@ -7,7 +7,8 @@ var facebookHandler = (function() {
 			FB.init({
 				appId : '325957930876505',
 				//channelUrl: '//gfoellner.funpic.de/eatemup/channel.html',
-				channelUrl : '//localhost:8080/eatemup/channel.html',
+				//channelUrl : '//localhost:8080/eatemup/channel.html',
+				channelUrl : '//eat-em-up.marce155.eu.cloudbees.net/client/channel.html',
 				status : true,
 				cookie : true, // enable cookies to allow the server to access the session
 				oauth : true, // enable OAuth 2.0

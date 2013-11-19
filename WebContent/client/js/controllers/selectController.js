@@ -5,6 +5,7 @@ var selectController = (function() {
 	}
 
 	function pageBeforeShow() {
+		console.log("Here");
 		$("#username").text(accountData.getUsername());
 		$("#selectPage .totalPoints").text(accountData.getPoints());
 		$("#refCode").text(accountData.getCode());
