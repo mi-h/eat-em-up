@@ -61,7 +61,6 @@ this.initMarkers = function(){
 		});
 		//var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}, points:accountData.getPoints()}];
 		
-		// {username: "Stefan Gföllner", userid: "1690871472", position: {latitude: 48.337428, longitude: 14.319928}}, {username: "Michael Hartlauer", userid: "1790871472", 								position: {latitude: 48.337328, longitude: 14.321237}}
 		initAvatarMarkers(playerInfo);
 		
 		//init goodie markers

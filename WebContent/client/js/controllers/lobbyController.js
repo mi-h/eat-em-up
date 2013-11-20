@@ -54,7 +54,8 @@ var lobbyController = (function() {
 			gameState.setGoodies(goodies);
 			var playerInfos = JSON.parse(JSON.stringify(message.playerInfo));
 			gameState.setPlayerInfos(playerInfos);
-			$.mobile.changePage("#gamePage", { transition: "pop", changeHash: true });	
+			gameState.setTime(message.remainingTime);
+			$.mobile.changePage("#gamePage", { transition: "pop", changeHash: true });
 		});
 	}
 	function lobbyGameResponse() {
