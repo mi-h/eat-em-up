@@ -144,6 +144,7 @@ public class Engine {
 						map.put("username", p.getName());
 						map.put("userid", p.getUserid());
 						map.put("teamRed", g.isInRedTeam(p));
+						map.put("readyForStart", g.isPlayerReadyForGame(p));
 						msg.players.add(map);
 					}
 					MessageContainer container = MessageCreator
@@ -582,6 +583,7 @@ public class Engine {
 				map.put("username", p.getName());
 				map.put("userid", p.getUserid());
 				map.put("teamRed", game.isInRedTeam(p));
+				map.put("readyForStart", game.isPlayerReadyForGame(p));
 				msg.players.add(map);
 			}
 			MessageContainer container = MessageCreator.createMsgContainer(msg,
