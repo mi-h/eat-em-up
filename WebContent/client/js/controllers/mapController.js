@@ -35,7 +35,7 @@ function getLocation() {
 
 function showPosition(position){
 	accountData.setCurrentPosition(position);
-	playerAvatars[0].marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+	if(playerAvatars.length>0) 	playerAvatars[0].marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
 }
 
 function geolocationError(error){
@@ -55,12 +55,19 @@ this.initMarkers = function(){
 	//load images from server
 	loadImages(function() {
 		//init avatar markers
-		var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}}, {username: "Stefan Gföllner", userid: "1690871472", position: {latitude: 48.337428, longitude: 14.319928}}, {username: "Michael Hartlauer", userid: "1790871472", 								position: {latitude: 48.337328, longitude: 14.321237}}];
+		var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}, points:accountData.getPoints()}];
+		
+		// {username: "Stefan Gföllner", userid: "1690871472", position: {latitude: 48.337428, longitude: 14.319928}}, {username: "Michael Hartlauer", userid: "1790871472", 								position: {latitude: 48.337328, longitude: 14.321237}}
 		initAvatarMarkers(playerInfo);
 		
 		//init goodie markers
-		var goodieInfo = [{latitude: 48.337066, longitude: 14.318477, specialAction: null, points: 50}, {latitude: 48.337191, longitude: 14.318498, specialAction: null, points: 25}];
-		initGoodieMarkers(goodieInfo);
+		var goodies = [];
+		$.each( gameState.getGoodies(), function( index, goodie ) {
+			//{"specialAction":"NoAction","longitude":14.318532943725586,"points":25,"latitude":48.33748844154077}
+			goodies.push({latitude:goodie.latitude, longitude:goodie.longitude, specialAction: goodie.specialAction, points:goodie.points});
+		});
+
+		initGoodieMarkers(goodies);
 	});
 }
 
@@ -68,15 +75,17 @@ function initAvatarMarkers(playerInfo) {
 	for (var i=0; i<playerInfo.length; i++) {
 		var player = playerInfo[i];
 		//create avatar
-		if(gameData.isTeamRead(player.username)) {
+		if(gameData.isTeamRed(player.username)) {
 			initAvatar("red", player);	
 		}
-		else initAvatar("blue", player);
+		else { 
+			initAvatar("blue", player);
+		}
    }
 }
 
 function initAvatar(team, player) {
-	createPlayerAvatar("red", player.userid, player.username, 0, null, function(pngURL, canvas) {
+	createPlayerAvatar(team, player.userid, player.username, 0, null, function(pngURL, canvas) {
 		var playerMarker = new google.maps.Marker({
 			    	position: new google.maps.LatLng(player.position.latitude, player.position.longitude),
 					map: map,
@@ -96,8 +105,8 @@ function initAvatar(team, player) {
 		playerAvatars.push({userID: player.userid, username: player.username, specialAction: null, marker: playerMarker, canvas: canvas});	
 	
 		//redraw once
-			redrawPlayerAvatar(player.userid, player.username, 50);
-			drawSpecialAction(player.userid, player.username, 100, "doublePoints");	
+			redrawPlayerAvatar(player.userid, player.username, player.points);
+		//	drawSpecialAction(player.userid, player.username, 100, "doublePoints");	
 		//	removeSpecialAction(player.userid, player.username, 100);						
 	});	
 }

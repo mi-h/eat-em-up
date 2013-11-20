@@ -50,6 +50,8 @@ var lobbyController = (function() {
 	function gameStateResponse() {
 		amplify.subscribe('GameState', function (message) {
 			//TODO: Objekt mit GameState ertellen
+			var goodies = JSON.parse(JSON.stringify(message.goodies));
+			gameState.setGoodies(goodies);
 			$.mobile.changePage("#gamePage", { transition: "pop", changeHash: true });	
 		});
 	}

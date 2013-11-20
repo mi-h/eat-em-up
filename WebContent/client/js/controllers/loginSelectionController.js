@@ -28,6 +28,7 @@ var loginSelectionController = (function() {
 				// prepare select view
 				accountData.setPoints(message.points);
 				accountData.setCode(message.adCode);
+				accountData.setUserID(message.userid);
 				$.mobile.changePage("#selectPage", {
 					transition : "pop",
 					changeHash : true

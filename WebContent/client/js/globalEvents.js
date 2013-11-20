@@ -128,10 +128,9 @@ window.onunload = function() {
 //socket closed
 function bindSocketMessages() {
 	amplify.subscribe('SocketClosed', function() {
+		amplify.publish('Exit', {username : accountData.getUsername(), userid : accountData.getUserID()});
 		accountData.reset();
 		$.mobile.changePage("#loginSelectionPage", {transition : "pop", changeHash : true});
-		//TODO: EXIT-MSGS
-		amplify.publish('Exit', {username : accountData.getUsername(), userid : accountData.getUserID()});
 
 	});
 	amplify.subscribe('Ping', function (message) {

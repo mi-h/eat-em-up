@@ -7,19 +7,20 @@ var gameData = (function() {
 	function setUsers(userArr) {
 		users = userArr;
 	}
-	function isTeamRead(playerName) {
-		$.each( players, function( index, player ) {
+	function isTeamRed(playerName) {
+		var isTeamRed = false;
+		$.each( users, function( index, player ) {
 			if(player.username==playerName) {
-				return player.teamRed;
+				isTeamRed = player.teamRed;
 			}
 		});
-		return false;
+		return isTeamRed;
 	}
 	
 	//public module functions (API)
 	return {
 		getUsers : getUsers,
 		setUsers : setUsers,
-		isTeamRead : isTeamRead
+		isTeamRed : isTeamRed
 	}
 })();
