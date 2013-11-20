@@ -57,7 +57,7 @@ this.initMarkers = function(){
 		//init avatar markers
 		var playerInfo = [];
 		$.each(gameState.getPlayerInfos(), function(index, infos) {
-			playerInfo.push({username:infos.username, userid:infos.userid, position: infos.position});
+			playerInfo.push({username:infos.username, userid:infos.userid, position: infos.position, points:infos.points});
 		});
 		//var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}, points:accountData.getPoints()}];
 		
@@ -106,10 +106,10 @@ function initAvatar(team, player) {
 		});
 			
 		playerAvatars.push({userID: player.userid, username: player.username, specialAction: null, marker: playerMarker, canvas: canvas});	
-	
+		redrawPlayerAvatar(player.userid, player.username, player.points);
+
 		//redraw once
-			redrawPlayerAvatar(player.userid, player.username, 10);
-			redrawPlayerAvatar(player.userid, player.username, player.points);
+		//	redrawPlayerAvatar(player.userid, player.username, 10);
 		//	drawSpecialAction(player.userid, player.username, 100, "doublePoints");	
 		//	removeSpecialAction(player.userid, player.username, 100);						
 	});	
