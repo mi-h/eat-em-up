@@ -631,18 +631,26 @@ public class Engine {
 			game.setPlayerReady(message.userid);
 			if (game.allPlayersReady()) {
 				scheduleFullGameUpdate(game, null);
-			} else {
-				// if (!game.isStartSurveySent()) {
-				GameStartSurveyMessage msg = new GameStartSurveyMessage();
-				msg.requestingUser = message.username;
-				msg.requestingUserId = message.userid;
-				MessageContainer container = MessageCreator.createMsgContainer(
-						msg, getReceiverListById(game.getNotReadyPlayers()));
-				MessageHandler.PushMessage(container);
-				game.setStartSurveySent(true);
-				// }
 			}
+			// if (!game.isStartSurveySent()) {
+			GameStartSurveyMessage msg = new GameStartSurveyMessage();
+			for (Player p : game.getPlayers()) {
+				msg.players.add(createPlayerArray(p, game));
+			}
+			MessageContainer container = MessageCreator.createMsgContainer(msg,
+					getReceiverListById(game.getPlayerIds()));
+			MessageHandler.PushMessage(container);
+			game.setStartSurveySent(true);
+			// }
 		}
+	}
+
+	private HashMap<String, Object> createPlayerArray(Player p, Game game) {
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("username", p.getName());
+		map.put("userid", p.getUserid());
+		map.put("ready", game.isPlayerReadyForGame(p));
+		return map;
 	}
 
 	private class SpecialActionDeactivationTask implements Runnable {
@@ -1115,23 +1123,23 @@ public class Engine {
 
 	public synchronized static void flush() {
 		for (Game g : runningGames.values()) {
-			try{
-			g.kill();
-			}catch (Exception ex){
-				
+			try {
+				g.kill();
+			} catch (Exception ex) {
+
 			}
 		}
 		for (Game g : standbyGames.values()) {
-			try{
-			g.kill();
-			}catch (Exception ex){
-				
+			try {
+				g.kill();
+			} catch (Exception ex) {
+
 			}
 		}
-		try{
-		pingManager.kill();
-		}catch (Exception ex){
-			
+		try {
+			pingManager.kill();
+		} catch (Exception ex) {
+
 		}
 		userManager = new UserManager();
 		pingManager = new PingManager();

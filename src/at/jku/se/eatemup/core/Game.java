@@ -108,7 +108,8 @@ public class Game {
 		battles.add(battle);
 	}
 
-	public synchronized Battle addBattleAnswer(String userid, int answer, int duration) {
+	public synchronized Battle addBattleAnswer(String userid, int answer,
+			int duration) {
 		Battle b = getUserBattle(userid);
 		if (b != null) {
 			if (b.setAnswer(userid, answer, duration)) {
@@ -127,8 +128,8 @@ public class Game {
 		}
 		return isReadyForStart();
 	}
-	
-	public synchronized boolean isReadyForStart(){
+
+	public synchronized boolean isReadyForStart() {
 		if (teams[0].getPlayers().size() >= 1
 				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
 			return true;
@@ -329,7 +330,8 @@ public class Game {
 		return new ArrayList<GoodiePoint>(location.getGoodiePoints());
 	}
 
-	public synchronized ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(String userid) {
+	public synchronized ArrayList<GoodiePoint> getGoodiePointsInPlayerRange(
+			String userid) {
 		ArrayList<GoodiePoint> points = new ArrayList<>();
 		Position playerPos = getPlayerPosition(userid);
 		if (playerPos != null) {
@@ -535,8 +537,8 @@ public class Game {
 		Engine.updateAccountPoints(getPlayers());
 	}
 
-	public synchronized void processPlayerPositionChange(String userid, Position p,
-			long timestamp) {
+	public synchronized void processPlayerPositionChange(String userid,
+			Position p, long timestamp) {
 		Position oldPos = playerPositions.get(userid);
 		if (oldPos.differentFrom(p)) {
 			PlayerMovedMessage message = new PlayerMovedMessage();
@@ -648,7 +650,8 @@ public class Game {
 		playerPositions.put(userid, position);
 	}
 
-	public synchronized void setPlayerPosition(String userid, Position p, long timestamp) {
+	public synchronized void setPlayerPosition(String userid, Position p,
+			long timestamp) {
 		setPlayerPosition(userid, p);
 		playerPositionLastMessage.put(userid, timestamp);
 	}
@@ -687,5 +690,9 @@ public class Game {
 
 	public void kill() {
 		ticker.cancel();
+	}
+
+	public boolean isPlayerReadyForGame(Player p) {
+		return readyToGoPlayers.contains(p.getUserid());
 	}
 }
