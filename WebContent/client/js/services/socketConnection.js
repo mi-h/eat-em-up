@@ -44,6 +44,9 @@ var socketConnection = (function() {
 		   else if (dataObject.type=="GameState") {
 				amplify.publish("GameState", dataObject.message);
 		   }
+		   else if (dataObject.type=="Logout") {
+				amplify.publish("Logout", dataObject.message);
+		   }
 		}
 
 		connection.onerror = function(event) {
@@ -66,7 +69,7 @@ var socketConnection = (function() {
 			sendLoginRequest(message);
 		});
 
-		amplify.subscribe('Logout', function(userInfo) {
+		amplify.subscribe('Exit', function(userInfo) {
 			var message = {
 				type : "Exit",
 				message : userInfo

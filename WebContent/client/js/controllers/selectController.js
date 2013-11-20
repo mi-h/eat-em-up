@@ -40,7 +40,7 @@ var selectController = (function() {
 			if (accountData.isFacebookAccount()) {
 				facebookHandler.logout();
 			}
-			amplify.publish('Logout', {
+			amplify.publish('Exit', {
 				username : accountData.getUsername(),
 				userid : accountData.getUserID()
 			});

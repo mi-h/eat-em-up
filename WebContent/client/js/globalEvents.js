@@ -120,7 +120,7 @@ window.onunload = function() {
 		if (accountData.isFacebookAccount()) {
 			facebookHandler.logout();
 		} 
-		amplify.publish('Logout', {username : accountData.getUsername(), userid : accountData.getUserID()});
+		amplify.publish('Exit', {username : accountData.getUsername(), userid : accountData.getUserID()});
 		accountData.reset();
 	}
 };
@@ -130,6 +130,9 @@ function bindSocketMessages() {
 	amplify.subscribe('SocketClosed', function() {
 		accountData.reset();
 		$.mobile.changePage("#loginSelectionPage", {transition : "pop", changeHash : true});
+		//TODO: EXIT-MSGS
+		amplify.publish('Exit', {username : accountData.getUsername(), userid : accountData.getUserID()});
+
 	});
 	amplify.subscribe('Ping', function (message) {
 		amplify.publish('Pong', {username:message.username, userid:message.userid,secondAttempt:message.secondAttempt, pingid:message.pingid});

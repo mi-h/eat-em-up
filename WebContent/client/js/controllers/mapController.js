@@ -68,7 +68,10 @@ function initAvatarMarkers(playerInfo) {
 	for (var i=0; i<playerInfo.length; i++) {
 		var player = playerInfo[i];
 		//create avatar
-		initAvatar("red", player);	
+		if(gameData.isTeamRead(player.username)) {
+			initAvatar("red", player);	
+		}
+		else initAvatar("blue", player);
    }
 }
 
