@@ -628,7 +628,11 @@ public class Engine {
 		@Override
 		public void run() {
 			Game game = getPlayerStandbyGame(message.userid);
-			game.setPlayerReady(message.userid);
+			if (message.startGame){
+				game.setPlayerReady(message.userid);
+			} else {
+				game.setPlayerNotReady(message.userid);
+			}
 			if (game.allPlayersReady()) {
 				scheduleFullGameUpdate(game, null);
 			}

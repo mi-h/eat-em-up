@@ -695,4 +695,12 @@ public class Game {
 	public boolean isPlayerReadyForGame(Player p) {
 		return readyToGoPlayers.contains(p.getUserid());
 	}
+
+	public synchronized void setPlayerNotReady(String userid) {
+		if (playerIsInGame(userid)) {
+			if (readyToGoPlayers.contains(userid)) {
+				readyToGoPlayers.remove(userid);
+			}
+		}	
+	}
 }
