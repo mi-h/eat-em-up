@@ -249,7 +249,7 @@ public class Game {
 				HashMap<String, Object> pMap = new HashMap<>();
 				map.put("username", p.getName());
 				map.put("userid", p.getUserid());
-				map.put("points", 0);
+				map.put("points", p.getPoints());
 				map.put("facebookuser", facebookid != null ? true : false);
 				map.put("facebookimage",
 						facebookid != null ? FacebookImageLoader
