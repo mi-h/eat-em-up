@@ -52,6 +52,8 @@ var lobbyController = (function() {
 			//TODO: Objekt mit GameState ertellen
 			var goodies = JSON.parse(JSON.stringify(message.goodies));
 			gameState.setGoodies(goodies);
+			var playerInfos = JSON.parse(JSON.stringify(message.playerInfo));
+			gameState.setPlayerInfos(playerInfos);
 			$.mobile.changePage("#gamePage", { transition: "pop", changeHash: true });	
 		});
 	}
