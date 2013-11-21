@@ -684,6 +684,9 @@ public class Game {
 	}
 
 	public synchronized void startGame() {
+		for (String uid : getBroadcastReceiverIds()){
+			Engine.scheduleFullGameUpdate(this, uid);
+		}		
 		tickCnt = 0;
 		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
 	}
