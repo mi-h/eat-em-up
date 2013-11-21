@@ -74,6 +74,7 @@ public class Game {
 	private Timer ticker;
 	private static final int fullUpdateTicks = 15;
 	private int tickCnt;
+	private boolean isStarted = false;
 
 	public Game(int playtime) {
 		teams = new Team[2];
@@ -684,14 +685,17 @@ public class Game {
 	}
 
 	public synchronized void startGame() {
-		for (String uid : getBroadcastReceiverIds()){
-			Engine.scheduleFullGameUpdate(this, uid);
-		}		
-		tickCnt = 0;
-		ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
+		if (!isStarted){
+			isStarted = true;
+			for (String uid : getBroadcastReceiverIds()){
+				Engine.scheduleFullGameUpdate(this, uid);
+			}		
+			tickCnt = 0;
+			ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
+		}
 	}
 
-	public void kill() {
+	public synchronized void kill() {
 		ticker.cancel();
 	}
 
