@@ -125,21 +125,21 @@ function initGoodieMarkers(goodieInfo) {
 			markerImg = new google.maps.MarkerImage(goodieImage.src,
 												    null, 
 												    null, 
-												    null, 
-												    new google.maps.Size(10, 10));
+												    new google.maps.Point(10, 10), 
+												    new google.maps.Size(20, 20));
 		}else if (goodie.points === 50) {
 			goodieImage = goodieImages.big;
 			markerImg = new google.maps.MarkerImage(goodieImage.src,
 												    null, 
 												    null, 
-												    null, 
+												    new google.maps.Point(10, 10), 
 												    new google.maps.Size(20, 20));
 		}else if (goodie.specialAction) {
 			goodieImage = goodieImages.special;
 			markerImg = new google.maps.MarkerImage(goodieImage.src,
 												    null, 
 												    null, 
-												    null, 
+												    new google.maps.Point(10, 10), 
 												    new google.maps.Size(20, 20));
 		}
 			
