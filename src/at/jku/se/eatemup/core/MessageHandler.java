@@ -1,11 +1,22 @@
 package at.jku.se.eatemup.core;
 
-import at.jku.se.eatemup.core.json.*;
-import at.jku.se.eatemup.core.json.messages.*;
+import at.jku.se.eatemup.core.json.DirectionType;
+import at.jku.se.eatemup.core.json.JsonCreateException;
+import at.jku.se.eatemup.core.json.JsonTool;
+import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
+import at.jku.se.eatemup.core.json.messages.ExitMessage;
+import at.jku.se.eatemup.core.json.messages.FollowGameRequestMessage;
+import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
+import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LoginMessage;
+import at.jku.se.eatemup.core.json.messages.PlayMessage;
+import at.jku.se.eatemup.core.json.messages.PongMessage;
+import at.jku.se.eatemup.core.json.messages.PositionMessage;
+import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
 import at.jku.se.eatemup.core.logging.Logger;
 
 public class MessageHandler {
-	
+
 	private static MessageSender sendManager = new MessageSender();
 
 	private static void _sendMsgAsync(String session, String message) {
@@ -13,7 +24,8 @@ public class MessageHandler {
 			message = message.replace("\\\"", "\"");
 			message = message.replace("\"{", "{").replace("}\"", "}");
 		} catch (Exception ex) {
-			Logger.log("preparing message for sending failed. "+Logger.stringifyException(ex));
+			Logger.log("preparing message for sending failed. "
+					+ Logger.stringifyException(ex));
 		}
 		sendManager.addMessage(session, message);
 	}
@@ -21,14 +33,12 @@ public class MessageHandler {
 	public static void PushMessage(final MessageContainer container) {
 		if (container.direction == DirectionType.Outgoing) {
 			try {
-				String msg = JsonTool
-						.SerializeMessage(container.message);
+				String msg = JsonTool.SerializeMessage(container.message);
 				TempMessageContainer temp = new TempMessageContainer();
 				temp.message = msg;
 				temp.type = container.type;
 				for (String id : container.receivers) {
-					_sendMsgAsync(
-							id,
+					_sendMsgAsync(id,
 							JsonTool.SerializeTempMessageContainer(temp));
 				}
 			} catch (JsonCreateException jce) {

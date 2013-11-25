@@ -4,7 +4,7 @@ import at.jku.se.eatemup.core.json.IncomingMessage;
 import at.jku.se.eatemup.core.json.MessageType;
 
 public class HighscoreRequestMessage extends IncomingMessage {
-	
+
 	public int topx;
 
 	@Override

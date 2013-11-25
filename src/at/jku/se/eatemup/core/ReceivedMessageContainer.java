@@ -6,5 +6,5 @@ import at.jku.se.eatemup.core.json.MessageType;
 
 public class ReceivedMessageContainer {
 	public MessageType type;
-	public HashMap<String,Object> message;
+	public HashMap<String, Object> message;
 }

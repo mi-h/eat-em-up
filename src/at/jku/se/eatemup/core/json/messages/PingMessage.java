@@ -5,7 +5,7 @@ import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class PingMessage extends OutgoingMessage {
-	
+
 	public String username;
 	public String userid;
 	public boolean secondAttempt;

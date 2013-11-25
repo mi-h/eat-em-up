@@ -1,49 +1,51 @@
 package at.jku.se.eatemup.core.model;
 
+import at.jku.se.eatemup.core.GPSTool;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import at.jku.se.eatemup.core.GPSTool;
-
-@DatabaseTable(tableName="goodieLocations")
+@DatabaseTable(tableName = "goodieLocations")
 public class Position {
-	@DatabaseField(generatedId=true)
+	@DatabaseField(generatedId = true)
 	private int id;
-	@DatabaseField(unique=true)
+	@DatabaseField(unique = true)
 	private double longitude;
-	@DatabaseField(unique=true)
+	@DatabaseField(unique = true)
 	private double latitude;
-	
-	public Position(){
-		
+
+	public Position() {
+
 	}
 
-	public double calcDistance(Position position2){
-		return GPSTool.calcDistance(latitude, longitude, position2.latitude, position2.longitude);
+	public double calcDistance(Position position2) {
+		return GPSTool.calcDistance(latitude, longitude, position2.latitude,
+				position2.longitude);
 	}
 
 	public boolean differentFrom(Position p) {
-		return p.latitude!=this.latitude || p.longitude!=this.longitude;
+		return p.latitude != this.latitude || p.longitude != this.longitude;
 	}
 
-	public boolean distanceLessThan(Position position2, int meters){
+	public boolean distanceLessThan(Position position2, int meters) {
 		double dist = calcDistance(position2);
-		if ((int)dist < meters) return true;
+		if ((int) dist < meters)
+			return true;
 		return false;
 	}
 
 	public int getId() {
 		return id;
 	}
-	
+
 	public double getLatitude() {
 		return latitude;
 	}
-	
+
 	public double getLongitude() {
 		return longitude;
 	}
-	
+
 	public void setId(int id) {
 		this.id = id;
 	}

@@ -54,11 +54,12 @@ public class KmlXmlImporter {
 			}
 			datastore.createTables();
 			int cnt = 1;
-			for (Double[] val : values){
+			for (Double[] val : values) {
 				Position temp = new Position();
 				temp.setLongitude(val[0]);
 				temp.setLatitude(val[1]);
-				System.out.println("adding goodielocation "+cnt+": "+val[0]+", "+val[1]);
+				System.out.println("adding goodielocation " + cnt + ": "
+						+ val[0] + ", " + val[1]);
 				cnt++;
 				datastore.addGoodiePosition(temp);
 			}

@@ -10,5 +10,5 @@ public class DoublePointsAction implements SpecialAction {
 	@Override
 	public String getName() {
 		return "DoublePointsAction";
-	}	
+	}
 }

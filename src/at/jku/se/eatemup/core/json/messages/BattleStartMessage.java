@@ -18,6 +18,7 @@ public class BattleStartMessage extends OutgoingMessage {
 			ar[i] = a;
 		}
 	}
+
 	public String username1;
 	public String username2;
 	public String userid1;

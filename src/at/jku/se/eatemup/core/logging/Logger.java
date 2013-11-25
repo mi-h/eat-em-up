@@ -6,7 +6,7 @@ import java.util.UUID;
 import at.jku.se.eatemup.core.database.DataStore2;
 
 public class Logger {
-	
+
 	private static final boolean debug = true;
 	private static DataStore2 ds;
 
@@ -21,7 +21,7 @@ public class Logger {
 	}
 
 	public static synchronized void log(String message) {
-		if (!debug){
+		if (!debug) {
 			return;
 		}
 		Date d = new Date();
@@ -42,7 +42,7 @@ public class Logger {
 	}
 
 	public static String stringifyException(Exception exception) {
-		if (!debug){
+		if (!debug) {
 			return "";
 		}
 		if (exception == null) {

@@ -6,28 +6,28 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "accounts")
 public class Account {
-	@DatabaseField(id=true)
+	@DatabaseField(id = true)
 	private String id;
 	@DatabaseField
 	private AccountType type;
-	@DatabaseField(index=true)
+	@DatabaseField(index = true)
 	private String username;
 	@DatabaseField
 	private String password;
-	@DatabaseField(index=true)
+	@DatabaseField(index = true)
 	private int points;
-	@DatabaseField(index=true)
+	@DatabaseField(index = true)
 	private String facebookId;
-	@DatabaseField(canBeNull=true)
+	@DatabaseField(canBeNull = true)
 	private String avatar;
-	@DatabaseField(canBeNull=true,dataType=DataType.BYTE_ARRAY)
+	@DatabaseField(canBeNull = true, dataType = DataType.BYTE_ARRAY)
 	private byte[] avatarImage;
-	
-	public Account(){
-		
+
+	public Account() {
+
 	}
 
-	public void addPoints(int points){
+	public void addPoints(int points) {
 		this.points += points;
 	}
 
@@ -50,11 +50,11 @@ public class Account {
 	public String getPassword() {
 		return password;
 	}
-	
+
 	public int getPoints() {
 		return points;
 	}
-	
+
 	public AccountType getType() {
 		return type;
 	}

@@ -1,9 +1,11 @@
 package at.jku.se.eatemup.core;
 
+import java.security.SecureRandom;
+
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.security.SecureRandom;
+
 import org.apache.commons.codec.binary.Base64;
 
 public class PasswordHashManager {

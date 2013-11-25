@@ -14,7 +14,6 @@ import at.jku.se.eatemup.core.BattleCreator;
 import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.MessageHandler;
 import at.jku.se.eatemup.core.TempMessageContainer;
-import at.jku.se.eatemup.core.json.CastType;
 import at.jku.se.eatemup.core.json.JsonTool;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.messages.BattleStartMessage;

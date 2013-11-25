@@ -2,7 +2,6 @@ package at.jku.se.eatemup.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Team {
 	private int points;
@@ -16,7 +15,7 @@ public class Team {
 
 	public int calcTotalPoints() {
 		int sum = 0;
-		for (Player p : players){
+		for (Player p : players) {
 			sum += p.getPoints();
 		}
 		return sum;

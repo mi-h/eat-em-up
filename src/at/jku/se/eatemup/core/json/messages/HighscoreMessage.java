@@ -8,8 +8,8 @@ import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class HighscoreMessage extends OutgoingMessage {
-	
-	public ArrayList<HashMap<String,Object>> highscore;
+
+	public ArrayList<HashMap<String, Object>> highscore;
 	public int topx;
 
 	@Override

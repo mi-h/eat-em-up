@@ -20,15 +20,15 @@ public class DbOperations {
 	public DbOperations() {
 		this.ds = new DataStore();
 	}
-	
-	public void addUserPoints(String username, int _points){
+
+	public void addUserPoints(String username, int _points) {
 		int points = 0;
 		Account a = getAccountByUsername(username);
 		points = a.getPoints() + _points;
-		updateUserPoints(username,points);
+		updateUserPoints(username, points);
 	}
-	
-	public Account getAccountByUsername(String username){
+
+	public Account getAccountByUsername(String username) {
 		Account a = new Account();
 		a.setUsername(username);
 		int userPoints = 0;
@@ -41,7 +41,7 @@ public class DbOperations {
 				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
 				while (rs.next()) {
 					userPoints = rs.getInt("points");
-					passwort =  rs.getString(passwort);
+					passwort = rs.getString(passwort);
 				}
 				this.stmt.close();
 				this.ds.closeDbConnection();
@@ -53,16 +53,16 @@ public class DbOperations {
 		a.setPassword(passwort);
 		return a;
 	}
-	
-	public ArrayList<Account> getAccountsByUsernames(ArrayList<String> usernames){
+
+	public ArrayList<Account> getAccountsByUsernames(ArrayList<String> usernames) {
 		ArrayList<Account> alAccount = new ArrayList<Account>();
 		for (String p : usernames) {
-			alAccount.add(getAccountByUsername(p));			
+			alAccount.add(getAccountByUsername(p));
 		}
 		return alAccount;
 	}
-	
-	public ArrayList<GoodiePoint> getGoodiePoints(){
+
+	public ArrayList<GoodiePoint> getGoodiePoints() {
 		ArrayList<GoodiePoint> alGoodiePoint = new ArrayList<GoodiePoint>();
 		if (this.ds.connectToDB()) {
 			this.sqlQuery = "SELECT longitude,latitude FROM [sepr].[sepruser].[GoodiePoints]";
@@ -71,7 +71,7 @@ public class DbOperations {
 				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
 				while (rs.next()) {
 					double longitude = rs.getDouble("longitude");
-					double latitude =  rs.getDouble("latitude");
+					double latitude = rs.getDouble("latitude");
 					Position p = new Position();
 					p.setLatitude(latitude);
 					p.setLongitude(longitude);
@@ -88,12 +88,13 @@ public class DbOperations {
 		}
 		return alGoodiePoint;
 	}
-	
-	public ArrayList<Account> getHighscore(int topX){
+
+	public ArrayList<Account> getHighscore(int topX) {
 		ArrayList<Account> alAccount = new ArrayList<Account>();
 		if (this.ds.connectToDB()) {
-			this.sqlQuery = "SELECT TOP " + topX + " [nickname],[points],[password] " +
-					"FROM [sepr].[sepruser].[user]'";
+			this.sqlQuery = "SELECT TOP " + topX
+					+ " [nickname],[points],[password] "
+					+ "FROM [sepr].[sepruser].[user]'";
 			try {
 				this.stmt = this.ds.con.createStatement();
 				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
@@ -112,13 +113,13 @@ public class DbOperations {
 		}
 		return alAccount;
 	}
-	
-	public ArrayList<LogEntry> getLogEntries(Date start, Date end){
-		//TODO
+
+	public ArrayList<LogEntry> getLogEntries(Date start, Date end) {
+		// TODO
 		return null;
 	}
-	
-	public String getUserPassword(String username){
+
+	public String getUserPassword(String username) {
 		String password = null;
 		if (this.ds.connectToDB()) {
 			this.sqlQuery = "SELECT password FROM [sepr].[sepruser].[user] WHERE nickname LIKE'"
@@ -127,7 +128,7 @@ public class DbOperations {
 				this.stmt = this.ds.con.createStatement();
 				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
 				while (rs.next()) {
-					password =  rs.getString(password);
+					password = rs.getString(password);
 				}
 				this.stmt.close();
 				this.ds.closeDbConnection();
@@ -137,8 +138,8 @@ public class DbOperations {
 		}
 		return password;
 	}
-	
-	public void saveLogEntry(LogEntry _e){
+
+	public void saveLogEntry(LogEntry _e) {
 		if (this.ds.connectToDB()) {
 			this.sqlQuery = "INSERT INTO [sepruser].[LogEntry]([ID],[Date],[text]) values('"
 					+ _e.id + "," + _e.created + "," + _e.text + "'";
@@ -151,27 +152,17 @@ public class DbOperations {
 			}
 		}
 	}
+
 	/*
-	public int selectUserPoints(String _user) {
-		int userPoints = 0;
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "SELECT points FROM [sepr].[sepruser].[user] WHERE nickname LIKE'"
-					+ _user + "'";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
-				while (rs.next()) {
-					userPoints = rs.getInt("points");
-				}
-				this.stmt.close();
-				this.ds.closeDbConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return userPoints;
-	}
-	*/
+	 * public int selectUserPoints(String _user) { int userPoints = 0; if
+	 * (this.ds.connectToDB()) { this.sqlQuery =
+	 * "SELECT points FROM [sepr].[sepruser].[user] WHERE nickname LIKE'" +
+	 * _user + "'"; try { this.stmt = this.ds.con.createStatement(); ResultSet
+	 * rs = this.stmt.executeQuery(this.sqlQuery); while (rs.next()) {
+	 * userPoints = rs.getInt("points"); } this.stmt.close();
+	 * this.ds.closeDbConnection(); } catch (SQLException e) {
+	 * e.printStackTrace(); } } return userPoints; }
+	 */
 	public boolean updateUserPoints(String _user, int points) {
 		if (this.ds.connectToDB()) {
 			this.sqlQuery = "UPDATE [sepruser].[user] SET [points] = " + points
@@ -188,47 +179,26 @@ public class DbOperations {
 		return true;
 	}
 	/*
-	public boolean insertUser(String _user) {
-
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "INSERT INTO [sepruser].[user]([nickname],[points]) values('"
-					+ _user + "',0)";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				this.stmt.executeUpdate(this.sqlQuery);
-				this.stmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}
-
-	public int selectGoodiePoints(String _goodieTyp) {
-		int goodiePoints = 0;
-		if (this.ds.connectToDB()) {
-			this.sqlQuery = "SELECT points FROM [sepr].[sepruser].[GoodiePoints] WHERE [type] LIKE'"
-					+ _goodieTyp + "'";
-			try {
-				this.stmt = this.ds.con.createStatement();
-				ResultSet rs = this.stmt.executeQuery(this.sqlQuery);
-				while (rs.next()) {
-					goodiePoints = rs.getInt("points");
-				}
-				this.stmt.close();
-				this.ds.closeDbConnection();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return goodiePoints;
-	}
-
-	/*
-	 * public boolean deleteUser(String _user){
+	 * public boolean insertUser(String _user) {
+	 * 
+	 * if (this.ds.connectToDB()) { this.sqlQuery =
+	 * "INSERT INTO [sepruser].[user]([nickname],[points]) values('" + _user +
+	 * "',0)"; try { this.stmt = this.ds.con.createStatement();
+	 * this.stmt.executeUpdate(this.sqlQuery); this.stmt.close(); } catch
+	 * (SQLException e) { e.printStackTrace(); } } return true; }
+	 * 
+	 * public int selectGoodiePoints(String _goodieTyp) { int goodiePoints = 0;
+	 * if (this.ds.connectToDB()) { this.sqlQuery =
+	 * "SELECT points FROM [sepr].[sepruser].[GoodiePoints] WHERE [type] LIKE'"
+	 * + _goodieTyp + "'"; try { this.stmt = this.ds.con.createStatement();
+	 * ResultSet rs = this.stmt.executeQuery(this.sqlQuery); while (rs.next()) {
+	 * goodiePoints = rs.getInt("points"); } this.stmt.close();
+	 * this.ds.closeDbConnection(); } catch (SQLException e) {
+	 * e.printStackTrace(); } } return goodiePoints; }
+	 * 
+	 * /* public boolean deleteUser(String _user){
 	 * 
 	 * return true; }
 	 */
 
-	
 }

@@ -5,7 +5,7 @@ import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class GoodieCreatedMessage extends OutgoingMessage {
-	
+
 	public double latitude;
 	public double longitude;
 	public String specialAction;

@@ -12,18 +12,18 @@ public class GoodiePoint {
 		return position;
 	}
 
-	public boolean hasGoodie(){
-		return goodie!=null;
+	public boolean hasGoodie() {
+		return goodie != null;
 	}
 
-	public void removeGoodie(){
+	public void removeGoodie() {
 		goodie = null;
 	}
-	
+
 	public void setGoodie(Goodie goodie) {
 		this.goodie = goodie;
 	}
-	
+
 	public void setPosition(Position position) {
 		this.position = position;
 	}

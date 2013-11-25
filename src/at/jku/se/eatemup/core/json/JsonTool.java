@@ -7,7 +7,32 @@ import at.jku.se.eatemup.core.MessageContainer;
 import at.jku.se.eatemup.core.ReceivedMessageContainer;
 import at.jku.se.eatemup.core.Sender;
 import at.jku.se.eatemup.core.TempMessageContainer;
-import at.jku.se.eatemup.core.json.messages.*;
+import at.jku.se.eatemup.core.json.messages.AlreadyLoggedInMessage;
+import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
+import at.jku.se.eatemup.core.json.messages.BattleResultMessage;
+import at.jku.se.eatemup.core.json.messages.BattleStartMessage;
+import at.jku.se.eatemup.core.json.messages.ExitMessage;
+import at.jku.se.eatemup.core.json.messages.GameEndMessage;
+import at.jku.se.eatemup.core.json.messages.GameStandbyUpdateMessage;
+import at.jku.se.eatemup.core.json.messages.GameStartSurveyMessage;
+import at.jku.se.eatemup.core.json.messages.GameStateMessage;
+import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
+import at.jku.se.eatemup.core.json.messages.GoodieCreatedMessage;
+import at.jku.se.eatemup.core.json.messages.HighscoreMessage;
+import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LoginMessage;
+import at.jku.se.eatemup.core.json.messages.LogoutMessage;
+import at.jku.se.eatemup.core.json.messages.PingMessage;
+import at.jku.se.eatemup.core.json.messages.PlayMessage;
+import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
+import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
+import at.jku.se.eatemup.core.json.messages.PongMessage;
+import at.jku.se.eatemup.core.json.messages.PositionMessage;
+import at.jku.se.eatemup.core.json.messages.ReadyForGameMessage;
+import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
+import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
+import at.jku.se.eatemup.core.json.messages.SpecialActionDeactivatedMessage;
+import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
 
 import com.google.gson.Gson;
 
@@ -15,7 +40,8 @@ public class JsonTool {
 
 	public static String convertMessage(String message) {
 		Gson gson = new Gson();
-		ReceivedMessageContainer temp = gson.fromJson(message, ReceivedMessageContainer.class);
+		ReceivedMessageContainer temp = gson.fromJson(message,
+				ReceivedMessageContainer.class);
 		TempMessageContainer temp2 = new TempMessageContainer();
 		temp2.message = gson.toJson(temp.message);
 		temp2.type = temp.type;
@@ -95,7 +121,8 @@ public class JsonTool {
 			if (direction == DirectionType.Incoming) {
 				IncomingMessage tempMsg = (IncomingMessage) container.message;
 				String uid = tempMsg.userid;
-				container.sender = new Sender(tempMsg.username,connIds.get(0),uid!=null?uid:"");
+				container.sender = new Sender(tempMsg.username, connIds.get(0),
+						uid != null ? uid : "");
 			} else {
 				container.receivers = connIds;
 			}
@@ -121,16 +148,16 @@ public class JsonTool {
 		}
 	}
 
-	public static Avatar DeSerializeAvatar(String avatar){
+	public static Avatar DeSerializeAvatar(String avatar) {
 		Gson gson = new Gson();
 		return gson.fromJson(avatar, Avatar.class);
 	}
-	
-	public static String SerializeAvatar(Avatar avatar){
+
+	public static String SerializeAvatar(Avatar avatar) {
 		Gson gson = new Gson();
 		return gson.toJson(avatar);
 	}
-	
+
 	public static String SerializeMessage(Message message)
 			throws JsonCreateException {
 		try {

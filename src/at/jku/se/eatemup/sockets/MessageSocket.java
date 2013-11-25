@@ -35,8 +35,8 @@ public class MessageSocket {
 		Logger.log("received message from " + session.getId());
 		String sesid = session.getId();
 		String convertedMessage = JsonTool.convertMessage(message);
-		MessageContainer container = MessageCreator.createMsgContainer(convertedMessage,
-				sesid);
+		MessageContainer container = MessageCreator.createMsgContainer(
+				convertedMessage, sesid);
 		if (container != null) {
 			if (MessageHandler.ReceiveMessage(container)) {
 				session.getBasicRemote().sendText("true");

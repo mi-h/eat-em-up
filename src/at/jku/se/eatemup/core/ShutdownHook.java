@@ -14,7 +14,7 @@ public class ShutdownHook implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
-			
+
 	}
 
 }

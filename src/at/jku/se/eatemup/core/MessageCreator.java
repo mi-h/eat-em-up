@@ -12,6 +12,7 @@ public class MessageCreator {
 
 	/**
 	 * Use for outgoing messages.
+	 * 
 	 * @param message
 	 * @param receivers
 	 * @return
@@ -24,24 +25,27 @@ public class MessageCreator {
 		container.receivers = receivers;
 		container.type = message.getType();
 		container.castType = message.getCastType();
-		container.sender = new Sender("server","null","server");
+		container.sender = new Sender("server", "null", "server");
 		return container;
 	}
-	
+
 	/**
 	 * Use for outgoing messages (shorthand for single receiver).
+	 * 
 	 * @param message
 	 * @param receivers
 	 * @return
 	 */
-	public static MessageContainer createMsgContainer(Message message, String receiver){
+	public static MessageContainer createMsgContainer(Message message,
+			String receiver) {
 		ArrayList<String> rec = new ArrayList<>();
 		rec.add(receiver);
-		return createMsgContainer(message,rec);
+		return createMsgContainer(message, rec);
 	}
 
 	/**
 	 * Use for incoming messages.
+	 * 
 	 * @param message
 	 * @param sessionId
 	 * @return

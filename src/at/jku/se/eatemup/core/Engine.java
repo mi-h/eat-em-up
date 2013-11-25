@@ -4,15 +4,38 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import at.jku.se.eatemup.core.database.DataStore2;
-import at.jku.se.eatemup.core.json.messages.*;
+import at.jku.se.eatemup.core.json.messages.AlreadyLoggedInMessage;
+import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
+import at.jku.se.eatemup.core.json.messages.BattleResultMessage;
+import at.jku.se.eatemup.core.json.messages.ExitMessage;
+import at.jku.se.eatemup.core.json.messages.FollowGameRequestMessage;
+import at.jku.se.eatemup.core.json.messages.GameStandbyUpdateMessage;
+import at.jku.se.eatemup.core.json.messages.GameStartSurveyMessage;
+import at.jku.se.eatemup.core.json.messages.GameStateMessage;
+import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
+import at.jku.se.eatemup.core.json.messages.HighscoreMessage;
+import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LoginMessage;
+import at.jku.se.eatemup.core.json.messages.LogoutMessage;
+import at.jku.se.eatemup.core.json.messages.PingMessage;
+import at.jku.se.eatemup.core.json.messages.PlayMessage;
+import at.jku.se.eatemup.core.json.messages.PongMessage;
+import at.jku.se.eatemup.core.json.messages.PositionMessage;
+import at.jku.se.eatemup.core.json.messages.ReadyForGameMessage;
+import at.jku.se.eatemup.core.json.messages.RequestForGameStartMessage;
+import at.jku.se.eatemup.core.json.messages.SpecialActionDeactivatedMessage;
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.AccountType;
@@ -651,14 +674,6 @@ public class Engine {
 		}
 	}
 
-	private HashMap<String, Object> createPlayerArray(Player p, Game game) {
-		HashMap<String, Object> map = new HashMap<>();
-		map.put("username", p.getName());
-		map.put("userid", p.getUserid());
-		map.put("ready", game.isPlayerReadyForGame(p));
-		return map;
-	}
-
 	private class SpecialActionDeactivationTask implements Runnable {
 
 		private String actionName;
@@ -695,6 +710,85 @@ public class Engine {
 				MessageContainer container = MessageCreator.createMsgContainer(
 						message, this.receivers);
 				MessageHandler.PushMessage(container);
+			}
+		}
+	}
+
+	private static class TaskManager {
+		private LinkedBlockingQueue<Runnable> tasks;
+		private Thread worker;
+		private boolean started;
+		private final int maxTasks = 120;
+		private final int sleepTime = 50;
+
+		public TaskManager() {
+			tasks = new LinkedBlockingQueue<>(maxTasks);
+			started = false;
+			start();
+		}
+
+		public boolean addTask(Runnable task) {
+			try {
+				tasks.put(task);
+				return true;
+			} catch (InterruptedException e) {
+				Logger.log("adding task failed. "
+						+ Logger.stringifyException(e));
+				return false;
+			}
+		}
+
+		/**
+		 * kills the worker
+		 * 
+		 * @return remaining tasks in the queue
+		 */
+		public synchronized List<Runnable> dispose() {
+			ArrayList<Runnable> tmp = new ArrayList<>(maxTasks);
+			tasks.drainTo(tmp);
+			worker.interrupt();
+			tasks = null;
+			started = false;
+			return tmp;
+		}
+
+		public synchronized int[] getStatus() {
+			int[] ret = new int[2];
+			ret[0] = tasks.size();
+			ret[1] = maxTasks;
+			return ret;
+		}
+
+		private synchronized void start() {
+			if (!started) {
+				started = true;
+				if (worker != null) {
+					worker.interrupt();
+				}
+				worker = new Thread() {
+					@Override
+					public void run() {
+						while (true) {
+							Runnable temp = tasks.poll();
+							if (temp != null) {
+								try {
+									temp.run();
+								} catch (Exception e) {
+									Logger.log("task throws exception. "
+											+ Logger.stringifyException(e));
+								}
+							} else {
+								try {
+									Thread.sleep(sleepTime);
+								} catch (InterruptedException e) {
+									Logger.log("worker interrupted. "
+											+ Logger.stringifyException(e));
+								}
+							}
+						}
+					}
+				};
+				worker.start();
 			}
 		}
 	}
@@ -768,6 +862,29 @@ public class Engine {
 			return "";
 		}
 
+		public synchronized boolean isUserActive(LoginMessage message,
+				Sender sender) {
+			DataStore2 ds = DbManager.getDataStore();
+			Account acc;
+			try {
+				if (message.facebookid != null
+						&& !message.facebookid.equals("")) {
+					acc = ds.getFacebookAccount(message.facebookid);
+				} else {
+					acc = ds.getAccountByUsername(message.username);
+				}
+				if (acc != null) {
+					String uid = acc.getId();
+					return useridSessionMap.containsKey(uid);
+				}
+				return false;
+			} catch (Exception ex) {
+				return false;
+			} finally {
+				ds.closeConnection();
+			}
+		}
+
 		public synchronized void removeAllInvolvedUsers(Game game) {
 			for (String id : game.getBroadcastReceiverIds()) {
 				try {
@@ -803,29 +920,6 @@ public class Engine {
 
 		public boolean userExistsBySession(String session) {
 			return sessionUseridMap.containsKey(session);
-		}
-
-		public synchronized boolean isUserActive(LoginMessage message,
-				Sender sender) {
-			DataStore2 ds = DbManager.getDataStore();
-			Account acc;
-			try {
-				if (message.facebookid != null
-						&& !message.facebookid.equals("")) {
-					acc = ds.getFacebookAccount(message.facebookid);
-				} else {
-					acc = ds.getAccountByUsername(message.username);
-				}
-				if (acc != null) {
-					String uid = acc.getId();
-					return useridSessionMap.containsKey(uid);
-				}
-				return false;
-			} catch (Exception ex) {
-				return false;
-			} finally {
-				ds.closeConnection();
-			}
 		}
 	}
 
@@ -938,7 +1032,8 @@ public class Engine {
 		if (sessionExists(sender)) {
 			// service.execute(instance.new PositionTask(message, sender));
 			// return true;
-			return taskManager.addTask(instance.new PositionTask(message, sender));
+			return taskManager.addTask(instance.new PositionTask(message,
+					sender));
 		}
 		return false;
 	}
@@ -949,8 +1044,8 @@ public class Engine {
 			// service.execute(instance.new RequestForGameStartTask(message,
 			// sender));
 			// return true;
-			return taskManager.addTask(instance.new RequestForGameStartTask(message,
-					sender));
+			return taskManager.addTask(instance.new RequestForGameStartTask(
+					message, sender));
 		}
 		return false;
 	}
@@ -1003,6 +1098,45 @@ public class Engine {
 		} catch (Exception ex) {
 			Logger.log("failed to remove user from standby game map");
 		}
+	}
+
+	/**
+	 * for debug/testing use only!!
+	 */
+	public synchronized static void flush() {
+		try {
+			taskManager.dispose();
+		} catch (Exception ex) {
+
+		}
+		for (Game g : runningGames.values()) {
+			try {
+				g.kill();
+			} catch (Exception ex) {
+
+			}
+		}
+		for (Game g : standbyGames.values()) {
+			try {
+				g.kill();
+			} catch (Exception ex) {
+
+			}
+		}
+		try {
+			PingManager.kill();
+		} catch (Exception ex) {
+
+		}
+		userManager = new UserManager();
+		pingManager = new PingManager();
+		runningGames = new ConcurrentHashMap<>();
+		standbyGames = new ConcurrentHashMap<>();
+		userGameMap = new ConcurrentHashMap<>();
+		userGameAudienceMap = new ConcurrentHashMap<>();
+		userStandbyGameMap = new ConcurrentHashMap<>();
+		service = Executors.newCachedThreadPool();
+		instance = new Engine();
 	}
 
 	private synchronized static Game getEmptyStandbyGame() {
@@ -1172,120 +1306,11 @@ public class Engine {
 		service.execute(task);
 	}
 
-	/**
-	 * for debug/testing use only!!
-	 */
-	public synchronized static void flush() {
-		try{
-		taskManager.dispose();
-		} catch (Exception ex){
-			
-		}
-		for (Game g : runningGames.values()) {
-			try {
-				g.kill();
-			} catch (Exception ex) {
-
-			}
-		}
-		for (Game g : standbyGames.values()) {
-			try {
-				g.kill();
-			} catch (Exception ex) {
-
-			}
-		}
-		try {
-			pingManager.kill();
-		} catch (Exception ex) {
-
-		}
-		userManager = new UserManager();
-		pingManager = new PingManager();
-		runningGames = new ConcurrentHashMap<>();
-		standbyGames = new ConcurrentHashMap<>();
-		userGameMap = new ConcurrentHashMap<>();
-		userGameAudienceMap = new ConcurrentHashMap<>();
-		userStandbyGameMap = new ConcurrentHashMap<>();
-		service = Executors.newCachedThreadPool();
-		instance = new Engine();
-	}
-
-	private static class TaskManager {
-		private LinkedBlockingQueue<Runnable> tasks;
-		private Thread worker;
-		private boolean started;
-		private final int maxTasks = 120;
-		private final int sleepTime = 50;
-
-		public TaskManager() {
-			tasks = new LinkedBlockingQueue<>(maxTasks);
-			started = false;
-			start();
-		}
-
-		/**
-		 * kills the worker
-		 * 
-		 * @return remaining tasks in the queue
-		 */
-		public synchronized List<Runnable> dispose() {
-			ArrayList<Runnable> tmp = new ArrayList<>(maxTasks);
-			tasks.drainTo(tmp);
-			worker.interrupt();
-			tasks = null;
-			started = false;
-			return tmp;
-		}
-
-		public synchronized int[] getStatus() {
-			int[] ret = new int[2];
-			ret[0] = tasks.size();
-			ret[1] = maxTasks;
-			return ret;
-		}
-
-		private synchronized void start() {
-			if (!started) {
-				started = true;
-				if (worker != null) {
-					worker.interrupt();
-				}
-				worker = new Thread() {
-					public void run() {
-						while (true) {
-							Runnable temp = tasks.poll();
-							if (temp != null) {
-								try {
-									temp.run();
-								} catch (Exception e) {
-									Logger.log("task throws exception. "
-											+ Logger.stringifyException(e));
-								}
-							} else {
-								try {
-									Thread.sleep(sleepTime);
-								} catch (InterruptedException e) {
-									Logger.log("worker interrupted. "
-											+ Logger.stringifyException(e));
-								}
-							}
-						}
-					}
-				};
-				worker.start();
-			}
-		}
-
-		public boolean addTask(Runnable task) {
-			try {
-				tasks.put(task);
-				return true;
-			} catch (InterruptedException e) {
-				Logger.log("adding task failed. "
-						+ Logger.stringifyException(e));
-				return false;
-			}
-		}
+	private HashMap<String, Object> createPlayerArray(Player p, Game game) {
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("username", p.getName());
+		map.put("userid", p.getUserid());
+		map.put("ready", game.isPlayerReadyForGame(p));
+		return map;
 	}
 }

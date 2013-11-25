@@ -2,9 +2,9 @@ package at.jku.se.eatemup.core.database;
 
 public class GenerateDB {
 
-        DataStore ds;
+	DataStore ds;
 
-        public GenerateDB() {
-                this.ds = new DataStore();
-        }
+	public GenerateDB() {
+		this.ds = new DataStore();
+	}
 }

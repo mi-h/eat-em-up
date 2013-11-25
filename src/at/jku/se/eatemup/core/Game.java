@@ -1,8 +1,8 @@
 package at.jku.se.eatemup.core;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +21,15 @@ import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
 import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
-import at.jku.se.eatemup.core.model.*;
+import at.jku.se.eatemup.core.model.Account;
+import at.jku.se.eatemup.core.model.Battle;
+import at.jku.se.eatemup.core.model.Goodie;
+import at.jku.se.eatemup.core.model.GoodiePoint;
+import at.jku.se.eatemup.core.model.Location;
+import at.jku.se.eatemup.core.model.Player;
+import at.jku.se.eatemup.core.model.Position;
+import at.jku.se.eatemup.core.model.Team;
+import at.jku.se.eatemup.core.model.TeamType;
 import at.jku.se.eatemup.core.model.specialaction.DoublePointsAction;
 import at.jku.se.eatemup.core.model.specialaction.InvincibleAction;
 import at.jku.se.eatemup.core.model.specialaction.NoAction;
@@ -129,14 +137,6 @@ public class Game {
 			teams[0].getPlayers().add(player);
 		}
 		return isReadyForStart();
-	}
-
-	public synchronized boolean isReadyForStart() {
-		if (teams[0].getPlayers().size() >= 1
-				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
-			return true;
-		}
-		return false;
 	}
 
 	public synchronized void addPlayerPoints(String userid, int points) {
@@ -456,7 +456,7 @@ public class Game {
 				fullPoints++;
 			}
 		}
-		int quota = (int) points.size() / fullPoints * 100;
+		int quota = points.size() / fullPoints * 100;
 		if (quota < minGoodieInGameQuota) {
 			return minGoodieInGameQuota - quota;
 		}
@@ -475,8 +475,24 @@ public class Game {
 		return teams[0].hasPlayer(userid);
 	}
 
+	public synchronized boolean isPlayerReadyForGame(Player p) {
+		return readyToGoPlayers.contains(p.getUserid());
+	}
+
+	public synchronized boolean isReadyForStart() {
+		if (teams[0].getPlayers().size() >= 1
+				&& teams[0].getPlayers().size() == teams[1].getPlayers().size()) {
+			return true;
+		}
+		return false;
+	}
+
 	public boolean isStartSurveySent() {
 		return startSurveySent;
+	}
+
+	public synchronized void kill() {
+		ticker.cancel();
 	}
 
 	private synchronized boolean playerEatsGoodie(String userid, Goodie goodie,
@@ -648,6 +664,14 @@ public class Game {
 		this.location = location;
 	}
 
+	public synchronized void setPlayerNotReady(String userid) {
+		if (playerIsInGame(userid)) {
+			if (readyToGoPlayers.contains(userid)) {
+				readyToGoPlayers.remove(userid);
+			}
+		}
+	}
+
 	public synchronized void setPlayerPosition(String userid, Position position) {
 		playerPositions.put(userid, position);
 	}
@@ -686,29 +710,13 @@ public class Game {
 	}
 
 	public synchronized void startGame() {
-		if (!isStarted){
+		if (!isStarted) {
 			isStarted = true;
-			for (String uid : getBroadcastReceiverIds()){
+			for (String uid : getBroadcastReceiverIds()) {
 				Engine.scheduleFullGameUpdate(this, uid);
-			}		
+			}
 			tickCnt = 0;
 			ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
 		}
-	}
-
-	public synchronized void kill() {
-		ticker.cancel();
-	}
-
-	public synchronized boolean isPlayerReadyForGame(Player p) {
-		return readyToGoPlayers.contains(p.getUserid());
-	}
-
-	public synchronized void setPlayerNotReady(String userid) {
-		if (playerIsInGame(userid)) {
-			if (readyToGoPlayers.contains(userid)) {
-				readyToGoPlayers.remove(userid);
-			}
-		}	
 	}
 }

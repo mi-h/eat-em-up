@@ -10,11 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import at.jku.se.eatemup.core.MessageContainer;
 import at.jku.se.eatemup.core.MessageCreator;
 import at.jku.se.eatemup.core.TempMessageContainer;
-import at.jku.se.eatemup.core.json.CastType;
-import at.jku.se.eatemup.core.json.DirectionType;
 import at.jku.se.eatemup.core.json.JsonTool;
 import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.messages.GameEndMessage;
@@ -40,6 +37,7 @@ public class JsonTestServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -61,10 +59,13 @@ public class JsonTestServlet extends HttpServlet {
 			temp.message = serial1;
 			temp.type = MessageType.GameEnd;
 			String serial2 = JsonTool.SerializeTempMessageContainer(temp);
-			//TempMessageContainer temp2 = JsonTool.CreateTempMessageContainer(serial2);
+			// TempMessageContainer temp2 =
+			// JsonTool.CreateTempMessageContainer(serial2);
 			ArrayList<String> tList = new ArrayList<>();
 			tList.add("testid");
-			//MessageContainer container = JsonTool.CreateMessageContainer(temp2, DirectionType.Incoming, tList);
+			// MessageContainer container =
+			// JsonTool.CreateMessageContainer(temp2, DirectionType.Incoming,
+			// tList);
 			LoginMessage message = new LoginMessage();
 			message.password = "stinkt";
 			message.username = "java";
@@ -74,7 +75,7 @@ public class JsonTestServlet extends HttpServlet {
 			temp.type = MessageType.Login;
 			serial2 = JsonTool.SerializeTempMessageContainer(temp);
 			MessageCreator.createMsgContainer(serial2, null);
-			
+
 		} catch (Exception ex) {
 			Logger.log("jsontest died");
 		}
@@ -84,6 +85,7 @@ public class JsonTestServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub

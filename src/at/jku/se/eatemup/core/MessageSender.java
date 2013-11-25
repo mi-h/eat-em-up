@@ -9,10 +9,38 @@ import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.sockets.SessionStore;
 
 public class MessageSender {
+	private class MessageExecutor implements Runnable {
+		private String session;
+		private String message;
+
+		public MessageExecutor(String sessionid, String message) {
+			this.session = sessionid;
+			this.message = message;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Session ses = SessionStore.getSession(session);
+				if (ses != null) {
+					ses.getAsyncRemote().sendText(message);
+					System.out.println("sent: " + message + " to: " + session);
+					Logger.log("message sent to " + session);
+				} else {
+					Logger.log("failed sending message to " + session);
+				}
+			} catch (Exception e) {
+				Logger.log("message sending error. "
+						+ Logger.stringifyException(e));
+			}
+		}
+	}
+
 	private LinkedBlockingQueue<Runnable> tasks;
 	private ArrayList<Thread> workers;
 	private boolean started;
 	private static final int workerCount = 2;
+
 	private static final int sleepTime = 50;
 
 	public MessageSender() {
@@ -32,33 +60,6 @@ public class MessageSender {
 		}
 	}
 
-	private class MessageExecutor implements Runnable {
-		private String session;
-		private String message;
-
-		public MessageExecutor(String sessionid, String message) {
-			this.session = sessionid;
-			this.message = message;
-		}
-
-		@Override
-		public void run() {
-			try {
-				Session ses = SessionStore.getSession(session);
-				if (ses != null) {
-					ses.getAsyncRemote().sendText(message);
-					System.out.println("sent: "+message+" to: "+session);
-					Logger.log("message sent to " + session);
-				} else {
-					Logger.log("failed sending message to " + session);
-				}
-			} catch (Exception e) {
-				Logger.log("message sending error. "
-						+ Logger.stringifyException(e));
-			}
-		}
-	}
-
 	private synchronized void start() {
 		if (!started) {
 			started = true;
@@ -70,6 +71,7 @@ public class MessageSender {
 			}
 			for (int i = 0; i < workerCount; i++) {
 				Thread worker = new Thread() {
+					@Override
 					public void run() {
 						while (true) {
 							Runnable temp = tasks.poll();
@@ -96,9 +98,9 @@ public class MessageSender {
 			for (Thread worker : workers) {
 				worker.start();
 				try {
-					Thread.sleep(sleepTime/2);
+					Thread.sleep(sleepTime / 2);
 				} catch (InterruptedException e) {
-					//die silently
+					// die silently
 				}
 			}
 		}

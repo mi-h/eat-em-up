@@ -4,7 +4,7 @@ import at.jku.se.eatemup.core.json.IncomingMessage;
 import at.jku.se.eatemup.core.json.MessageType;
 
 public class GameStateRequestMessage extends IncomingMessage {
-	
+
 	public String username;
 
 	@Override

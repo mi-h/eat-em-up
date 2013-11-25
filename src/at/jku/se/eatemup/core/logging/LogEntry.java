@@ -5,11 +5,11 @@ import java.util.Date;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName="log")
+@DatabaseTable(tableName = "log")
 public class LogEntry {
-	@DatabaseField(id=true)
+	@DatabaseField(id = true)
 	public String id;
-	@DatabaseField(index=true)
+	@DatabaseField(index = true)
 	public Date created;
 	@DatabaseField
 	public String text;

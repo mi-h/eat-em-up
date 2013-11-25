@@ -9,14 +9,6 @@ import java.net.URL;
 public class FacebookImageLoader {
 	private static final String baseUrl = "http://graph.facebook.com/%userID%/picture";
 
-	public static byte[] getImageForId(String facebookid){
-		 try{
-			 return doGet(baseUrl.replace("%userID%", facebookid));
-		 } catch (Exception ex){
-			 return new byte[0];
-		 }
-	}
-
 	private static byte[] doGet(String urlString) throws IOException {
 		URL url = new URL(urlString);
 		InputStream in = new BufferedInputStream(url.openStream());
@@ -30,5 +22,13 @@ public class FacebookImageLoader {
 		in.close();
 		byte[] response = out.toByteArray();
 		return response;
+	}
+
+	public static byte[] getImageForId(String facebookid) {
+		try {
+			return doGet(baseUrl.replace("%userID%", facebookid));
+		} catch (Exception ex) {
+			return new byte[0];
+		}
 	}
 }

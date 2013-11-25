@@ -8,9 +8,9 @@ import at.jku.se.eatemup.core.json.MessageType;
 import at.jku.se.eatemup.core.json.OutgoingMessage;
 
 public class GameStartSurveyMessage extends OutgoingMessage {
-	public ArrayList<HashMap<String,Object>> players;
-	
-	public GameStartSurveyMessage(){
+	public ArrayList<HashMap<String, Object>> players;
+
+	public GameStartSurveyMessage() {
 		players = new ArrayList<>();
 	}
 
