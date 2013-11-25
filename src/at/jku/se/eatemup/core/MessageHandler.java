@@ -15,7 +15,7 @@ public class MessageHandler {
 			message = message.replace("\\\"", "\"");
 			message = message.replace("\"{", "{").replace("}\"", "}");
 		} catch (Exception ex) {
-			// fail silently
+			Logger.log("preparing message for sending failed. "+Logger.stringifyException(ex));
 		}
 		if (ses != null) {
 			ses.getAsyncRemote().sendText(message);
