@@ -2,6 +2,7 @@ package at.jku.se.eatemup.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.Map.Entry;
@@ -840,6 +841,7 @@ public class Engine {
 	private static final int defaultGameTimeSeconds = 600;
 	public static UserManager userManager = new UserManager();
 	private static PingManager pingManager = new PingManager();
+	private static TaskManager taskManager = new TaskManager();
 	private static final String flushToken = "supersecret";
 
 	private static final int pingInterval = 30000; // millisecs
@@ -1126,6 +1128,9 @@ public class Engine {
 		service.execute(task);
 	}
 
+	/**
+	 * for debug/testing use only!!
+	 */
 	public synchronized static void flush() {
 		for (Game g : runningGames.values()) {
 			try {
@@ -1155,5 +1160,74 @@ public class Engine {
 		userStandbyGameMap = new ConcurrentHashMap<>();
 		service = Executors.newCachedThreadPool();
 		instance = new Engine();
+	}
+	
+	private static class TaskManager{
+		private static LinkedBlockingQueue<Runnable> tasks; 
+		private static Thread worker;
+		private static boolean started;
+		private static final int maxTasks = 120;
+		
+		public TaskManager(){
+			tasks = new LinkedBlockingQueue<>(maxTasks);
+			started = false;
+			start();
+		}
+		
+		/**
+		 * kills the worker
+		 * @return remaining tasks in the queue
+		 */
+		public static synchronized List<Runnable> dispose(){
+			ArrayList<Runnable> tmp = new ArrayList<>(maxTasks);
+			tasks.drainTo(tmp);
+			worker.interrupt();
+			tasks = null;
+			started = false;
+			return tmp;
+		}
+		
+		public static synchronized int[] getStatus(){
+			int[] ret = new int[2];
+			ret[0] = tasks.size();
+			ret[1] = maxTasks;
+			return ret;
+		}
+		
+		private static synchronized void start(){
+			if (!started){
+				started = true;
+				if (worker != null){
+					worker.interrupt();
+				}
+				worker = new Thread(){
+					public void run() {
+						while (true){
+							Runnable temp = tasks.poll();
+							if (temp != null){
+								temp.run();
+							} else {
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+									Logger.log("worker interrupted. "+Logger.stringifyException(e));
+								}
+							}
+						}
+					}
+				};
+				worker.start();
+			}
+		}
+		
+		public static boolean addTask(Runnable task){
+			try {
+				tasks.put(task);
+				return true;
+			} catch (InterruptedException e) {
+				Logger.log("adding task failed. "+Logger.stringifyException(e));
+				return false;
+			}
+		}
 	}
 }
