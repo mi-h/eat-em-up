@@ -1,28 +1,21 @@
 package at.jku.se.eatemup.core;
 
-import javax.websocket.Session;
-
 import at.jku.se.eatemup.core.json.*;
 import at.jku.se.eatemup.core.json.messages.*;
 import at.jku.se.eatemup.core.logging.Logger;
-import at.jku.se.eatemup.sockets.SessionStore;
 
 public class MessageHandler {
+	
+	private static MessageSender sendManager = new MessageSender();
 
 	private static void _sendMsgAsync(String session, String message) {
-		Session ses = SessionStore.getSession(session);
 		try {
 			message = message.replace("\\\"", "\"");
 			message = message.replace("\"{", "{").replace("}\"", "}");
 		} catch (Exception ex) {
 			Logger.log("preparing message for sending failed. "+Logger.stringifyException(ex));
 		}
-		if (ses != null) {
-			ses.getAsyncRemote().sendText(message);
-			Logger.log("message sent to " + session);
-		} else {
-			Logger.log("failed sending message to " + session);
-		}
+		sendManager.addMessage(session, message);
 	}
 
 	public static void PushMessage(final MessageContainer container) {
