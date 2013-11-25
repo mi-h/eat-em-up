@@ -88,6 +88,7 @@ public class Game {
 		playerPositionLastMessage = new ConcurrentHashMap<>();
 		playerActionMap = new ConcurrentHashMap<>();
 		this.playtime = playtime;
+		ticker = new Timer();
 	}
 
 	private void activateSpecialAction(String uid, SpecialAction specialAction) {

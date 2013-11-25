@@ -1176,7 +1176,11 @@ public class Engine {
 	 * for debug/testing use only!!
 	 */
 	public synchronized static void flush() {
+		try{
 		taskManager.dispose();
+		} catch (Exception ex){
+			
+		}
 		for (Game g : runningGames.values()) {
 			try {
 				g.kill();
