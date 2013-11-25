@@ -1185,6 +1185,7 @@ public class Engine {
 		private Thread worker;
 		private boolean started;
 		private final int maxTasks = 120;
+		private final int sleepTime = 50;
 
 		public TaskManager() {
 			tasks = new LinkedBlockingQueue<>(maxTasks);
@@ -1232,7 +1233,7 @@ public class Engine {
 								}
 							} else {
 								try {
-									Thread.sleep(100);
+									Thread.sleep(sleepTime);
 								} catch (InterruptedException e) {
 									Logger.log("worker interrupted. "
 											+ Logger.stringifyException(e));
