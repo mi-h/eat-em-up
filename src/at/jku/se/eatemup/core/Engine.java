@@ -1194,31 +1194,37 @@ public class Engine {
 			started = false;
 			return tmp;
 		}
-		
-		public synchronized int[] getStatus(){
+
+		public synchronized int[] getStatus() {
 			int[] ret = new int[2];
 			ret[0] = tasks.size();
 			ret[1] = maxTasks;
 			return ret;
 		}
-		
-		private synchronized void start(){
-			if (!started){
+
+		private synchronized void start() {
+			if (!started) {
 				started = true;
-				if (worker != null){
+				if (worker != null) {
 					worker.interrupt();
 				}
-				worker = new Thread(){
+				worker = new Thread() {
 					public void run() {
-						while (true){
+						while (true) {
 							Runnable temp = tasks.poll();
-							if (temp != null){
-								temp.run();
+							if (temp != null) {
+								try {
+									temp.run();
+								} catch (Exception e) {
+									Logger.log("task throws exception. "
+											+ Logger.stringifyException(e));
+								}
 							} else {
 								try {
 									Thread.sleep(100);
 								} catch (InterruptedException e) {
-									Logger.log("worker interrupted. "+Logger.stringifyException(e));
+									Logger.log("worker interrupted. "
+											+ Logger.stringifyException(e));
 								}
 							}
 						}
