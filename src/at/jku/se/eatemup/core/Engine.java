@@ -1071,13 +1071,41 @@ public class Engine {
 		}
 	}
 
-	public static void removeLostPlayers(ArrayList<String> invalidSessionIds) {
+	public static synchronized void removeLostPlayers(
+			ArrayList<String> invalidSessionIds) {
 		for (String id : invalidSessionIds) {
+			boolean standby = false;
+			boolean audience = false;
 			String userid = userManager.getUseridBySession(id);
-			String gameId = userGameMap.get(userid);
-			Game g = runningGames.get(gameId);
-			removePlayerFromGame(userid, g);
-			userManager.removeUser(id);
+			if (userid != null) {
+				String gameId = userGameMap.get(userid);
+				if (gameId == null) {
+					gameId = userStandbyGameMap.get(userid);
+					standby = gameId != null;
+					if (!standby) {
+						gameId = userGameAudienceMap.get(userid);
+						audience = true;
+					}
+				}
+				if (gameId != null) {
+					Game g = null;
+					if (standby) {
+						if (standby) {
+							g = standbyGames.get(gameId);
+						}
+					} else {
+						g = runningGames.get(gameId);
+					}
+					if (g != null) {
+						if (audience) {
+							g.removeAudienceUser(userid);
+						} else {
+							removePlayerFromGame(userid, g);
+						}
+						userManager.removeUser(id);
+					}
+				}
+			}
 		}
 	}
 
