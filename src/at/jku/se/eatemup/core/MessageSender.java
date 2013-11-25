@@ -47,6 +47,7 @@ public class MessageSender {
 				Session ses = SessionStore.getSession(session);
 				if (ses != null) {
 					ses.getAsyncRemote().sendText(message);
+					System.out.println("sent: "+message+" to: "+session);
 					Logger.log("message sent to " + session);
 				} else {
 					Logger.log("failed sending message to " + session);

@@ -938,7 +938,7 @@ public class Engine {
 		if (sessionExists(sender)) {
 			// service.execute(instance.new PositionTask(message, sender));
 			// return true;
-			taskManager.addTask(instance.new PositionTask(message, sender));
+			return taskManager.addTask(instance.new PositionTask(message, sender));
 		}
 		return false;
 	}
@@ -949,7 +949,7 @@ public class Engine {
 			// service.execute(instance.new RequestForGameStartTask(message,
 			// sender));
 			// return true;
-			taskManager.addTask(instance.new RequestForGameStartTask(message,
+			return taskManager.addTask(instance.new RequestForGameStartTask(message,
 					sender));
 		}
 		return false;

@@ -699,7 +699,7 @@ public class Game {
 		ticker.cancel();
 	}
 
-	public boolean isPlayerReadyForGame(Player p) {
+	public synchronized boolean isPlayerReadyForGame(Player p) {
 		return readyToGoPlayers.contains(p.getUserid());
 	}
 
