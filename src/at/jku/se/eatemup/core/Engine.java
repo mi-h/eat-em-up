@@ -849,16 +849,18 @@ public class Engine {
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new BattleAnswerTask(message, sender));
-			return true;
+			//service.execute(instance.new BattleAnswerTask(message, sender));
+			//return true;
+			return taskManager.addTask(instance.new BattleAnswerTask(message, sender));
 		}
 		return false;
 	}
 
 	public static boolean acceptExit(ExitMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new ExitTask(message, sender));
-			return true;
+			//service.execute(instance.new ExitTask(message, sender));
+			//return true;
+			return taskManager.addTask(instance.new ExitTask(message, sender));
 		}
 		return false;
 	}
@@ -866,8 +868,9 @@ public class Engine {
 	public static boolean acceptFollowGameRequest(
 			FollowGameRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new FollowGameRequestTask(message, sender));
-			return true;
+			//service.execute(instance.new FollowGameRequestTask(message, sender));
+			//return true;
+			return taskManager.addTask(instance.new FollowGameRequestTask(message, sender));
 		}
 		return false;
 	}
@@ -875,19 +878,21 @@ public class Engine {
 	public static boolean acceptGameStateRequest(
 			GameStateRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new GameStateRequestTask(message, sender));
-			return true;
+			//service.execute(instance.new GameStateRequestTask(message, sender));
+			//return true;
+			return taskManager.addTask(instance.new GameStateRequestTask(message, sender));
 		}
 		return false;
 	}
 
 	public static boolean acceptHighscoreRequest(
 			HighscoreRequestMessage message, Sender sender) {
-		service.execute(instance.new HighscoreRequestTask(message, sender));
-		return true;
+		//service.execute(instance.new HighscoreRequestTask(message, sender));
+		//return true;
+		return taskManager.addTask(instance.new HighscoreRequestTask(message, sender));
 	}
 
-	public static boolean acceptLogin(LoginMessage message, Sender sender) {
+	public static synchronized boolean acceptLogin(LoginMessage message, Sender sender) {
 		if (userManager.isUserActive(message, sender)) {
 			AlreadyLoggedInMessage msg = new AlreadyLoggedInMessage();
 			MessageContainer container = MessageCreator.createMsgContainer(msg,
@@ -904,15 +909,16 @@ public class Engine {
 					|| message.password.equals(""))
 				return false;
 		}
-		LoginTask task = instance.new LoginTask(message, sender);
-		service.execute(task);
-		return true;
+		//service.execute(instance.new LoginTask(message, sender));
+		//return true;
+		return taskManager.addTask(instance.new LoginTask(message, sender));
 	}
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new PlayTask(message, sender));
-			return true;
+			//service.execute(instance.new PlayTask(message, sender));
+			//return true;
+			return taskManager.addTask(instance.new PlayTask(message, sender));
 		}
 		return false;
 	}
@@ -924,8 +930,9 @@ public class Engine {
 
 	public static boolean acceptPosition(PositionMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new PositionTask(message, sender));
-			return true;
+			//service.execute(instance.new PositionTask(message, sender));
+			//return true;
+			taskManager.addTask(instance.new PositionTask(message, sender));
 		}
 		return false;
 	}
@@ -933,9 +940,10 @@ public class Engine {
 	public static boolean acceptRequestForGameStart(
 			RequestForGameStartMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			service.execute(instance.new RequestForGameStartTask(message,
-					sender));
-			return true;
+			//service.execute(instance.new RequestForGameStartTask(message,
+			//		sender));
+			//return true;
+			taskManager.addTask(instance.new RequestForGameStartTask(message, sender));
 		}
 		return false;
 	}
@@ -1163,10 +1171,10 @@ public class Engine {
 	}
 	
 	private static class TaskManager{
-		private static LinkedBlockingQueue<Runnable> tasks; 
-		private static Thread worker;
-		private static boolean started;
-		private static final int maxTasks = 120;
+		private LinkedBlockingQueue<Runnable> tasks; 
+		private Thread worker;
+		private boolean started;
+		private final int maxTasks = 120;
 		
 		public TaskManager(){
 			tasks = new LinkedBlockingQueue<>(maxTasks);
@@ -1178,7 +1186,7 @@ public class Engine {
 		 * kills the worker
 		 * @return remaining tasks in the queue
 		 */
-		public static synchronized List<Runnable> dispose(){
+		public synchronized List<Runnable> dispose(){
 			ArrayList<Runnable> tmp = new ArrayList<>(maxTasks);
 			tasks.drainTo(tmp);
 			worker.interrupt();
@@ -1187,14 +1195,14 @@ public class Engine {
 			return tmp;
 		}
 		
-		public static synchronized int[] getStatus(){
+		public synchronized int[] getStatus(){
 			int[] ret = new int[2];
 			ret[0] = tasks.size();
 			ret[1] = maxTasks;
 			return ret;
 		}
 		
-		private static synchronized void start(){
+		private synchronized void start(){
 			if (!started){
 				started = true;
 				if (worker != null){
@@ -1220,7 +1228,7 @@ public class Engine {
 			}
 		}
 		
-		public static boolean addTask(Runnable task){
+		public boolean addTask(Runnable task){
 			try {
 				tasks.put(task);
 				return true;
