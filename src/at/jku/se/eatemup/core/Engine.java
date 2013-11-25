@@ -843,7 +843,6 @@ public class Engine {
 	private static PingManager pingManager = new PingManager();
 	private static TaskManager taskManager = new TaskManager();
 	private static final String flushToken = "supersecret";
-
 	private static final int pingInterval = 30000; // millisecs
 
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,

@@ -20,24 +20,20 @@ public class MessageHandler {
 
 	public static void PushMessage(final MessageContainer container) {
 		if (container.direction == DirectionType.Outgoing) {
-			new Thread() {
-				public void run() {
-					try {
-						String msg = JsonTool
-								.SerializeMessage(container.message);
-						TempMessageContainer temp = new TempMessageContainer();
-						temp.message = msg;
-						temp.type = container.type;
-						for (String id : container.receivers) {
-							_sendMsgAsync(
-									id,
-									JsonTool.SerializeTempMessageContainer(temp));
-						}
-					} catch (JsonCreateException jce) {
-						Logger.log(jce.getLogText());
-					}
+			try {
+				String msg = JsonTool
+						.SerializeMessage(container.message);
+				TempMessageContainer temp = new TempMessageContainer();
+				temp.message = msg;
+				temp.type = container.type;
+				for (String id : container.receivers) {
+					_sendMsgAsync(
+							id,
+							JsonTool.SerializeTempMessageContainer(temp));
 				}
-			}.start();
+			} catch (JsonCreateException jce) {
+				Logger.log(jce.getLogText());
+			}
 		}
 	}
 
