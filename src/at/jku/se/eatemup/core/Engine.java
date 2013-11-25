@@ -523,7 +523,7 @@ public class Engine {
 			ticker.scheduleAtFixedRate(new PingTask(), 30000, pingInterval);
 		}
 
-		public void acceptPong(PongMessage pong) {
+		public synchronized void acceptPong(PongMessage pong) {
 			if (!pong.secondAttempt) {
 				firstAttemptPings.remove(pong.pingid);
 			} else {
@@ -631,7 +631,7 @@ public class Engine {
 		@Override
 		public void run() {
 			Game game = getPlayerStandbyGame(message.userid);
-			if (message.startGame){
+			if (message.startGame) {
 				game.setPlayerReady(message.userid);
 			} else {
 				game.setPlayerNotReady(message.userid);
@@ -643,8 +643,8 @@ public class Engine {
 				for (Player p : game.getPlayers()) {
 					msg.players.add(createPlayerArray(p, game));
 				}
-				MessageContainer container = MessageCreator.createMsgContainer(msg,
-						getReceiverListById(game.getPlayerIds()));
+				MessageContainer container = MessageCreator.createMsgContainer(
+						msg, getReceiverListById(game.getPlayerIds()));
 				MessageHandler.PushMessage(container);
 				game.setStartSurveySent(true);
 			}
@@ -849,17 +849,18 @@ public class Engine {
 	public static boolean acceptBattleAnswer(BattleAnswerMessage message,
 			Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new BattleAnswerTask(message, sender));
-			//return true;
-			return taskManager.addTask(instance.new BattleAnswerTask(message, sender));
+			// service.execute(instance.new BattleAnswerTask(message, sender));
+			// return true;
+			return taskManager.addTask(instance.new BattleAnswerTask(message,
+					sender));
 		}
 		return false;
 	}
 
 	public static boolean acceptExit(ExitMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new ExitTask(message, sender));
-			//return true;
+			// service.execute(instance.new ExitTask(message, sender));
+			// return true;
 			return taskManager.addTask(instance.new ExitTask(message, sender));
 		}
 		return false;
@@ -868,9 +869,11 @@ public class Engine {
 	public static boolean acceptFollowGameRequest(
 			FollowGameRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new FollowGameRequestTask(message, sender));
-			//return true;
-			return taskManager.addTask(instance.new FollowGameRequestTask(message, sender));
+			// service.execute(instance.new FollowGameRequestTask(message,
+			// sender));
+			// return true;
+			return taskManager.addTask(instance.new FollowGameRequestTask(
+					message, sender));
 		}
 		return false;
 	}
@@ -878,21 +881,25 @@ public class Engine {
 	public static boolean acceptGameStateRequest(
 			GameStateRequestMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new GameStateRequestTask(message, sender));
-			//return true;
-			return taskManager.addTask(instance.new GameStateRequestTask(message, sender));
+			// service.execute(instance.new GameStateRequestTask(message,
+			// sender));
+			// return true;
+			return taskManager.addTask(instance.new GameStateRequestTask(
+					message, sender));
 		}
 		return false;
 	}
 
 	public static boolean acceptHighscoreRequest(
 			HighscoreRequestMessage message, Sender sender) {
-		//service.execute(instance.new HighscoreRequestTask(message, sender));
-		//return true;
-		return taskManager.addTask(instance.new HighscoreRequestTask(message, sender));
+		// service.execute(instance.new HighscoreRequestTask(message, sender));
+		// return true;
+		return taskManager.addTask(instance.new HighscoreRequestTask(message,
+				sender));
 	}
 
-	public static synchronized boolean acceptLogin(LoginMessage message, Sender sender) {
+	public static synchronized boolean acceptLogin(LoginMessage message,
+			Sender sender) {
 		if (userManager.isUserActive(message, sender)) {
 			AlreadyLoggedInMessage msg = new AlreadyLoggedInMessage();
 			MessageContainer container = MessageCreator.createMsgContainer(msg,
@@ -909,15 +916,15 @@ public class Engine {
 					|| message.password.equals(""))
 				return false;
 		}
-		//service.execute(instance.new LoginTask(message, sender));
-		//return true;
+		// service.execute(instance.new LoginTask(message, sender));
+		// return true;
 		return taskManager.addTask(instance.new LoginTask(message, sender));
 	}
 
 	public static boolean acceptPlay(PlayMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new PlayTask(message, sender));
-			//return true;
+			// service.execute(instance.new PlayTask(message, sender));
+			// return true;
 			return taskManager.addTask(instance.new PlayTask(message, sender));
 		}
 		return false;
@@ -930,8 +937,8 @@ public class Engine {
 
 	public static boolean acceptPosition(PositionMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new PositionTask(message, sender));
-			//return true;
+			// service.execute(instance.new PositionTask(message, sender));
+			// return true;
 			taskManager.addTask(instance.new PositionTask(message, sender));
 		}
 		return false;
@@ -940,10 +947,11 @@ public class Engine {
 	public static boolean acceptRequestForGameStart(
 			RequestForGameStartMessage message, Sender sender) {
 		if (sessionExists(sender)) {
-			//service.execute(instance.new RequestForGameStartTask(message,
-			//		sender));
-			//return true;
-			taskManager.addTask(instance.new RequestForGameStartTask(message, sender));
+			// service.execute(instance.new RequestForGameStartTask(message,
+			// sender));
+			// return true;
+			taskManager.addTask(instance.new RequestForGameStartTask(message,
+					sender));
 		}
 		return false;
 	}
@@ -1079,7 +1087,8 @@ public class Engine {
 	}
 
 	public static void scheduleFullGameUpdate(Game game, String userid) {
-		service.execute(instance.new FullGameUpdateTask(game, userid));
+		// service.execute(instance.new FullGameUpdateTask(game, userid));
+		taskManager.addTask(instance.new FullGameUpdateTask(game, userid));
 	}
 
 	public static void scheduleSpecialActionDeactivation(String userid,
@@ -1140,6 +1149,7 @@ public class Engine {
 	 * for debug/testing use only!!
 	 */
 	public synchronized static void flush() {
+		taskManager.dispose();
 		for (Game g : runningGames.values()) {
 			try {
 				g.kill();
@@ -1169,24 +1179,25 @@ public class Engine {
 		service = Executors.newCachedThreadPool();
 		instance = new Engine();
 	}
-	
-	private static class TaskManager{
-		private LinkedBlockingQueue<Runnable> tasks; 
+
+	private static class TaskManager {
+		private LinkedBlockingQueue<Runnable> tasks;
 		private Thread worker;
 		private boolean started;
 		private final int maxTasks = 120;
-		
-		public TaskManager(){
+
+		public TaskManager() {
 			tasks = new LinkedBlockingQueue<>(maxTasks);
 			started = false;
 			start();
 		}
-		
+
 		/**
 		 * kills the worker
+		 * 
 		 * @return remaining tasks in the queue
 		 */
-		public synchronized List<Runnable> dispose(){
+		public synchronized List<Runnable> dispose() {
 			ArrayList<Runnable> tmp = new ArrayList<>(maxTasks);
 			tasks.drainTo(tmp);
 			worker.interrupt();
@@ -1233,13 +1244,14 @@ public class Engine {
 				worker.start();
 			}
 		}
-		
-		public boolean addTask(Runnable task){
+
+		public boolean addTask(Runnable task) {
 			try {
 				tasks.put(task);
 				return true;
 			} catch (InterruptedException e) {
-				Logger.log("adding task failed. "+Logger.stringifyException(e));
+				Logger.log("adding task failed. "
+						+ Logger.stringifyException(e));
 				return false;
 			}
 		}
