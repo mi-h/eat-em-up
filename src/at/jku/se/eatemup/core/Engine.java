@@ -462,15 +462,20 @@ public class Engine {
 			public boolean secondAttempt;
 			public String pingId;
 			public String gameid;
+			public String username;
 		}
 
 		private class PingTask extends TimerTask {
 
 			private void cleanupUsers() {
-				ArrayList<String> lostPlayers = new ArrayList<String>();
+				ArrayList<String> lostPlayers = new ArrayList<>();
+				ArrayList<Ping> pingRemList = new ArrayList<>();
 				for (Ping p : secondAttemptPings.values()) {
-					secondAttemptPings.remove(p);
+					pingRemList.add(p);
 					lostPlayers.add(p.userid);
+				}
+				for (Ping p : pingRemList){
+					secondAttemptPings.remove(p.pingId);
 				}
 				removeLostPlayers(lostPlayers);
 			}
@@ -481,7 +486,7 @@ public class Engine {
 					p.secondAttempt = true;
 					messages.add(createPingMessage(p));
 					secondAttemptPings.put(p.pingId, p);
-					firstAttemptPings.remove(p);
+					firstAttemptPings.remove(p.pingId);
 				}
 				sendPingMessages(messages);
 			}
@@ -518,6 +523,7 @@ public class Engine {
 						ping.secondAttempt = false;
 						ping.userid = uid;
 						ping.gameid = game.getId();
+						ping.username = game.getPlayerByUserid(uid).getName();
 						pings.add(ping);
 					}
 				}
@@ -543,7 +549,7 @@ public class Engine {
 			PingMessage temp = new PingMessage();
 			temp.secondAttempt = ping.secondAttempt;
 			temp.userid = ping.userid;
-			temp.username = ping.userid;
+			temp.username = ping.username;
 			temp.pingid = ping.pingId;
 			return temp;
 		}
@@ -1339,8 +1345,6 @@ public class Engine {
 	public static boolean acceptLeaveGame(LeaveGameMessage message,
 			Sender sender) {
 		if (sessionExists(sender)) {
-			// service.execute(instance.new ExitTask(message, sender));
-			// return true;
 			return taskManager.addTask(instance.new LeaveGameTask(message, sender));
 		}
 		return false;
