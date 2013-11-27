@@ -7,7 +7,7 @@ import at.jku.se.eatemup.core.database.DataStore2;
 
 public class Logger {
 
-	private static final boolean debug = true;
+	private static boolean debug = true;
 	private static DataStore2 ds;
 
 	public static void closeConnection() {
@@ -59,5 +59,9 @@ public class Logger {
 			}
 		}
 		return sb.toString();
+	}
+	
+	public synchronized static void setDebug(boolean value){
+		debug = value;
 	}
 }
