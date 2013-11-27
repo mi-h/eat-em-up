@@ -659,17 +659,16 @@ public class Engine {
 			} else {
 				game.setPlayerNotReady(message.userid);
 			}
+			GameStartSurveyMessage msg = new GameStartSurveyMessage();
+			for (Player p : game.getPlayers()) {
+				msg.players.add(createPlayerArray(p, game));
+			}
+			MessageContainer container = MessageCreator.createMsgContainer(msg,
+					getReceiverListById(game.getPlayerIds()));
+			MessageHandler.PushMessage(container);
+			game.setStartSurveySent(true);
 			if (game.allPlayersReady()) {
 				game.startGame();
-			} else {
-				GameStartSurveyMessage msg = new GameStartSurveyMessage();
-				for (Player p : game.getPlayers()) {
-					msg.players.add(createPlayerArray(p, game));
-				}
-				MessageContainer container = MessageCreator.createMsgContainer(
-						msg, getReceiverListById(game.getPlayerIds()));
-				MessageHandler.PushMessage(container);
-				game.setStartSurveySent(true);
 			}
 		}
 	}
