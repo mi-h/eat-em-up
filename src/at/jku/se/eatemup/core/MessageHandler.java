@@ -8,6 +8,7 @@ import at.jku.se.eatemup.core.json.messages.ExitMessage;
 import at.jku.se.eatemup.core.json.messages.FollowGameRequestMessage;
 import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
 import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LeaveGameMessage;
 import at.jku.se.eatemup.core.json.messages.LoginMessage;
 import at.jku.se.eatemup.core.json.messages.PlayMessage;
 import at.jku.se.eatemup.core.json.messages.PongMessage;

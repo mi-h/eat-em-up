@@ -20,6 +20,7 @@ import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
 import at.jku.se.eatemup.core.json.messages.GoodieCreatedMessage;
 import at.jku.se.eatemup.core.json.messages.HighscoreMessage;
 import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LeaveGameMessage;
 import at.jku.se.eatemup.core.json.messages.LoginMessage;
 import at.jku.se.eatemup.core.json.messages.LogoutMessage;
 import at.jku.se.eatemup.core.json.messages.PingMessage;
