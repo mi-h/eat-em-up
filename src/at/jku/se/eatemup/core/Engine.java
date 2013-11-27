@@ -736,7 +736,7 @@ public class Engine {
 		private Thread worker;
 		private boolean started;
 		private final int maxTasks = 120;
-		private final int sleepTime = 50;
+		private final int sleepTime = 5;
 
 		public TaskManager() {
 			tasks = new LinkedBlockingQueue<>(maxTasks);
