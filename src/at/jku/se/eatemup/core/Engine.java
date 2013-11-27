@@ -742,7 +742,6 @@ public class Engine {
 		private Thread worker;
 		private boolean started;
 		private final int maxTasks = 120;
-		private final int sleepTime = 5;
 
 		public TaskManager() {
 			tasks = new LinkedBlockingQueue<>(maxTasks);
@@ -792,19 +791,18 @@ public class Engine {
 					@Override
 					public void run() {
 						while (true) {
-							Runnable temp = tasks.poll();
+							Runnable temp = null;
+							try {
+								temp = tasks.take();
+							} catch (InterruptedException ex) {
+								Logger.log("task retrieval interrupted. "
+										+ Logger.stringifyException(ex));
+							}
 							if (temp != null) {
 								try {
 									temp.run();
 								} catch (Exception e) {
 									Logger.log("task throws exception. "
-											+ Logger.stringifyException(e));
-								}
-							} else {
-								try {
-									Thread.sleep(sleepTime);
-								} catch (InterruptedException e) {
-									Logger.log("worker interrupted. "
 											+ Logger.stringifyException(e));
 								}
 							}
