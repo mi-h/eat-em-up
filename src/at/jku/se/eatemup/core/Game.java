@@ -21,6 +21,7 @@ import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
 import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
+import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
 import at.jku.se.eatemup.core.model.Goodie;
@@ -84,6 +85,7 @@ public class Game {
 	private static final int fullUpdateTicks = 15;
 	private int tickCnt;
 	private boolean isStarted = false;
+	private static final int initialDelay = 1500;
 
 	public Game(int playtime) {
 		teams = new Team[2];
@@ -728,8 +730,11 @@ public class Game {
 	public synchronized void startGame() {
 		if (!isStarted) {
 			isStarted = true;
-			for (String uid : getBroadcastReceiverIds()) {
-				Engine.scheduleFullGameUpdate(this, uid);
+			Engine.scheduleFullGameUpdate(this, getBroadcastReceiverIds());
+			try {
+				Thread.sleep(initialDelay);
+			} catch (InterruptedException e) {
+				Logger.log("game start delay interrupted. "+Logger.stringifyException(e));
 			}
 			tickCnt = 0;
 			ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
