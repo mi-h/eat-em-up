@@ -648,6 +648,7 @@ public class Game {
 		} else {
 			teams[1].removePlayer(userid);
 		}
+		readyToGoPlayers.remove(userid);
 	}
 
 	private synchronized void sendGameEnd() {
