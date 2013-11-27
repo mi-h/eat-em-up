@@ -5,6 +5,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.websocket.Session;
 
+import org.eclipse.persistence.jpa.jpql.Assert;
+
 import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.sockets.SessionStore;
 
@@ -74,21 +76,20 @@ public class MessageSender {
 					@Override
 					public void run() {
 						while (true) {
-							Runnable temp = tasks.poll();
-							if (temp != null) {
-								try {
-									temp.run();
-								} catch (Exception e) {
-									Logger.log("task throws exception. "
-											+ Logger.stringifyException(e));
-								}
-							} else {
-								try {
-									Thread.sleep(sleepTime);
-								} catch (InterruptedException e) {
-									Logger.log("worker interrupted. "
-											+ Logger.stringifyException(e));
-								}
+							Runnable task = null;
+							try {
+								task = tasks.take();
+							} catch (InterruptedException ex) {
+								Logger.log("message task retrieval interrupted. "
+										+ Logger.stringifyException(ex));
+							}
+							Assert.isNotNull(task,
+									"task can never be null actually?");
+							try {
+								task.run();
+							} catch (Exception e) {
+								Logger.log("task throws exception. "
+										+ Logger.stringifyException(e));
 							}
 						}
 					}
@@ -97,11 +98,6 @@ public class MessageSender {
 			}
 			for (Thread worker : workers) {
 				worker.start();
-				try {
-					Thread.sleep(sleepTime / 2);
-				} catch (InterruptedException e) {
-					// die silently
-				}
 			}
 		}
 	}

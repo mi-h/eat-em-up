@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.eclipse.persistence.jpa.jpql.Assert;
+
 import at.jku.se.eatemup.core.database.DataStore2;
 import at.jku.se.eatemup.core.json.messages.AlreadyLoggedInMessage;
 import at.jku.se.eatemup.core.json.messages.BattleAnswerMessage;
@@ -122,7 +124,7 @@ public class Engine {
 			return ds;
 		}
 	}
-	
+
 	private synchronized static void removeUserFromAllAudiences(String userid) {
 		if (userGameAudienceMap.containsKey(userid)) {
 			try {
@@ -164,9 +166,8 @@ public class Engine {
 					map.put("readyForStart", g.isPlayerReadyForGame(p));
 					msg.players.add(map);
 				}
-				MessageContainer container = MessageCreator
-						.createMsgContainer(msg,
-								getReceiverList(g.getPlayers()));
+				MessageContainer container = MessageCreator.createMsgContainer(
+						msg, getReceiverList(g.getPlayers()));
 				MessageHandler.PushMessage(container);
 			} catch (Exception ex) {
 				Logger.log("failed to remove player from standby game."
@@ -474,7 +475,7 @@ public class Engine {
 					pingRemList.add(p);
 					lostPlayers.add(p.userid);
 				}
-				for (Ping p : pingRemList){
+				for (Ping p : pingRemList) {
 					secondAttemptPings.remove(p.pingId);
 				}
 				removeLostPlayers(lostPlayers);
@@ -791,20 +792,20 @@ public class Engine {
 					@Override
 					public void run() {
 						while (true) {
-							Runnable temp = null;
+							Runnable task = null;
 							try {
-								temp = tasks.take();
+								task = tasks.take();
 							} catch (InterruptedException ex) {
 								Logger.log("task retrieval interrupted. "
 										+ Logger.stringifyException(ex));
 							}
-							if (temp != null) {
-								try {
-									temp.run();
-								} catch (Exception e) {
-									Logger.log("task throws exception. "
-											+ Logger.stringifyException(e));
-								}
+							Assert.isNotNull(task,
+									"task can never be null actually?");
+							try {
+								task.run();
+							} catch (Exception e) {
+								Logger.log("task throws exception. "
+										+ Logger.stringifyException(e));
 							}
 						}
 					}
@@ -1343,12 +1344,13 @@ public class Engine {
 	public static boolean acceptLeaveGame(LeaveGameMessage message,
 			Sender sender) {
 		if (sessionExists(sender)) {
-			return taskManager.addTask(instance.new LeaveGameTask(message, sender));
+			return taskManager.addTask(instance.new LeaveGameTask(message,
+					sender));
 		}
 		return false;
 	}
-	
-	private class LeaveGameTask extends GameTask<LeaveGameMessage>{
+
+	private class LeaveGameTask extends GameTask<LeaveGameMessage> {
 
 		public LeaveGameTask(LeaveGameMessage message, Sender sender) {
 			super(message, sender);
@@ -1356,11 +1358,12 @@ public class Engine {
 
 		@Override
 		public void run() {
-			setPlayerBackInLobby(message.userid,sender.session);
-		}		
+			setPlayerBackInLobby(message.userid, sender.session);
+		}
 	}
-	
-	private static synchronized void setPlayerBackInLobby(String userid, String sessionid){
+
+	private static synchronized void setPlayerBackInLobby(String userid,
+			String sessionid) {
 		removeUserFromAllAudiences(userid);
 		removeUserFromAllRunningGames(userid);
 		removeUserFromAllStandbyGames(userid);
