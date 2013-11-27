@@ -174,7 +174,11 @@ public class Game {
 	}
 
 	public synchronized boolean allPlayersReady() {
-		return readyToGoPlayers.size() == getPlayers().size() && getPlayers().size() >= 2;
+		return readyToGoPlayers.size() == getPlayers().size() && getPlayers().size() >= 2 && isEven(getPlayers().size());
+	}
+	
+	private static boolean isEven(int n){
+		return n%2==0;
 	}
 
 	public synchronized void cancelGameTicker() {
