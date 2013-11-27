@@ -39,9 +39,9 @@ public class MessageSender {
 	private LinkedBlockingQueue<Runnable> tasks;
 	private ArrayList<Thread> workers;
 	private boolean started;
-	private static final int workerCount = 2;
+	private static final int workerCount = 4;
 
-	private static final int sleepTime = 50;
+	private static final int sleepTime = 25;
 
 	public MessageSender() {
 		tasks = new LinkedBlockingQueue<>();
