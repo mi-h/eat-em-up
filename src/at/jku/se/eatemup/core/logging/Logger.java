@@ -45,14 +45,18 @@ public class Logger {
 		if (!debug) {
 			return "";
 		}
-		if (exception == null) {
+		if (exception == null || exception.getStackTrace() == null) {
 			return "";
 		}
 		StringBuilder sb = new StringBuilder(exception.getMessage());
 		sb.append("</br>");
 		for (StackTraceElement ste : exception.getStackTrace()) {
+			try{
 			sb.append(ste.toString());
 			sb.append("</br>");
+			} catch (Exception ex){
+				log("stringify failed. "+stringifyException(ex));
+			}
 		}
 		return sb.toString();
 	}
