@@ -86,6 +86,9 @@ public class MessageHandler {
 			case Pong:
 				return Engine.acceptPong((PongMessage) container.message,
 						container.sender);
+			case LeaveGame:
+				return Engine.acceptLeaveGame(
+						(LeaveGameMessage) container.message, container.sender);
 			default:
 				return false;
 			}

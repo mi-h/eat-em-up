@@ -1312,4 +1312,32 @@ public class Engine {
 		map.put("ready", game.isPlayerReadyForGame(p));
 		return map;
 	}
+
+	public static boolean acceptLeaveGame(LeaveGameMessage message,
+			Sender sender) {
+		if (sessionExists(sender)) {
+			// service.execute(instance.new ExitTask(message, sender));
+			// return true;
+			return taskManager.addTask(instance.new LeaveGameTask(message, sender));
+		}
+		return false;
+	}
+	
+	private class LeaveGameTask extends GameTask<LeaveGameMessage>{
+
+		public LeaveGameTask(LeaveGameMessage message, Sender sender) {
+			super(message, sender);
+		}
+
+		@Override
+		public void run() {
+			setPlayerBackInLobby(message.userid,sender.session);
+		}		
+	}
+	
+	private static synchronized void setPlayerBackInLobby(String userid, String sessionid){
+		removeUserFromAllAudiences(userid);
+		removeUserFromAllRunningGames(userid);
+		removeUserFromAllStandbyGames(userid);
+	}
 }

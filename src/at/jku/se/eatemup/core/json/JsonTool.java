@@ -104,6 +104,8 @@ public class JsonTool {
 			return gson.fromJson(message, PongMessage.class);
 		case AlreadyLoggedIn:
 			return gson.fromJson(message, AlreadyLoggedInMessage.class);
+		case LeaveGame:
+			return gson.fromJson(message, LeaveGameMessage.class);
 		default:
 			return null;
 		}
