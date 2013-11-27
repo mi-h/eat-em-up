@@ -27,6 +27,7 @@ import at.jku.se.eatemup.core.json.messages.GameStateMessage;
 import at.jku.se.eatemup.core.json.messages.GameStateRequestMessage;
 import at.jku.se.eatemup.core.json.messages.HighscoreMessage;
 import at.jku.se.eatemup.core.json.messages.HighscoreRequestMessage;
+import at.jku.se.eatemup.core.json.messages.LeaveGameMessage;
 import at.jku.se.eatemup.core.json.messages.LoginMessage;
 import at.jku.se.eatemup.core.json.messages.LogoutMessage;
 import at.jku.se.eatemup.core.json.messages.PingMessage;
@@ -121,65 +122,63 @@ public class Engine {
 			return ds;
 		}
 	}
+	
+	private synchronized static void removeUserFromAllAudiences(String userid) {
+		if (userGameAudienceMap.containsKey(userid)) {
+			try {
+				Game g = runningGames.get(userGameAudienceMap.get(userid));
+				g.removeAudienceUser(userid);
+			} catch (Exception ex) {
+				Logger.log("failed to remove player from standby game."
+						+ Logger.stringifyException(ex));
+			}
+		}
+	}
+
+	private synchronized static void removeUserFromAllRunningGames(String userid) {
+		if (userGameMap.containsKey(userid)) {
+			try {
+				Game g = runningGames.get(userGameMap.get(userid));
+				g.removePlayer(userid);
+				scheduleFullGameUpdate(g, g.getBroadcastReceiverIds());
+			} catch (Exception ex) {
+				Logger.log("failed to remove player from running game."
+						+ Logger.stringifyException(ex));
+			}
+		}
+	}
+
+	private synchronized static void removeUserFromAllStandbyGames(String userid) {
+		if (userStandbyGameMap.containsKey(userid)) {
+			try {
+				Game g = standbyGames.get(userStandbyGameMap.get(userid));
+				g.removePlayer(userid);
+				GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
+				msg.readyForStart = g.isReadyForStart();
+				msg.players = new ArrayList<>();
+				for (Player p : g.getPlayers()) {
+					HashMap<String, Object> map = new HashMap<>();
+					map.put("username", p.getName());
+					map.put("userid", p.getUserid());
+					map.put("teamRed", g.isInRedTeam(p));
+					map.put("readyForStart", g.isPlayerReadyForGame(p));
+					msg.players.add(map);
+				}
+				MessageContainer container = MessageCreator
+						.createMsgContainer(msg,
+								getReceiverList(g.getPlayers()));
+				MessageHandler.PushMessage(container);
+			} catch (Exception ex) {
+				Logger.log("failed to remove player from standby game."
+						+ Logger.stringifyException(ex));
+			}
+		}
+	}
 
 	private class ExitTask extends GameTask<ExitMessage> {
 
 		public ExitTask(ExitMessage message, Sender sender) {
 			super(message, sender);
-		}
-
-		private void removeUserFromAllAudiences(String userid) {
-			if (userGameAudienceMap.containsKey(userid)) {
-				try {
-					Game g = runningGames.get(userGameAudienceMap.get(userid));
-					g.removeAudienceUser(userid);
-				} catch (Exception ex) {
-					Logger.log("failed to remove player from standby game."
-							+ Logger.stringifyException(ex));
-				}
-			}
-		}
-
-		private void removeUserFromAllRunningGames(String userid) {
-			if (userGameMap.containsKey(userid)) {
-				try {
-					Game g = runningGames.get(userGameMap.get(userid));
-					g.removePlayer(userid);
-					for (String uid : g.getBroadcastReceiverIds()) {
-						scheduleFullGameUpdate(g, uid);
-					}
-				} catch (Exception ex) {
-					Logger.log("failed to remove player from running game."
-							+ Logger.stringifyException(ex));
-				}
-			}
-		}
-
-		private void removeUserFromAllStandbyGames(String userid) {
-			if (userStandbyGameMap.containsKey(userid)) {
-				try {
-					Game g = standbyGames.get(userStandbyGameMap.get(userid));
-					g.removePlayer(userid);
-					GameStandbyUpdateMessage msg = new GameStandbyUpdateMessage();
-					msg.readyForStart = g.isReadyForStart();
-					msg.players = new ArrayList<>();
-					for (Player p : g.getPlayers()) {
-						HashMap<String, Object> map = new HashMap<>();
-						map.put("username", p.getName());
-						map.put("userid", p.getUserid());
-						map.put("teamRed", g.isInRedTeam(p));
-						map.put("readyForStart", g.isPlayerReadyForGame(p));
-						msg.players.add(map);
-					}
-					MessageContainer container = MessageCreator
-							.createMsgContainer(msg,
-									getReceiverList(g.getPlayers()));
-					MessageHandler.PushMessage(container);
-				} catch (Exception ex) {
-					Logger.log("failed to remove player from standby game."
-							+ Logger.stringifyException(ex));
-				}
-			}
 		}
 
 		@Override
@@ -188,29 +187,39 @@ public class Engine {
 				sendLogoutMessage(sender.session,
 						"accepting exit action, user logout", sender.userid);
 			} catch (Exception ex) {
-				// fail silently for the moment
+				Logger.log("sending logout message failed. "
+						+ Logger.stringifyException(ex));
 			}
 			try {
 				removeUserFromAllRunningGames(sender.userid);
 			} catch (Exception ex) {
-				// fail silently for the moment
+				Logger.log("removing player from running games failed. "
+						+ Logger.stringifyException(ex));
 			}
 			try {
 				removeUserFromAllStandbyGames(sender.userid);
 			} catch (Exception ex) {
-				// fail silently for the moment
+				Logger.log("removing player from standbygames failed. "
+						+ Logger.stringifyException(ex));
 			}
 			try {
 				removeUserFromAllAudiences(sender.userid);
 			} catch (Exception ex) {
-				// fail silently for the moment
+				Logger.log("removing player from audiences failed. "
+						+ Logger.stringifyException(ex));
 			}
 			try {
 				userManager.removeUser(sender.session);
 			} catch (Exception ex) {
-				// fail silently for the moment
+				Logger.log("removing player from usermanager failed. "
+						+ Logger.stringifyException(ex));
 			}
-			SessionStore.removeSession(sender.session);
+			try {
+				SessionStore.removeSession(sender.session);
+			} catch (Exception ex) {
+				Logger.log("removing player from sessionstore failed. "
+						+ Logger.stringifyException(ex));
+			}
 		}
 	}
 
@@ -261,17 +270,26 @@ public class Engine {
 
 		private Game game;
 		private String receiverId;
+		private boolean multiple;
+		private ArrayList<String> userIds;
 
 		public FullGameUpdateTask(Game game, String receiverId) {
 			this.game = game;
 			this.receiverId = receiverId;
+			this.multiple = false;
+		}
+
+		public FullGameUpdateTask(Game game, ArrayList<String> receiverIds) {
+			this.game = game;
+			this.multiple = true;
+			this.userIds = receiverIds;
 		}
 
 		@Override
 		public void run() {
 			GameStateMessage message = this.game.createGameStateMessage();
 			ArrayList<String> recs;
-			if (receiverId == null) {
+			if (multiple || receiverId == null) {
 				recs = userManager.convertIdListToSessionList(this.game
 						.getBroadcastReceiverIds());
 			} else {
@@ -1249,6 +1267,11 @@ public class Engine {
 	public static void scheduleFullGameUpdate(Game game, String userid) {
 		// service.execute(instance.new FullGameUpdateTask(game, userid));
 		taskManager.addTask(instance.new FullGameUpdateTask(game, userid));
+	}
+
+	public static void scheduleFullGameUpdate(Game game,
+			ArrayList<String> userids) {
+		taskManager.addTask(instance.new FullGameUpdateTask(game, userids));
 	}
 
 	public static void scheduleSpecialActionDeactivation(String userid,
