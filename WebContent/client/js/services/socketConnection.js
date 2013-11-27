@@ -2,8 +2,13 @@ var socketConnection = (function() {
 	var connection = null;
 
 	function establishConnection() {
-		connection = new WebSocket('ws://localhost:8080/websocket');
+		//connection = new WebSocket('ws://localhost:8080/websocket');
 		//connection = new WebSocket('ws://eat-em-up.marce155.eu.cloudbees.net/websocket');
+		var loc = window.location, uri;
+		uri = "ws:";
+		uri += "//" + loc.host;
+		uri += loc.pathname.replace("/client","") + "websocket";
+		connection = new WebSocket(uri);
 		bindSocketEvents();
 		bindSendMessages();
 	}
