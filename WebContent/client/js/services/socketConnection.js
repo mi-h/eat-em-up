@@ -38,7 +38,7 @@ var socketConnection = (function() {
 		   else if (dataObject.type=="GameStartSurvey") {
 				amplify.publish("GameStartSurvey", dataObject.message);
 		   }
-		   else if (dataObject.type=="Ping") {
+		   else if (dataObject.type==="Ping") {
 				amplify.publish("Ping", dataObject.message);
 		   }
 		   else if (dataObject.type=="GameState") {
@@ -98,6 +98,13 @@ var socketConnection = (function() {
 			}
 			sendPositionRequest(message);
 		});
+		amplify.subscribe('LeaveGame', function (posInfo) {
+			var message = {
+					type:"LeaveGame",
+					message: posInfo
+			}
+			sendLeaveGameMessage(message);
+		});
 		
 		amplify.subscribe('RequestForGameStart', function (reqInfo) {
 			var message = {
@@ -155,6 +162,10 @@ var socketConnection = (function() {
 		//send message
 		console.log(JSON.stringify(message));
 		connection.send(JSON.stringify(message));
+	}
+	function sendLeaveGameMessage(message) {
+		console.log(JSON.stringify(message));
+		connection.send(JSON.stringify(message));	
 	}
 	return {
 		establishConnection : establishConnection

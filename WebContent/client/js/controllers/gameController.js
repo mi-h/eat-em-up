@@ -15,7 +15,10 @@ var gameController = (function() {
 
 	function pageBeforeShow() {
 	}
-
+	function leaveGameTap() {
+		$("#cancelButtonGame").on("click", function() {
+		});
+	}
 	function pageShow() {
 		//alert("page show");
 		map.initMap("map_canvas");
@@ -46,6 +49,7 @@ var gameController = (function() {
 	//control events	
 	function cancelButtonPressed() {
 		$("#cancelButtonGame").on("click", function(event, ui) {
+			amplify.publish('LeaveGame', {username:accountData.getUsername(), userid:accountData.getUserID()});
 			map.stopPositioning();
 			map.removeMarkers();
 			clearInterval(progressInterval);

@@ -80,6 +80,8 @@ var lobbyController = (function() {
 				else {
 					redHTML+='<input type="checkbox" name="checkbox-'+player.username+'" id="checkbox-'+player.username+'" class="custom" '+isDisabled+'/><label for="checkbox-'+player.username+'">'+player.username+'</label>';
 				}
+				var checkboxid = "checkbox-"+player.username+"";
+				$("#"+checkboxid).prop("checked",player.readyForStart).checkboxradio("refresh");
 				
 			});
 
@@ -96,8 +98,11 @@ var lobbyController = (function() {
 	}
 	function gameStartSurveyResponse() {
 		amplify.subscribe('GameStartSurvey', function (message) {
-			var checkboxid = "checkbox-"+message.requestingUser+"";
-			$("#"+checkboxid).prop("checked",true).checkboxradio("refresh");
+			var players = JSON.parse(JSON.stringify(message.players));
+			$.each( players, function( index, player ) {
+				var checkboxid = "checkbox-"+player.username+"";
+				$("#"+checkboxid).prop("checked",player.ready).checkboxradio("refresh");
+			});
 
 		});
 
