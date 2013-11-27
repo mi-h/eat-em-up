@@ -174,7 +174,7 @@ public class Game {
 	}
 
 	public synchronized boolean allPlayersReady() {
-		return readyToGoPlayers.size() == getPlayers().size();
+		return readyToGoPlayers.size() == getPlayers().size() && getPlayers().size() >= 2;
 	}
 
 	public synchronized void cancelGameTicker() {
@@ -554,7 +554,7 @@ public class Game {
 		return true;
 	}
 
-	private boolean playerIsInGame(String userid) {
+	private synchronized boolean playerIsInGame(String userid) {
 		return teams[0].hasPlayer(userid) || teams[1].hasPlayer(userid);
 	}
 

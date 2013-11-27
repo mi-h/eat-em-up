@@ -45,23 +45,24 @@ public class Logger {
 		if (!debug) {
 			return "";
 		}
-		if (exception == null || exception.getStackTrace() == null) {
+		if (exception == null || exception.getStackTrace() == null
+				|| exception.getMessage() == null) {
 			return "";
 		}
 		StringBuilder sb = new StringBuilder(exception.getMessage());
 		sb.append("</br>");
 		for (StackTraceElement ste : exception.getStackTrace()) {
-			try{
-			sb.append(ste.toString());
-			sb.append("</br>");
-			} catch (Exception ex){
-				log("stringify failed. "+stringifyException(ex));
+			try {
+				sb.append(ste.toString());
+				sb.append("</br>");
+			} catch (Exception ex) {
+				log("stringify failed. " + stringifyException(ex));
 			}
 		}
 		return sb.toString();
 	}
-	
-	public synchronized static void setDebug(boolean value){
+
+	public synchronized static void setDebug(boolean value) {
 		debug = value;
 	}
 }

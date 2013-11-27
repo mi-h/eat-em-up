@@ -456,6 +456,20 @@ public class Engine {
 		}
 
 	}
+	
+	private class RemoveLostPlayersTask implements Runnable{
+
+		private ArrayList<String> userids;
+		
+		public RemoveLostPlayersTask(List<String> ids){
+			this.userids = new ArrayList<>(ids);
+		}
+		
+		@Override
+		public void run() {
+			removeLostPlayers(this.userids);
+		}
+	}
 
 	private static class PingManager {
 		private class Ping {
@@ -478,7 +492,7 @@ public class Engine {
 				for (Ping p : pingRemList) {
 					secondAttemptPings.remove(p.pingId);
 				}
-				removeLostPlayers(lostPlayers);
+				taskManager.addTask(instance.new RemoveLostPlayersTask(lostPlayers));
 			}
 
 			private void escalateFirstAttempts() {
