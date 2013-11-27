@@ -43,8 +43,6 @@ public class MessageSender {
 	private boolean started;
 	private static final int workerCount = 4;
 
-	private static final int sleepTime = 25;
-
 	public MessageSender() {
 		tasks = new LinkedBlockingQueue<>();
 		workers = new ArrayList<>(workerCount);
