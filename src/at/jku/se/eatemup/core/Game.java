@@ -58,6 +58,7 @@ public class Game {
 				sendTimerUpdate();
 			}
 			checkForFullUpdate();
+			checkForGameEnd();
 		}
 	}
 
@@ -72,8 +73,8 @@ public class Game {
 	private ConcurrentHashMap<String, SpecialAction> playerActionMap;
 	private boolean positionProcessingFlag;
 	private static final int radius = 3;
-	private CopyOnWriteArrayList<String> audience;
-	private CopyOnWriteArrayList<Battle> battles;
+	private ArrayList<String> audience;
+	private ArrayList<Battle> battles;
 	private static final double battleWinQuota = 0.5;
 	private static final int specialGoodieQuota = 10; // percent
 	private static final int minGoodieInGameQuota = 50; // percent of loc points
@@ -91,12 +92,19 @@ public class Game {
 		id = UUID.randomUUID().toString();
 		readyToGoPlayers = new ArrayList<>();
 		playerPositions = new ConcurrentHashMap<>();
-		audience = new CopyOnWriteArrayList<>();
-		battles = new CopyOnWriteArrayList<>();
+		audience = new ArrayList<>();
+		battles = new ArrayList<>();
 		playerPositionLastMessage = new ConcurrentHashMap<>();
 		playerActionMap = new ConcurrentHashMap<>();
 		this.playtime = playtime;
 		ticker = new Timer();
+	}
+
+	public synchronized void checkForGameEnd() {
+		if (getPlayerIds().size()<=0){
+			Engine.endGame(this);
+			kill();
+		}
 	}
 
 	private void activateSpecialAction(String uid, SpecialAction specialAction) {
@@ -131,12 +139,19 @@ public class Game {
 	}
 
 	public synchronized boolean addPlayer(Player player) {
+		if (isPlayer(player.getUserid())){
+			return false;
+		}
 		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
-			teams[1].getPlayers().add(player);
+			teams[1].addPlayer(player);
 		} else {
-			teams[0].getPlayers().add(player);
+			teams[0].addPlayer(player);
 		}
 		return isReadyForStart();
+	}
+	
+	private synchronized boolean isPlayer(String userid){
+		return teams[0].hasPlayer(userid) || teams[1].hasPlayer(userid);
 	}
 
 	public synchronized void addPlayerPoints(String userid, int points) {

@@ -75,4 +75,10 @@ public class Team {
 	public void setType(TeamType type) {
 		this.type = type;
 	}
+
+	public synchronized void addPlayer(Player player) {
+		if (!hasPlayer(player.getUserid())){
+			players.add(player);
+		}
+	}
 }
