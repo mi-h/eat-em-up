@@ -40,7 +40,7 @@ public class MessageSocket {
 		if (container != null) {
 			if (MessageHandler.ReceiveMessage(container)) {
 				session.getBasicRemote().sendText("true");
-				Logger.log("accepted message from " + session.getId());
+				Logger.log("accepted message from " + session.getId() + ": " + message);
 			} else {
 				err = true;
 			}
