@@ -39,19 +39,19 @@ var socketConnection = (function() {
 			} 
 			else if (dataObject.type=="GameStandbyUpdate") {
 				amplify.publish("GameStandbyUpdate", dataObject.message);
-		   }
-		   else if (dataObject.type=="GameStartSurvey") {
-				amplify.publish("GameStartSurvey", dataObject.message);
-		   }
-		   else if (dataObject.type==="Ping") {
-				amplify.publish("Ping", dataObject.message);
-		   }
-		   else if (dataObject.type=="GameState") {
-				amplify.publish("GameState", dataObject.message);
-		   }
-		   else if (dataObject.type=="Logout") {
-				amplify.publish("Logout", dataObject.message);
-		   }
+			}
+		    else if (dataObject.type=="GameStartSurvey") {
+			 	amplify.publish("GameStartSurvey", dataObject.message);
+		    }
+		    else if (dataObject.type==="Ping") {
+			 	amplify.publish("Ping", dataObject.message);
+		    }
+		    else if (dataObject.type=="GameState") {
+		 		amplify.publish("GameState", dataObject.message);
+		    }
+		    else if (dataObject.type=="Logout") {
+			 	amplify.publish("Logout", dataObject.message);
+		    }
 		}
 
 		connection.onerror = function(event) {

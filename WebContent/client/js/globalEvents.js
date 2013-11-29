@@ -140,10 +140,12 @@ function bindSocketMessages() {
 
 //browser window events
 $(window).on('resize', function() {
-	//resize map when window size changes
-	if ($.mobile.activePage.attr('id') === "gamePage") {
-		gameController.resizeMap();
-	} else if ($.mobile.activePage.attr('id') === "gameSpectatorPage") {
-		gameSpectatorController.resizeMap();
+	if ($.mobile.activePage) {
+		//resize map when window size changes
+		if ($.mobile.activePage.attr('id') === "gamePage") {
+			gameController.resizeMap();
+		} else if ($.mobile.activePage.attr('id') === "gameSpectatorPage") {
+			gameSpectatorController.resizeMap();
+		}
 	}
 });
