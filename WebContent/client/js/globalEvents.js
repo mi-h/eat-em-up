@@ -110,6 +110,19 @@ $(document).ready(function() {
 	facebookHandler.init();
 });
 
+//detect when back button of browser is pressed
+//if current page is selectPage then logout
+$(window).on("navigate", function (event, data) {
+	  var direction = data.state.direction;
+	  if (direction == 'back') {
+		  var page = $.mobile.activePage.attr('id');
+		  if (page === "selectPage") {
+			  amplify.publish('Exit', {username : accountData.getUsername(), userid : accountData.getUserID()});
+		  }
+	  }
+});
+
+
 window.onbeforeunload = function() {
 	return "Ein Verlassen bzw. eine Aktualisierung kann zu einem inkonsistenten Spielzustand führen!";
 };
