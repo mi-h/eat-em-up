@@ -734,14 +734,10 @@ public class Game {
 	public synchronized void startGame() {
 		if (!isStarted) {
 			isStarted = true;
+			Engine.startMe(this);
 			Engine.scheduleFullGameUpdate(this, getBroadcastReceiverIds());
-			try {
-				Thread.sleep(initialDelay);
-			} catch (InterruptedException e) {
-				Logger.log("game start delay interrupted. "+Logger.stringifyException(e));
-			}
 			tickCnt = 0;
-			ticker.scheduleAtFixedRate(new GameTick(), 0, 1000);
+			ticker.scheduleAtFixedRate(new GameTick(), initialDelay, 1000);
 		}
 	}
 }

@@ -1307,7 +1307,7 @@ public class Engine {
 			message.username = userManager.getUsernameByUserid(userid);
 			message.userid = userid;
 			MessageHandler.PushMessage(MessageCreator.createMsgContainer(
-					message, userManager.getSessionByUserid(userid)));
+					message, session));
 		} catch (Exception ex) {
 			Logger.log("failed sending logout message."
 					+ Logger.stringifyException(ex));
@@ -1381,5 +1381,16 @@ public class Engine {
 		removeUserFromAllAudiences(userid);
 		removeUserFromAllRunningGames(userid);
 		removeUserFromAllStandbyGames(userid);
+	}
+
+	public static synchronized void startMe(Game game) {
+		Game g = standbyGames.get(game.getId());
+		if (g != null){
+			standbyGames.remove(game.getId());
+			for (String p : g.getPlayerIds()){
+				userStandbyGameMap.remove(p);
+			}
+			runningGames.put(game.getId(), g);
+		}
 	}
 }
