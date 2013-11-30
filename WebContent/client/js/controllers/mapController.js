@@ -106,7 +106,7 @@ function initAvatar(team, player) {
 		});
 			
 		playerAvatars.push({userID: player.userid, username: player.username, specialAction: null, marker: playerMarker, canvas: canvas});	
-	//	redrawPlayerAvatar(player.userid, player.username, player.points);
+		redrawPlayerAvatar(player.userid, player.username, player.points);
 
 		//redraw once
 		//	redrawPlayerAvatar(player.userid, player.username, 10);
@@ -287,10 +287,9 @@ function removeSpecialAction(userID, username, points) {
 function drawPlayerAvatar(context, username, markerImg, facebookImage, points, actionType) {
 	context.drawImage(markerImg, 0, 10, 62, 85);
 	context.fillStyle = "rgb(255,255,255)";
-	
+	console.log(facebookImage);
 	if (facebookImage != "") {
 		var facebookImg = new Image();
-		console.log(facebookImage);
 		facebookImg.src = "data:image/jpeg;base64," + facebookImage;
 		context.drawImage(facebookImg, 5.0, 15, 52, 52);
 	}else {
