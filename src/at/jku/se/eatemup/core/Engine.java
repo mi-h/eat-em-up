@@ -290,12 +290,16 @@ public class Engine {
 		public void run() {
 			GameStateMessage message = this.game.createGameStateMessage();
 			ArrayList<String> recs;
-			if (multiple || receiverId == null) {
-				recs = userManager.convertIdListToSessionList(this.game
-						.getBroadcastReceiverIds());
+			if (multiple) {
+				recs = userManager.convertIdListToSessionList(userIds);
 			} else {
-				recs = new ArrayList<>();
-				recs.add(userManager.getSessionByUserid(receiverId));
+				if (receiverId == null) {
+					recs = userManager.convertIdListToSessionList(this.game
+							.getBroadcastReceiverIds());
+				} else {
+					recs = new ArrayList<>();
+					recs.add(userManager.getSessionByUserid(receiverId));
+				}
 			}
 			MessageContainer container = MessageCreator.createMsgContainer(
 					message, recs);
@@ -456,15 +460,15 @@ public class Engine {
 		}
 
 	}
-	
-	private class RemoveLostPlayersTask implements Runnable{
+
+	private class RemoveLostPlayersTask implements Runnable {
 
 		private ArrayList<String> userids;
-		
-		public RemoveLostPlayersTask(List<String> ids){
+
+		public RemoveLostPlayersTask(List<String> ids) {
 			this.userids = new ArrayList<>(ids);
 		}
-		
+
 		@Override
 		public void run() {
 			removeLostPlayers(this.userids);
@@ -492,7 +496,8 @@ public class Engine {
 				for (Ping p : pingRemList) {
 					secondAttemptPings.remove(p.pingId);
 				}
-				taskManager.addTask(instance.new RemoveLostPlayersTask(lostPlayers));
+				taskManager.addTask(instance.new RemoveLostPlayersTask(
+						lostPlayers));
 			}
 
 			private void escalateFirstAttempts() {
@@ -1385,9 +1390,9 @@ public class Engine {
 
 	public static synchronized void startMe(Game game) {
 		Game g = standbyGames.get(game.getId());
-		if (g != null){
+		if (g != null) {
 			standbyGames.remove(game.getId());
-			for (String p : g.getPlayerIds()){
+			for (String p : g.getPlayerIds()) {
 				userStandbyGameMap.remove(p);
 			}
 			runningGames.put(game.getId(), g);
