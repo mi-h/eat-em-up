@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import org.apache.commons.codec.binary.Base64;
+
 public class FacebookImageLoader {
 	private static final String baseUrl = "http://graph.facebook.com/%userID%/picture";
 
-	private static byte[] doGet(String urlString) throws IOException {
+	private static String doGet(String urlString) throws IOException {
 		URL url = new URL(urlString);
 		InputStream in = new BufferedInputStream(url.openStream());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -21,14 +23,14 @@ public class FacebookImageLoader {
 		out.close();
 		in.close();
 		byte[] response = out.toByteArray();
-		return response;
+		return Base64.encodeBase64String(response);
 	}
 
-	public static byte[] getImageForId(String facebookid) {
+	public static String getImageForId(String facebookid) {
 		try {
 			return doGet(baseUrl.replace("%userID%", facebookid));
 		} catch (Exception ex) {
-			return new byte[0];
+			return "";
 		}
 	}
 }

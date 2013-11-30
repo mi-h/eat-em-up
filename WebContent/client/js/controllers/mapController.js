@@ -57,7 +57,7 @@ this.initMarkers = function(){
 		//init avatar markers
 		var playerInfo = [];
 		$.each(gameState.getPlayerInfos(), function(index, infos) {
-			playerInfo.push({username:infos.username, userid:infos.userid, position: infos.position, points:infos.points});
+			playerInfo.push({username:infos.username, userid:infos.userid, facebookImage: infos.facebookimage, position: infos.position, points:infos.points});
 		});
 		//var playerInfo = [{username: accountData.getUsername(), userid: accountData.getUserID(), position: {latitude: accountData.getCurrentPosition().coords.latitude, longitude: accountData.getCurrentPosition().coords.longitude}, points:accountData.getPoints()}];
 		
@@ -88,7 +88,7 @@ function initAvatarMarkers(playerInfo) {
 }
 
 function initAvatar(team, player) {
-	createPlayerAvatar(team, player.userid, player.username, 0, null, function(pngURL, canvas) {
+	createPlayerAvatar(team, player.userid, player.username, 0, player.facebookImage, function(pngURL, canvas) {
 		var playerMarker = new google.maps.Marker({
 			    	position: new google.maps.LatLng(player.position.latitude, player.position.longitude),
 					map: map,
@@ -106,7 +106,7 @@ function initAvatar(team, player) {
 		});
 			
 		playerAvatars.push({userID: player.userid, username: player.username, specialAction: null, marker: playerMarker, canvas: canvas});	
-		redrawPlayerAvatar(player.userid, player.username, player.points);
+	//	redrawPlayerAvatar(player.userid, player.username, player.points);
 
 		//redraw once
 		//	redrawPlayerAvatar(player.userid, player.username, 10);
@@ -240,7 +240,7 @@ function loadImagesFromServer(imgSrcs, loadedCallback, errorCallback) {
 }
 
 
-function createPlayerAvatar(team, userID, username, points, userImg, loadedCallback) {
+function createPlayerAvatar(team, userID, username, points, facebookImage, loadedCallback) {
 	var canvas, context;
 	canvas = document.createElement("canvas");
     canvas.width = playerAvatarWidth;
@@ -253,8 +253,9 @@ function createPlayerAvatar(team, userID, username, points, userImg, loadedCallb
     }else {
 	   	avatarImg = avatarImages.blue;
     }
-    drawPlayerAvatar(context, username, avatarImg, userImg, points, null);
-    loadedCallback(canvas.toDataURL(), {canvas: canvas, markerImg: avatarImg, userImg: null});
+    
+    drawPlayerAvatar(context, username, avatarImg, facebookImage, points, null);
+    loadedCallback(canvas.toDataURL(), {canvas: canvas, markerImg: avatarImg, userImg: facebookImage});
 }
 
 function redrawPlayerAvatar(userID, username, points) {
@@ -283,11 +284,15 @@ function removeSpecialAction(userID, username, points) {
 	redrawPlayerAvatar(userID, username, points);
 }
 
-function drawPlayerAvatar(context, username, markerImg, userImg, points, actionType) {
+function drawPlayerAvatar(context, username, markerImg, facebookImage, points, actionType) {
 	context.drawImage(markerImg, 0, 10, 62, 85);
 	context.fillStyle = "rgb(255,255,255)";
-	if (userImg) {
-		context.drawImage(userImg, 5.0, 15, 52, 52);
+	
+	if (facebookImage != "") {
+		var facebookImg = new Image();
+		console.log(facebookImage);
+		facebookImg.src = "data:image/jpeg;base64," + facebookImage;
+		context.drawImage(facebookImg, 5.0, 15, 52, 52);
 	}else {
 		context.textAlign = "center";
 	 	context.font = "15px sans-serif";

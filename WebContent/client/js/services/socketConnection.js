@@ -20,7 +20,8 @@ var socketConnection = (function() {
 		}
 
 		connection.onmessage = function(event) {
-			console.log("message received " + event.data);
+			console.log("message received: " + event.data);
+			console.log("--------------------------------------");
 			var dataObject = JSON.parse(event.data);
 			if (dataObject.type === "ReadyForGame") {
 				if (accountData.isFacebookAccount()) {

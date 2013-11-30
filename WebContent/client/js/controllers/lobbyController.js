@@ -72,15 +72,15 @@ var lobbyController = (function() {
 				var isDisabled = "disabled";
 				if(player.username==accountData.getUsername()) {
 					isDisabled="";
-					checkBoxIdCurrentUser="checkbox-"+accountData.getUsername();
+					checkBoxIdCurrentUser="checkbox-"+accountData.getUserID();
 				}
 				if(!player.teamRed) {
-					blueHTML+='<input type="checkbox" name="checkbox-'+player.username+'" id="checkbox-'+player.username+'" class="custom" '+isDisabled+'/><label for="checkbox-'+player.username+'">'+player.username+'</label>';
+					blueHTML+='<input type="checkbox" name="checkbox-'+player.userid+'" id="checkbox-'+player.userid+'" class="custom" '+isDisabled+'/><label for="checkbox-'+player.userid+'">'+player.username+'</label>';
 				}
 				else {
-					redHTML+='<input type="checkbox" name="checkbox-'+player.username+'" id="checkbox-'+player.username+'" class="custom" '+isDisabled+'/><label for="checkbox-'+player.username+'">'+player.username+'</label>';
+					redHTML+='<input type="checkbox" name="checkbox-'+player.userid+'" id="checkbox-'+player.userid+'" class="custom" '+isDisabled+'/><label for="checkbox-'+player.userid+'">'+player.username+'</label>';
 				}
-				var checkboxid = "checkbox-"+player.username+"";
+				var checkboxid = "checkbox-"+player.userid+"";
 				$("#"+checkboxid).prop("checked",player.readyForStart).checkboxradio("refresh");
 				
 			});
@@ -100,10 +100,9 @@ var lobbyController = (function() {
 		amplify.subscribe('GameStartSurvey', function (message) {
 			var players = JSON.parse(JSON.stringify(message.players));
 			$.each( players, function( index, player ) {
-				var checkboxid = "checkbox-"+player.username+"";
+				var checkboxid = "checkbox-"+player.userid+"";
 				$("#"+checkboxid).prop("checked",player.ready).checkboxradio("refresh");
 			});
-
 		});
 
 	}
