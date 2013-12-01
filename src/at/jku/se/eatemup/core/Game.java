@@ -21,7 +21,6 @@ import at.jku.se.eatemup.core.json.messages.PlayerHasEatenMessage;
 import at.jku.se.eatemup.core.json.messages.PlayerMovedMessage;
 import at.jku.se.eatemup.core.json.messages.SpecialActionActivatedMessage;
 import at.jku.se.eatemup.core.json.messages.TimerUpdateMessage;
-import at.jku.se.eatemup.core.logging.Logger;
 import at.jku.se.eatemup.core.model.Account;
 import at.jku.se.eatemup.core.model.Battle;
 import at.jku.se.eatemup.core.model.Goodie;
@@ -103,7 +102,7 @@ public class Game {
 	}
 
 	public synchronized void checkForGameEnd() {
-		if (getPlayerIds().size()<=0){
+		if (getPlayerIds().size() <= 0) {
 			Engine.endGame(this);
 			kill();
 		}
@@ -141,7 +140,7 @@ public class Game {
 	}
 
 	public synchronized boolean addPlayer(Player player) {
-		if (isPlayer(player.getUserid())){
+		if (isPlayer(player.getUserid())) {
 			return false;
 		}
 		if (teams[1].getPlayers().size() < teams[0].getPlayers().size()) {
@@ -151,8 +150,8 @@ public class Game {
 		}
 		return isReadyForStart();
 	}
-	
-	private synchronized boolean isPlayer(String userid){
+
+	private synchronized boolean isPlayer(String userid) {
 		return teams[0].hasPlayer(userid) || teams[1].hasPlayer(userid);
 	}
 
@@ -174,11 +173,12 @@ public class Game {
 	}
 
 	public synchronized boolean allPlayersReady() {
-		return readyToGoPlayers.size() == getPlayers().size() && getPlayers().size() >= 2 && isEven(getPlayers().size());
+		return readyToGoPlayers.size() == getPlayers().size()
+				&& getPlayers().size() >= 2 && isEven(getPlayers().size());
 	}
-	
-	private static boolean isEven(int n){
-		return n%2==0;
+
+	private static boolean isEven(int n) {
+		return n % 2 == 0;
 	}
 
 	public synchronized void cancelGameTicker() {
@@ -277,7 +277,7 @@ public class Game {
 				map.put("facebookuser", facebookid != null ? true : false);
 				map.put("facebookimage",
 						facebookid != null ? FacebookImageLoader
-								.getImageForId(facebookid) : new byte[0]);
+								.getImageForId(facebookid) : "");
 				Position pos = game.getPlayerPosition(p.getUserid());
 				pMap.put("latitude", pos.getLatitude());
 				pMap.put("longitude", pos.getLongitude());

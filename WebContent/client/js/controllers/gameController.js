@@ -23,7 +23,9 @@ var gameController = (function() {
 		//alert("page show");
 		map.initMap("map_canvas");
 	//battleTime
+		
 		setTimeout(function() {
+			/*
 			$("#battlePopup").popup("open");
 			var startVal = 100;
 			var intervalTime = 1000;
@@ -38,7 +40,11 @@ var gameController = (function() {
 				remainingTime--;
 				$("#battleTime").text(remainingTime+" ");
 			}, intervalTime);
+			
+			*/
 		}, 2000);
+		
+		
 	}
 
 	function bindUIActions() {

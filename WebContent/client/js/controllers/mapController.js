@@ -106,7 +106,7 @@ function initAvatar(team, player) {
 		});
 			
 		playerAvatars.push({userID: player.userid, username: player.username, specialAction: null, marker: playerMarker, canvas: canvas});	
-		redrawPlayerAvatar(player.userid, player.username, player.points);
+		//redrawPlayerAvatar(player.userid, player.username, player.points);
 
 		//redraw once
 		//	redrawPlayerAvatar(player.userid, player.username, 10);
@@ -286,12 +286,12 @@ function removeSpecialAction(userID, username, points) {
 
 function drawPlayerAvatar(context, username, markerImg, facebookImage, points, actionType) {
 	context.drawImage(markerImg, 0, 10, 62, 85);
-	context.fillStyle = "rgb(255,255,255)";
 	console.log(facebookImage);
-	if (facebookImage != "") {
+	if (!(facebookImage === "")) {
 		var facebookImg = new Image();
-		facebookImg.src = "data:image/jpeg;base64," + facebookImage;
+		facebookImg.src = "data:image/jpg;base64," + facebookImage;
 		context.drawImage(facebookImg, 5.0, 15, 52, 52);
+		console.log("Pfad:" + facebookImg.src);
 	}else {
 		context.textAlign = "center";
 	 	context.font = "15px sans-serif";
@@ -300,13 +300,15 @@ function drawPlayerAvatar(context, username, markerImg, facebookImage, points, a
 	 	}
 		context.fillText(username, 31, 45); 
 	}
+	
+	context.fillStyle = "rgb(255,255,255)";
 	context.font = "10px sans-serif";
 	context.textAlign = "center";
 	context.fillRect (5.0,65,52,12);
 	context.fillStyle = "rgb(0,0,0)";
 	context.lineWidth = 1;
 	context.strokeText(points+" Pkt.", 31, 75); 
-		
+	
 	if (actionType) {
 		context.beginPath();
 		context.arc(55,16.5,15,0,2*Math.PI);
