@@ -304,6 +304,9 @@ public class Engine {
 			MessageContainer container = MessageCreator.createMsgContainer(
 					message, recs);
 			MessageHandler.PushMessage(container);
+			if (!game.isTickerStarted()){
+				game.startTicker();
+			}
 		}
 	}
 

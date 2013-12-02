@@ -85,7 +85,8 @@ public class Game {
 	private static final int fullUpdateTicks = 15;
 	private int tickCnt;
 	private boolean isStarted = false;
-	private static final int initialDelay = 1500;
+	private static final int initialDelay = 3000;
+	private boolean tickerStarted = false;
 
 	public Game(int playtime) {
 		teams = new Team[2];
@@ -733,11 +734,22 @@ public class Game {
 
 	public synchronized void startGame() {
 		if (!isStarted) {
-			isStarted = true;
-			Engine.startMe(this);
-			Engine.scheduleFullGameUpdate(this, getBroadcastReceiverIds());
-			tickCnt = 0;
-			ticker.scheduleAtFixedRate(new GameTick(), initialDelay, 1000);
+			isStarted = true;			
+			ArrayList<String> receivers = getBroadcastReceiverIds();
+			if (receivers != null){
+				Engine.startMe(this);
+				Engine.scheduleFullGameUpdate(this, receivers);
+			}			
 		}
+	}
+	
+	public synchronized void startTicker(){
+		tickCnt = 0;
+		ticker.scheduleAtFixedRate(new GameTick(), initialDelay, 1000);
+		tickerStarted = true;
+	}
+	
+	public boolean isTickerStarted(){
+		return tickerStarted;
 	}
 }
