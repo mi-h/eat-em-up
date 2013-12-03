@@ -11,14 +11,15 @@ var gameController = (function() {
 		map = new mapController();
 		map.resize("map_canvas");
 		bindUIActions();
-	}
+		bindServiceMessages();
 
+	}
+	function bindServiceMessages() {
+		timerUpdateResponse();
+	}
 	function pageBeforeShow() {
 	}
-	function leaveGameTap() {
-		$("#cancelButtonGame").on("click", function() {
-		});
-	}
+
 	function pageShow() {
 		//alert("page show");
 		map.initMap("map_canvas");
@@ -51,7 +52,12 @@ var gameController = (function() {
 		cancelButtonPressed();
 		battleSubmitButtonPressed();
 	}
-
+	function timerUpdateResponse() {
+		amplify.subscribe('TimerUpdate', function (message) {
+			gameState.setTime(message.remainingTime);
+			$("#remainingTime").text(""+gameState.getMMSSTime());
+		});
+	}
 	//control events	
 	function cancelButtonPressed() {
 		$("#cancelButtonGame").on("click", function(event, ui) {

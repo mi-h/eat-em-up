@@ -4,11 +4,9 @@ var lobbyController = (function() {
 	//page events
 	function pageInit() {
 		//alert("page init login");
-		bindUIActions();
-		bindServiceMessages();
 
-		play();
 	}
+	
 	function bindServiceMessages() {
 		lobbyGameResponse();
 		gameStartSurveyResponse();
@@ -40,13 +38,21 @@ var lobbyController = (function() {
 	}
 	
 	function pageShow() {
-		//alert("page show login");
+		bindUIActions();
+		bindServiceMessages();
+
+		play();
 	}
 	
 	function bindUIActions(){
 		checkboxClicked();
+		backButtonPressed();
 	}
-	
+	function backButtonPressed() {
+		$("#leaveLobby").on("click", function(event, ui) {
+			amplify.publish('LeaveGame', {username:accountData.getUsername(), userid:accountData.getUserID()});
+		});
+	}
 	function gameStateResponse() {
 		amplify.subscribe('GameState', function (message) {
 			//TODO: Objekt mit GameState ertellen

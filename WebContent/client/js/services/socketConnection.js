@@ -50,6 +50,9 @@ var socketConnection = (function() {
 		    else if (dataObject.type=="GameState") {
 		 		amplify.publish("GameState", dataObject.message);
 		    }
+		    else if (dataObject.type=="TimerUpdate") {
+		 		amplify.publish("TimerUpdate", dataObject.message);
+		    }
 		    else if (dataObject.type=="Logout") {
 			 	amplify.publish("Logout", dataObject.message);
 		    }
