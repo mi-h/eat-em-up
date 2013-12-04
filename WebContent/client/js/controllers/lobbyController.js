@@ -4,7 +4,7 @@ var lobbyController = (function() {
 	//page events
 	function pageInit() {
 		//alert("page init login");
-
+		bindServiceMessages();
 	}
 	
 	function bindServiceMessages() {
@@ -39,7 +39,6 @@ var lobbyController = (function() {
 	
 	function pageShow() {
 		bindUIActions();
-		bindServiceMessages();
 
 		play();
 	}
